@@ -1,5 +1,7 @@
 import LocationAutocomplete, { LocationItem } from '@/components/LocationAutocomplete';
 import TaraMap from '@/components/maps/TaraMap';
+import { useRef } from 'react';
+import MapView from 'react-native-maps';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedIcons } from '@/components/ThemedIcons';
@@ -16,6 +18,8 @@ import { useSession } from '@/context/SessionContext';
 import { getRoutes } from '@/services/routeApiService';
 import BackButton from '@/components/custom/BackButton';
 import { router } from 'expo-router';
+import { Polyline } from 'react-native-maps';
+import TaraMarker from '@/components/maps/TaraMarker';
 
 const MODES = [
   { label: 'Car', value: 'driving-car', icon: 'directions-car', iconLibrary: 'MaterialIcons' },
@@ -30,19 +34,139 @@ export default function CreateRouteScreen() {
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [routeData, setRouteData] = useState<any>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [searchedLocations, setSearchedLocations] = useState<LocationItem[]>([]);
+  const [routeCoordinates, setRouteCoordinates] = useState<{latitude: number, longitude: number}[]>([]);
+  const [animatedCoordinates, setAnimatedCoordinates] = useState<{ latitude: number; longitude: number }[]>([]);
+
+  // Auto-fit map when searched locations change (but not during route generation)
+  useEffect(() => {
+    if (searchedLocations.length > 0 && !isGenerating) {
+      console.log('Fitting map to', searchedLocations.length, 'searched locations');
+      setTimeout(() => fitMapToLocations(), 300);
+    }
+  }, [searchedLocations, isGenerating]);
+
   const secondaryColor = useThemeColor({}, 'accent');
 
   const { loading, suburb , city, latitude, longitude } = useLocation();
   const { session, updateSession } = useSession();
+  const mapRef = useRef<MapView>(null);
+
+  // Function to fit map to show all locations including route coordinates
+  const fitMapToLocations = () => {
+    if (!mapRef.current || !latitude || !longitude) {
+      console.log('Cannot fit map: missing mapRef or location');
+      return;
+    }
+    
+    let allLocations = [
+      { latitude: latitude as number, longitude: longitude as number },
+      ...searchedLocations.filter(loc => loc.latitude && loc.longitude).map(loc => ({
+        latitude: loc.latitude!,
+        longitude: loc.longitude!
+      }))
+    ];
+    
+    // Don't include route coordinates in fitting to prevent zoom out
+    // Only fit to user location and searched locations (waypoints)
+    
+    console.log('Fitting map to', allLocations.length, 'locations');
+    
+    if (allLocations.length > 1) {
+      mapRef.current.fitToCoordinates(allLocations, {
+        edgePadding: { top: 80, right: 50, bottom: 150, left: 50 },
+        animated: true
+      });
+    } else if (allLocations.length === 1) {
+      mapRef.current.animateToRegion({
+        latitude: allLocations[0].latitude,
+        longitude: allLocations[0].longitude,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005
+      }, 1000);
+    }
+  };
+
+  // Animation function for polyline
+  const animatePolyline = (coordinates: {latitude: number, longitude: number}[]) => {
+    console.log('Starting polyline animation with', coordinates.length, 'coordinates');
+    setAnimatedCoordinates([]);
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < coordinates.length) {
+        const currentCoords = coordinates.slice(0, index + 1);
+        setAnimatedCoordinates(currentCoords);
+        
+        // Follow the animation with camera
+        if (mapRef.current && currentCoords.length > 0) {
+          const currentPoint = currentCoords[currentCoords.length - 1];
+          mapRef.current.animateToRegion({
+            latitude: currentPoint.latitude,
+            longitude: currentPoint.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01
+          }, 50); // Fast camera follow
+        }
+        
+        index++;
+      } else {
+        console.log('Animation completed - returning to fit all locations');
+        clearInterval(interval);
+        // Return to fit all locations after animation completes
+        setTimeout(() => fitMapToLocations(), 500);
+      }
+    }, 5); // Very fast animation - 5ms intervals
+  };
+
+  // Handle end location selection
+  const handleEndLocationSelect = (location: LocationItem) => {
+    console.log('End location selected:', location);
+    setEndLocation(location);
+    
+    // Add to searched locations for map markers
+    if (location.latitude && location.longitude) {
+      setSearchedLocations(prev => {
+        const exists = prev.some(loc => 
+          loc.latitude === location.latitude && loc.longitude === location.longitude
+        );
+        if (!exists) {
+          const newLocations = [...prev, location];
+          console.log('Updated searched locations:', newLocations);
+          // Fit map to show all locations after state update
+          setTimeout(() => fitMapToLocations(), 100);
+          return newLocations;
+        }
+        return prev;
+      });
+    }
+  };
 
   const handleAddWaypoint = () => {
     setWaypoints([...waypoints, { locationName: '', latitude: null, longitude: null, note: '' }]);
   };
 
   const handleWaypointSelect = (index: number, location: LocationItem) => {
+    console.log('Waypoint selected:', location);
     const updatedWaypoints = [...waypoints];
     updatedWaypoints[index] = location;
     setWaypoints(updatedWaypoints);
+    
+    // Add to searched locations for map markers
+    if (location.latitude && location.longitude) {
+      setSearchedLocations(prev => {
+        const exists = prev.some(loc => 
+          loc.latitude === location.latitude && loc.longitude === location.longitude
+        );
+        if (!exists) {
+          const newLocations = [...prev, location];
+          console.log('Updated searched locations:', newLocations);
+          // Fit map to show all locations after state update
+          setTimeout(() => fitMapToLocations(), 100);
+          return newLocations;
+        }
+        return prev;
+      });
+    }
   };
 
   const handleRemoveWaypoint = (index: number) => {
@@ -84,6 +208,35 @@ export default function CreateRouteScreen() {
       if (route) {
         setRouteData(route);
         console.log('Route generated:', route);
+        
+        // Extract coordinates for polyline from route geometry
+        if (route.geometry && route.geometry.coordinates && route.geometry.coordinates.length > 0) {
+          console.log('Route geometry found:', route.geometry);
+          const coordinates = route.geometry.coordinates.map((coord: any) => ({
+            latitude: coord[1],
+            longitude: coord[0]
+          }));
+          console.log('Extracted coordinates:', coordinates.length, 'points');
+          console.log('First few coordinates:', coordinates.slice(0, 3));
+          setRouteCoordinates(coordinates);
+          
+          // Start animation without refitting map
+          animatePolyline(coordinates);
+        } else {
+          console.log('No geometry coordinates found, trying to extract from segments/steps');
+          // Fallback: create simple line between waypoints
+          const fallbackCoordinates = [
+            { latitude: latitude as number, longitude: longitude as number },
+            ...waypoints.filter(wp => wp.latitude && wp.longitude).map(wp => ({
+              latitude: wp.latitude!,
+              longitude: wp.longitude!
+            })),
+            { latitude: endLocation.latitude!, longitude: endLocation.longitude! }
+          ];
+          console.log('Using fallback coordinates:', fallbackCoordinates.length, 'points');
+          setRouteCoordinates(fallbackCoordinates);
+          animatePolyline(fallbackCoordinates);
+        }
       } else {
         console.log('Failed to generate route');
       }
@@ -160,16 +313,68 @@ export default function CreateRouteScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* <TaraMap
-        showMarker={false}
-        mapStyle={{ flex: 1, zIndex: 0 }}
-        region={{
-          latitude: 14.5995, // Manila coords
-          longitude: 120.9842,
+      <TaraMap
+        ref={mapRef}
+        showMarker={true}
+        mapStyle={{ flex: 1, zIndex: 1 }}
+        initialRegion={{
+          latitude: latitude || 14.5995, // User location or Manila coords
+          longitude: longitude || 120.9842,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }}
-      /> */}
+      >
+        {/* User Location Marker */}
+        {latitude && longitude && (
+          <TaraMarker
+            key="user-location"
+            coordinate={{
+              latitude: latitude,
+              longitude: longitude
+            }}
+            title={`${suburb}, ${city}`}
+            color="#4CAF50"
+            label="S"
+          />
+        )}
+
+        {/* Searched Location Markers - Using TaraMarker */}
+        {searchedLocations.map((location, index) => {
+          if (!location.latitude || !location.longitude) {
+            console.log(`Skipping TaraMarker ${index}: missing coordinates`);
+            return null;
+          }
+          console.log(`Rendering TaraMarker ${index + 1} at:`, location.latitude, location.longitude, 'with color:', '#FF6B6B');
+          console.log(`TaraMarker coordinate validation:`, {
+            lat: typeof location.latitude,
+            lng: typeof location.longitude,
+            latValue: location.latitude,
+            lngValue: location.longitude
+          });
+          return (
+            <TaraMarker
+              key={`searched-${index}-${location.latitude}-${location.longitude}`}
+              coordinate={{
+                latitude: Number(location.latitude),
+                longitude: Number(location.longitude)
+              }}
+              title={location.locationName}
+              color="#FF6B6B"
+              label={(index + 1).toString()}
+            />
+          );
+        })}
+        
+        
+        {/* Animated Route Polyline */}
+        {animatedCoordinates.length > 1 && (
+          <Polyline
+            coordinates={animatedCoordinates}
+            strokeColor={secondaryColor}
+            strokeWidth={6}
+          />
+        )}
+      </TaraMap>
       <View style={styles.header}>
         
         <LinearGradient
@@ -297,7 +502,7 @@ export default function CreateRouteScreen() {
                 <View key="end">
                   <LocationAutocomplete
                     value={endLocation?.locationName || ''}
-                    onSelect={setEndLocation}
+                    onSelect={handleEndLocationSelect}
                     placeholder="Enter destination"
                   />
                 </View>
@@ -326,6 +531,10 @@ export default function CreateRouteScreen() {
 
 const styles = StyleSheet.create({
   header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     zIndex: 100,
     pointerEvents: 'none',
   },
@@ -333,12 +542,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     left: 10,
-    zIndex: 20,
+    zIndex: 101,
     color: '#fff',
-    pointerEvents: 'none',
+    pointerEvents: 'box-none',
   },
   headerGradient: {
     position: 'absolute',
+    zIndex: 100,
     top: 0,
     left: 0,
     right: 0,

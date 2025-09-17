@@ -1,6 +1,6 @@
 import { useSession } from '@/context/SessionContext';
 import { useLocation } from '@/hooks/useLocation';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useMapType, MapType } from '@/hooks/useMapType';
 import MapView, { Camera, MAP_TYPES, PROVIDER_DEFAULT, Region } from 'react-native-maps';
@@ -17,6 +17,7 @@ type CameraProps = {
 
 type TaraMapProps = {
   region?: Region;
+  initialRegion?: Region;
   showMarker?: boolean;
   markerTitle?: string;
   markerDescription?: string;
@@ -25,18 +26,25 @@ type TaraMapProps = {
   cameraProps?: CameraProps;
 };
 
-const TaraMap: React.FC<TaraMapProps> = ({
-  region,
-  showMarker = true,
-  markerTitle = 'You are here',
-  markerDescription = 'Current Location',
-  mapStyle,
-  children,
-  cameraProps,
-}) => {
+const TaraMap = forwardRef<MapView, TaraMapProps>((
+  {
+    region,
+    initialRegion,
+    showMarker = true,
+    markerTitle = 'You are here',
+    markerDescription = 'Current Location',
+    mapStyle,
+    children,
+    cameraProps,
+  },
+  ref
+) => {
   const { session } = useSession();
   const { latitude, longitude, loading } = useLocation();
   const mapRef = useRef<MapView>(null);
+  
+  // Expose map methods to parent component
+  useImperativeHandle(ref, () => mapRef.current!, []);
   const { mapType: currentMapType } = useMapType();
 
   // Philippines bounding box
@@ -99,7 +107,12 @@ const TaraMap: React.FC<TaraMapProps> = ({
     }
   }, [cameraProps]);
 
-  const initialRegion: Region = region ?? PHILIPPINES_REGION;
+  const defaultRegion: Region = initialRegion ?? region ?? {
+    latitude: latitude || 14.5995,
+    longitude: longitude || 120.9842,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -108,7 +121,7 @@ const TaraMap: React.FC<TaraMapProps> = ({
         ref={mapRef}
         style={[styles.map, mapStyle]}
         provider={PROVIDER_DEFAULT}
-        initialRegion={initialRegion}
+        initialRegion={defaultRegion}
       >
         {showMarker &&
           session &&
@@ -129,7 +142,7 @@ const TaraMap: React.FC<TaraMapProps> = ({
       </MapView>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   map: {

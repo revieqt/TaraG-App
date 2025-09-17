@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 import { ThemedText } from '../ThemedText';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface TaraMarkerProps {
   coordinate: {
@@ -29,22 +30,25 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
 
   // Prevent native re-parenting issues with remote images:
   const [tracksViewChanges, setTracksViewChanges] = useState<boolean>(true);
-
+  const secondaryColor = useThemeColor({}, 'secondary');
   // If there's no remote icon, we can immediately stop tracking view changes for performance.
   useEffect(() => {
     if (!icon) setTracksViewChanges(false);
   }, [icon]);
 
+  console.log('TaraMarker rendering with:', { coordinate, color, label, title });
+  
   return (
     <Marker
       coordinate={coordinate}
       title={title}
       description={description}
       identifier={identifier}
-      tracksViewChanges={tracksViewChanges}
+      tracksViewChanges={false}
       anchor={{ x: 0.5, y: 0.5 }}
+      zIndex={1000}
     >
-      <View style={styles.circle}>
+      <View style={[styles.circle, { backgroundColor: color || '#f4f4f4' }]}>
         {icon ? (
           <Image
             source={{ uri: icon }}
@@ -54,7 +58,7 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
             onError={() => setTracksViewChanges(false)}
           />
         ) : (
-          <ThemedText style={{textAlign: 'center' }}>
+          <ThemedText style={{textAlign: 'center', color: 'white', fontWeight: 'bold', fontSize: 14 }}>
             {label}
           </ThemedText>
         )}
@@ -72,7 +76,6 @@ const styles = StyleSheet.create({
     borderRadius: 17.5,
     borderWidth: 4,
     borderColor: 'white',
-    backgroundColor: '#f4f4f4',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 2,

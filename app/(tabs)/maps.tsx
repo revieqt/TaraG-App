@@ -22,6 +22,7 @@ export default function MapScreen() {
   const elapsed = useRouteTimer(session?.activeRoute !== undefined);
   const { latitude, longitude } = useLocation();
   const [speechEnabled, setSpeechEnabled] = useState(false);
+  const [route3dEnabled, setRoute3dEnabled] = useState(false);
   const [currentInstruction, setCurrentInstruction] = useState<string>('');
   const [nextStop, setNextStop] = useState<string>('');
   const [distanceToNextStep, setDistanceToNextStep] = useState<number>(0);
@@ -269,8 +270,16 @@ export default function MapScreen() {
           colors={['transparent','transparent', primaryColor]}
           style={styles.bottomGradient}
         />
-        <TouchableOpacity style={styles.sideButton} onPress={() => {router.push('/home/routes/routes')}}>
-          <ThemedIcons library='MaterialDesignIcons' name="map-search" size={25} color="white" />
+        <TouchableOpacity 
+          style={[styles.sideButton, route3dEnabled && {backgroundColor: secondaryColor}]} 
+          onPress={() => []}
+        >
+          <ThemedIcons 
+            library='MaterialDesignIcons' 
+            name={route3dEnabled ? "video-3d" : "video-3d-off"} 
+            size={25} 
+            color="white" 
+          />
         </TouchableOpacity>
         <TouchableOpacity style={styles.stopButton} onPress={handleEndRoute}>
           <ThemedIcons library='MaterialIcons' name="stop" size={30} color="white" />
@@ -386,5 +395,16 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     zIndex: 1002
-  }
+  },
+  detailsButton:{
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    width: 120,
+    borderRadius: 50,
+    backgroundColor: 'rgba(0,0,0,.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 7,
+    zIndex: 10000000
+  },
 });
