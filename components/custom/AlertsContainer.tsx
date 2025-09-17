@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 50,
     overflow: 'hidden',
-    backgroundColor: '#FFB74D',
+    backgroundColor: 'rgba(255, 183, 77, 0.7)',
     borderWidth: 3,
     borderColor: '#fff'
   },

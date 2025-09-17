@@ -1,5 +1,5 @@
 import { SessionProvider, useSession } from '@/context/SessionContext';
-// import RouteTrackerProvider from '@/context/RouteTrackerContext';
+import { TrackingProvider } from '@/context/TrackingContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
 // import { socketService } from '@/services/socketService';
 import { useFonts } from 'expo-font';
@@ -52,50 +52,42 @@ export default function RootLayout() {
   }
 
   return (
-      <SessionProvider>
-        {/* <RouteTrackerProvider> */}
-          <SafeAreaView style={{ flex: 1, backgroundColor }} edges={['top', 'bottom']}>
-            <SessionInitializer />
-
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-
-              <Stack.Screen name="auth/login" />
-              <Stack.Screen name="auth/register" />
-              <Stack.Screen name="auth/verifyEmail" />
-              <Stack.Screen name="auth/warning" />
-              <Stack.Screen name="auth/forgotPassword" />
-              <Stack.Screen name="auth/changePassword" />
-              <Stack.Screen name="auth/firstLogin" />
-
-              <Stack.Screen name="account/viewProfile" />
-              <Stack.Screen name="account/notifications" />
-              <Stack.Screen name="account/info-view" />
-
-              <Stack.Screen name="home/routes/routes" />
-              <Stack.Screen name="home/routes/routes-create" />
-              <Stack.Screen name="home/routes/routes-history" />
-              <Stack.Screen name="home/itineraries/itineraries" />
-              <Stack.Screen name="home/itineraries/itineraries-create" />
-              <Stack.Screen name="home/itineraries/itineraries-update" />
-              <Stack.Screen name="home/itineraries/itineraries-view" />
-              <Stack.Screen name="home/itineraries/itineraries-history" />
-              <Stack.Screen name="home/safety" />
-              <Stack.Screen name="home/aiChat" />
-
-              <Stack.Screen name="explore/tours-view" />
-              <Stack.Screen name="explore/groups-view" />
-              <Stack.Screen name="explore/groups-linkItinerary" />
-
-              <Stack.Screen name="payment" />
-              <Stack.Screen name="index" />
-              <Stack.Screen name="+not-found" />
-            </Stack>
-
-            <StatusBar style="auto" />
-          </SafeAreaView>
-        {/* </RouteTrackerProvider> */}
-        
-      </SessionProvider>
+    <SessionProvider>
+      <TrackingProvider>
+        <SafeAreaView style={{ flex: 1, backgroundColor }} edges={['top', 'bottom']}>
+          <SessionInitializer />
+          <StatusBar style="light" backgroundColor={backgroundColor} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="auth/login" />
+            <Stack.Screen name="auth/register" />
+            <Stack.Screen name="auth/verifyEmail" />
+            <Stack.Screen name="auth/warning" />
+            <Stack.Screen name="auth/forgotPassword" />
+            <Stack.Screen name="auth/changePassword" />
+            <Stack.Screen name="auth/firstLogin" />
+            <Stack.Screen name="account/viewProfile" />
+            <Stack.Screen name="account/notifications" />
+            <Stack.Screen name="account/info-view" />
+            <Stack.Screen name="home/routes/routes" />
+            <Stack.Screen name="home/routes/routes-create" />
+            <Stack.Screen name="home/routes/routes-history" />
+            <Stack.Screen name="home/itineraries/itineraries" />
+            <Stack.Screen name="home/itineraries/itineraries-create" />
+            <Stack.Screen name="home/itineraries/itineraries-update" />
+            <Stack.Screen name="home/itineraries/itineraries-view" />
+            <Stack.Screen name="home/itineraries/itineraries-history" />
+            <Stack.Screen name="home/safety" />
+            <Stack.Screen name="home/aiChat" />
+            <Stack.Screen name="explore/tours-view" />
+            <Stack.Screen name="explore/groups-view" />
+            <Stack.Screen name="explore/groups-linkItinerary" />
+            <Stack.Screen name="payment" />
+            <Stack.Screen name="index" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </SafeAreaView>
+      </TrackingProvider>
+    </SessionProvider>
   );
 }

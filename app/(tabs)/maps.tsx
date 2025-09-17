@@ -1,6 +1,7 @@
 import TaraMap from '@/components/maps/TaraMap';
 import { StyleSheet,  View, TouchableOpacity, Alert } from 'react-native';
 import { useSession } from '@/context/SessionContext';
+import { useTracking } from '@/context/TrackingContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
@@ -14,9 +15,11 @@ import { useLocation } from '@/hooks/useLocation';
 import haversineDistance from '@/utils/haversineDistance';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { renderDefaultMap } from '../maps/default-state';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function MapScreen() {
   const { session, updateSession } = useSession();
+  const { stopTracking } = useTracking();
   const router = useRouter();
   const distance = useDistanceTracker();
   const elapsed = useRouteTimer(session?.activeRoute !== undefined);
@@ -241,12 +244,25 @@ export default function MapScreen() {
           text: "End Route", 
           style: "destructive",
           onPress: async () => {
+            // Stop tracking and clean up
+            await stopTracking();
+            await AsyncStorage.removeItem('trackingData');
             await updateSession({ activeRoute: undefined });
           }
         }
       ]
     );
   };
+
+  // Clean up tracking data when component unmounts
+  useEffect(() => {
+    return () => {
+      if (!session?.activeRoute) {
+        // If there's no active route when unmounting, clean up tracking data
+        AsyncStorage.removeItem('trackingData').catch(console.error);
+      }
+    };
+  }, [session?.activeRoute]);
 
   const renderActiveRoute = () => (
     <View style={styles.contentContainer}>

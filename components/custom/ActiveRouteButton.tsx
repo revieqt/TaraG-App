@@ -46,7 +46,7 @@ const ActiveRouteButton: React.FC<ActiveRouteButtonProps> = ({
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#fff', secondaryColor],
+    outputRange: ['#fff', '#ccc'],
   });
 
   return (
