@@ -3,7 +3,7 @@ import ProBadge from '@/components/custom/ProBadge';
 import GradientHeader from '@/components/GradientHeader';
 import OptionsPopup from '@/components/OptionsPopup';
 import Switch from '@/components/Switch';
-import { renderMapType, renderUpdateInfo, renderVisibilitySettings } from '@/app/account/accountSettings';
+import { renderMapType, renderSystemTheme, renderUpdateInfo, renderVisibilitySettings } from '@/app/account/accountSettings';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -77,6 +77,7 @@ export default function AccountScreen() {
             Customization
           </ThemedText>
           {renderMapType()}
+          {renderSystemTheme()}
           <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
             Privacy and Security
           </ThemedText>

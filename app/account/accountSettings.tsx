@@ -5,10 +5,12 @@ import { TouchableOpacity, Image } from "react-native";
 import { useSession } from "@/context/SessionContext";
 import { ThemedIcons } from "@/components/ThemedIcons";
 import Button from "@/components/Button";
-import { StyleSheet, View, Alert } from "react-native";
+import { StyleSheet, View, Alert, Animated } from "react-native";
 import { useState, useEffect } from "react";
 import InputModal from "@/components/modals/InputModal";
 import { useMapType } from "@/hooks/useMapType";
+import { useTheme } from "@/hooks/useTheme";
+import { useThemeAnimation } from "@/context/ThemeAnimationContext";
 
 import { batchUpdateUserInfo, canUpdateUserInfo, updateUserBooleanField } from "@/services/userApiService";
 
@@ -375,6 +377,68 @@ export const renderMapType = () => {
   )
 }
 
+export const renderSystemTheme = () => {
+  const { theme: selectedTheme, setTheme, THEME_TYPES } = useTheme();
+  const { animateThemeChange } = useThemeAnimation();
+
+  const handleThemeSelect = async (themeType: string) => {
+    try {
+      // Use the global animation context for smooth app-wide theme transitions
+      animateThemeChange(async () => {
+        await setTheme(themeType as any);
+      });
+    } catch (error) {
+      console.error('Error saving theme:', error);
+    }
+  };
+
+  return(
+    <OptionsPopup
+      key="systemTheme"
+      style={styles.optionsChild}
+      options={[
+        <TouchableOpacity 
+          key="device" 
+          style={styles.themeOption}
+          onPress={() => handleThemeSelect(THEME_TYPES.DEVICE)}
+        >
+          <ThemedIcons library='MaterialIcons' name='phone-android' size={20} />
+          <ThemedText>Device Theme</ThemedText>
+          {selectedTheme === THEME_TYPES.DEVICE && (
+            <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+          )}
+        </TouchableOpacity>,
+        <TouchableOpacity 
+          key="light" 
+          style={styles.themeOption}
+          onPress={() => handleThemeSelect(THEME_TYPES.LIGHT)}
+        >
+          <ThemedIcons library='MaterialIcons' name='light-mode' size={20} />
+          <ThemedText>Light Mode</ThemedText>
+          {selectedTheme === THEME_TYPES.LIGHT && (
+            <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+          )}
+        </TouchableOpacity>,
+        <TouchableOpacity 
+          key="dark" 
+          style={styles.themeOption}
+          onPress={() => handleThemeSelect(THEME_TYPES.DARK)}
+        >
+          <ThemedIcons library='MaterialIcons' name='dark-mode' size={20} />
+          <ThemedText>Dark Mode</ThemedText>
+          {selectedTheme === THEME_TYPES.DARK && (
+            <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+          )}
+        </TouchableOpacity>,
+      ]}
+        >
+
+          <ThemedIcons library='MaterialIcons' name='palette' size={15} />
+          <ThemedText>App Theme</ThemedText>
+        </OptionsPopup>
+  )
+}
+
 const styles = StyleSheet.create({
     optionsChild: {
         padding: 10,
@@ -411,5 +475,11 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 10,
+    },
+    themeOption: {
+      flexDirection: 'row',
+      gap: 15,
+      alignItems: 'center',
+      flex: 1,
     },
   });

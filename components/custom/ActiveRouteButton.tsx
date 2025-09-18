@@ -1,27 +1,32 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { router } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
+import { useTracking } from '@/context/TrackingContext';
+import { ThemedText } from '../ThemedText';
 import {
   View,
   TouchableOpacity,
   Animated,
   StyleSheet,
-  StyleProp,
-  ViewStyle,
   Easing,
 } from 'react-native';
+import ThemedIcons from '../ThemedIcons';
 
-interface ActiveRouteButtonProps {
-  style?: StyleProp<ViewStyle>;
-  children?: React.ReactNode;
-}
-
-const ActiveRouteButton: React.FC<ActiveRouteButtonProps> = ({
-  style,
-  children,
-}) => {
+const ActiveRouteButton: React.FC = () => {
+  const { distance, isTracking } = useTracking();
   const borderAnim = useRef(new Animated.Value(0)).current;
-  const secondaryColor = useThemeColor({}, 'accent');
+  
+  // Format time as MM:SS
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  // Format distance as km with 2 decimal places
+  const formatDistance = (meters: number) => {
+    return (meters / 1000).toFixed(2);
+  };
 
   useEffect(() => {
     const loopAnimation = Animated.loop(
@@ -46,29 +51,37 @@ const ActiveRouteButton: React.FC<ActiveRouteButtonProps> = ({
 
   const animatedBorderColor = borderAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#fff', '#ccc'],
+    outputRange: ['#fff', '#00FFDE'],
   });
 
   return (
-    <View style={[styles.container, style]}>
-      <TouchableOpacity
-        style={styles.wrapper}
-        onPress={() => router.push('/(tabs)/maps')}
-        activeOpacity={0.8}
-      >
-        <Animated.View
-          style={[
-            styles.button,
-            {
-              borderColor: animatedBorderColor,
-              backgroundColor: secondaryColor,
-            },
-          ]}
-        >
-          {children}
-        </Animated.View>
-      </TouchableOpacity>
-    </View>
+    <>
+      {isTracking && (
+        <View style={styles.container}>
+          <TouchableOpacity
+            style={styles.wrapper}
+            onPress={() => router.push('/(tabs)/maps')}
+          >
+            <Animated.View
+              style={[
+                styles.button,
+                {
+                  borderColor: animatedBorderColor,
+                  backgroundColor: 'rgba(0, 202, 255, .8)',
+                },
+              ]}
+            >
+              <ThemedIcons library='MaterialIcons' name="route" size={25} color="white" />
+              <ThemedText style={{color: '#fff', fontSize: 12}}>
+                {formatDistance(distance)} km
+              </ThemedText>
+            </Animated.View>
+          </TouchableOpacity>
+        </View>
+      )}
+      
+    </>
+    
   );
 };
 
@@ -85,12 +98,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    width: '100%',
-    aspectRatio: 1,
-    borderRadius: 100,
+    width: 70,
+    height: 70,
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 4,
     borderWidth: 3,
+    marginBottom: 4,
   },
 });

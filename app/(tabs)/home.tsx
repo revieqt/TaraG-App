@@ -18,7 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
 import { getItinerariesById } from '@/services/itinerariesApiService';
 import { groupsApiService } from '@/services/groupsApiService';
-import AlertsContainer from '@/components/custom/AlertsContainer';
+// import AlertsContainer from '@/components/custom/AlertsContainer';
 import ActiveRouteButton from '@/components/custom/ActiveRouteButton';
 
 export default function HomeScreen() {
@@ -46,6 +46,7 @@ export default function HomeScreen() {
 
   const getLocationText = () => {
     if (error) return 'Location unavailable';
+    if (suburb && city) return `${suburb}, ${city}`;
     if (city) return city;
     if (suburb) return suburb;
     return 'Location unavailable';
@@ -316,11 +317,11 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
       
-      <AlertsContainer>
+      {/* <AlertsContainer>
          { session?.activeRoute && (
           <ActiveRouteButton/>
         )}
-      </AlertsContainer>
+      </AlertsContainer> */}
     </ThemedView>
   );
 }

@@ -2,7 +2,7 @@ import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 import { BACKEND_URL } from '@/constants/Config';
 
-interface LocationData {
+export interface LocationData {
   latitude: number;
   longitude: number;
   suburb: string;
@@ -12,25 +12,30 @@ interface LocationData {
   country: string;
 }
 
-interface BigDataCloudResponse {
-  locality?: string; // e.g., barangay / suburb
+interface NominatimAddress {
+  suburb?: string;
+  neighbourhood?: string;
+  quarter?: string;
+  hamlet?: string;
+  village?: string;
+  town?: string;
   city?: string;
-  principalSubdivision?: string; // province/region
-  countryName?: string;
-  localityInfo?: {
-    administrative?: Array<{
-      name?: string;
-      description?: string;
-      isoName?: string;
-      order?: number;
-    }>;
-  };
+  municipality?: string;
+  county?: string;
+  state?: string;
+  region?: string;
+  country?: string;
+  country_code?: string;
+}
+
+interface NominatimResponse {
+  address: NominatimAddress;
+  display_name: string;
 }
 
 function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
-  // Haversine formula
   const toRad = (v: number) => (v * Math.PI) / 180;
-  const R = 6371; // km
+  const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
   const a =
@@ -74,34 +79,51 @@ export const useLocation = () => {
 
   const getAddressFromCoordinates = async (latitude: number, longitude: number): Promise<LocationData> => {
     try {
-      // BigDataCloud reverse geocoding (free, no API key required)
       const response = await fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            "User-Agent": "TaraG/1.0 (contact@example.com)" // 👈 replace with your app/email
+          }
+        }
       );
-      if (!response.ok) {
-        throw new Error('Failed to fetch address data');
-      }
-      const data: BigDataCloudResponse = await response.json();
 
-      // Attempt to resolve suburb from locality or administrative levels
-      const adminLevels = data.localityInfo?.administrative || [];
-      const adminSuburb = adminLevels.find(l => (l.description || '').toLowerCase().includes('suburb'))?.name;
-      const suburb = data.locality || adminSuburb || data.city || '';
-      const city = data.city || data.locality || '';
-      const principalSubdivision = data.principalSubdivision || '';
-      const country = data.countryName || '';
+      if (!response.ok) throw new Error('Failed to fetch address data');
+
+      const data: NominatimResponse = await response.json();
+      const address = data.address;
+
+      // Extract fields with better fallbacks
+      const suburb =
+        address.suburb ||
+        address.neighbourhood ||
+        address.quarter ||
+        address.hamlet ||
+        address.village ||
+        '';
+
+      const city =
+        address.city ||
+        address.town ||
+        address.municipality ||
+        address.county ||
+        '';
+
+      const state = address.state || '';
+      const region = address.region || state;
+      const country = address.country || '';
 
       return {
         latitude,
         longitude,
         suburb,
         city,
-        state: principalSubdivision,
-        region: principalSubdivision,
+        state,
+        region,
         country,
       };
     } catch (err) {
-      // Fallback: fetch Metro Cebu data from backend public
+      // Fallback to Metro Cebu JSON
       const metroCebuData = await fetchMetroCebuData();
       const nearest = getNearestMetroCebuAddressFromList(latitude, longitude, metroCebuData);
       return {
