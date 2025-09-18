@@ -2,6 +2,8 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { router } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { useTracking } from '@/context/TrackingContext';
+import { useDistanceTracker } from '@/hooks/useDistanceTracker';
+import { useSession } from '@/context/SessionContext';
 import { ThemedText } from '../ThemedText';
 import {
   View,
@@ -13,7 +15,9 @@ import {
 import ThemedIcons from '../ThemedIcons';
 
 const ActiveRouteButton: React.FC = () => {
-  const { distance, isTracking } = useTracking();
+  const { isTracking } = useTracking();
+  const distance = useDistanceTracker();
+  const { session } = useSession();
   const borderAnim = useRef(new Animated.Value(0)).current;
   
   // Format time as MM:SS
@@ -23,9 +27,25 @@ const ActiveRouteButton: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Format distance as km with 2 decimal places
+  // Format distance as km with 2 decimal places (same as maps.tsx)
   const formatDistance = (meters: number) => {
     return (meters / 1000).toFixed(2);
+  };
+
+  // Get icon based on route mode
+  const getRouteIcon = (mode: string) => {
+    switch (mode) {
+      case 'driving-car':
+        return 'directions-car';
+      case 'cycling-regular':
+        return 'directions-bike';
+      case 'foot-walking':
+        return 'directions-walk';
+      case 'foot-hiking':
+        return 'hiking';
+      default:
+        return 'route';
+    }
   };
 
   useEffect(() => {
@@ -71,7 +91,12 @@ const ActiveRouteButton: React.FC = () => {
                 },
               ]}
             >
-              <ThemedIcons library='MaterialIcons' name="route" size={25} color="white" />
+              <ThemedIcons 
+                library='MaterialIcons' 
+                name={getRouteIcon(session?.activeRoute?.mode || 'route')} 
+                size={25} 
+                color="white" 
+              />
               <ThemedText style={{color: '#fff', fontSize: 12}}>
                 {formatDistance(distance)} km
               </ThemedText>

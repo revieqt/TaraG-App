@@ -6,12 +6,20 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import LocationDisplay from '@/components/LocationDisplay';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { useSession } from '@/context/SessionContext';
+import EndRouteModal from '@/components/modals/EndRouteModal';
+import { useTracking } from '@/context/TrackingContext';
+import { useDistanceTracker } from '@/hooks/useDistanceTracker';
+import { useRouteTimer } from '@/hooks/useTimer';
 
 export default function RoutesScreen() {
   const { session, updateSession } = useSession();
+  const distance = useDistanceTracker();
+  const elapsed = useRouteTimer(session?.activeRoute !== undefined);
+  const [showEndRouteModal, setShowEndRouteModal] = useState(false);
+  const [completedRouteStops, setCompletedRouteStops] = useState<{ latitude: number; longitude: number; locationName: string }[]>([]);
 
   const handleAddRoute = () => {
     if (session?.activeRoute) {
@@ -36,6 +44,14 @@ export default function RoutesScreen() {
           style: "destructive",
           onPress: async () => {
             try {
+              // Capture route stops before clearing active route
+              if (session?.activeRoute?.location) {
+                setCompletedRouteStops(session.activeRoute.location);
+              }
+              
+              // Show end route modal
+              setShowEndRouteModal(true);
+              
               await updateSession({ activeRoute: undefined });
               console.log('Route ended successfully');
             } catch (error) {
@@ -151,6 +167,14 @@ export default function RoutesScreen() {
         iconColor="#fff"
         onPress={handleAddRoute}
         style={{position: 'absolute', bottom: 20, right: 20}}
+      />
+      
+      <EndRouteModal
+        visible={showEndRouteModal}
+        onClose={() => setShowEndRouteModal(false)}
+        distance={distance}
+        timeElapsed={elapsed}
+        routeStops={completedRouteStops}
       />
     </ThemedView>
   );

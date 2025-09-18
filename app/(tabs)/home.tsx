@@ -18,7 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import WeeklyCalendar from '@/components/WeeklyCalendar';
 import { getItinerariesById } from '@/services/itinerariesApiService';
 import { groupsApiService } from '@/services/groupsApiService';
-// import AlertsContainer from '@/components/custom/AlertsContainer';
+import AlertsContainer from '@/components/custom/AlertsContainer';
 import ActiveRouteButton from '@/components/custom/ActiveRouteButton';
 
 export default function HomeScreen() {
@@ -309,11 +309,11 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
       
-      {/* <AlertsContainer>
+      <AlertsContainer>
          { session?.activeRoute && (
           <ActiveRouteButton/>
         )}
-      </AlertsContainer> */}
+      </AlertsContainer>
     </ThemedView>
   );
 }

@@ -17,11 +17,14 @@ import { useLocation } from '@/hooks/useLocation';
 import haversineDistance from '@/utils/haversineDistance';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useMapType } from '@/hooks/useMapType';
+import { MAP_TYPES } from 'react-native-maps';
 import * as Device from 'expo-device';
 import * as Location from 'expo-location';
 import RoundedButton from '@/components/RoundedButton';
 import BottomSheet from '@/components/BottomSheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import OptionsPopup from '@/components/OptionsPopup';
+import EndRouteModal from '@/components/modals/EndRouteModal';
 
 export default function MapScreen() {
   const { session, updateSession } = useSession();
@@ -30,7 +33,7 @@ export default function MapScreen() {
   const distance = useDistanceTracker();
   const elapsed = useRouteTimer(session?.activeRoute !== undefined);
   const { latitude, longitude } = useLocation();
-  const { mapType } = useMapType();
+  const { mapType, setMapType } = useMapType();
   const [speechEnabled, setSpeechEnabled] = useState(false);
   const [route3dEnabled, setRoute3dEnabled] = useState(false);
   const [currentInstruction, setCurrentInstruction] = useState<string>('');
@@ -71,6 +74,8 @@ export default function MapScreen() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [bottomSheetKey, setBottomSheetKey] = useState(0);
+  const [showEndRouteModal, setShowEndRouteModal] = useState(false);
+  const [completedRouteStops, setCompletedRouteStops] = useState<{ latitude: number; longitude: number; locationName: string }[]>([]);
 
   // Calculate bearing between two points
   const calculateBearing = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -446,6 +451,14 @@ export default function MapScreen() {
           style: "destructive",
           onPress: async () => {
             try {
+              // Capture route stops before clearing active route
+              if (session?.activeRoute?.location) {
+                setCompletedRouteStops(session.activeRoute.location);
+              }
+              
+              // Show end route modal
+              setShowEndRouteModal(true);
+              
               // Reset all states first
               setCurrentInstruction('');
               setNextStop('');
@@ -543,19 +556,33 @@ export default function MapScreen() {
         )}
         
         <TouchableOpacity 
+          style={styles.sideButton} 
+          onPress={() => router.push('/home/routes/routes')}
+        >
+          <ThemedIcons 
+            library='MaterialIcons' 
+            name="info"
+            size={20} 
+            color="white" 
+          />
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
           style={[styles.sideButton, route3dEnabled && {backgroundColor: secondaryColor}]} 
           onPress={toggle3DView}
         >
           <ThemedIcons 
             library='MaterialDesignIcons' 
             name={route3dEnabled ? "video-3d" : "video-3d-off"} 
-            size={25} 
+            size={20} 
             color="white" 
           />
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.stopButton} onPress={handleEndRoute}>
           <ThemedIcons library='MaterialIcons' name="stop" size={30} color="white" />
         </TouchableOpacity>
+
         <TouchableOpacity 
           style={[styles.sideButton, speechEnabled && {backgroundColor: secondaryColor}]} 
           onPress={toggleSpeech}
@@ -563,10 +590,26 @@ export default function MapScreen() {
           <ThemedIcons 
             library='MaterialIcons' 
             name={speechEnabled ? "volume-up" : "volume-off"} 
-            size={25} 
+            size={20} 
             color="white" 
           />
         </TouchableOpacity>
+
+        <OptionsPopup
+        style={styles.sideButton}
+          options={[
+            <TouchableOpacity key="standard" onPress={() => handleMapTypeSelect(MAP_TYPES.STANDARD)}>
+              <ThemedText>Standard</ThemedText>
+            </TouchableOpacity>
+          ]}
+        >
+          <ThemedIcons 
+            library='MaterialIcons' 
+            name="settings"
+            size={20} 
+            color="white" 
+          />
+        </OptionsPopup>
       </View>
     </View>
   )
@@ -653,6 +696,10 @@ export default function MapScreen() {
     setSearchResults([]);
   };
 
+  const handleMapTypeSelect = (newMapType: any) => {
+    setMapType(newMapType);
+  };
+
   const renderDefaultMap = () => (
     <View style={styles.defaultMapContent}>
       <LinearGradient
@@ -685,6 +732,14 @@ export default function MapScreen() {
       ):(
         renderDefaultMap()
       )}
+      
+      <EndRouteModal
+        visible={showEndRouteModal}
+        onClose={() => setShowEndRouteModal(false)}
+        distance={distance}
+        timeElapsed={elapsed}
+        routeStops={completedRouteStops}
+      />
     </View>
   );
 }
@@ -735,8 +790,8 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
   },
   stopButton:{
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     marginBottom: 30,
     borderRadius: 50,
     backgroundColor: '#dc3545',
@@ -755,8 +810,8 @@ const styles = StyleSheet.create({
     gap: 15
   },
   sideButton:{
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     marginBottom: 30,
     borderRadius: 50,
     backgroundColor: 'rgba(0,0,0,.5)',
