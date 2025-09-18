@@ -105,7 +105,7 @@ export default function RouteMap({
       latitude: latitude || region.latitude,
       longitude: longitude || region.longitude,
     },
-    pitch: is3DView ? Math.max(0, Math.min(15, cameraPitch)) : 0, // First-person pitch range (0-15 degrees)
+    pitch: is3DView ? Math.max(0, Math.min(90, cameraPitch)) : 0, // First-person pitch range (0-15 degrees)
     heading: is3DView ? cameraHeading : 0, // Only apply heading rotation in 3D view
     altitude: is3DView ? Math.max(50, Math.min(2000, 200)) : Math.max(100, Math.min(2000, 1000)), // Lower altitude for first-person
     zoom: is3DView ? Math.max(15, Math.min(22, 21)) : Math.max(10, Math.min(22, 18)), // Higher zoom for first-person

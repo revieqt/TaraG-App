@@ -35,7 +35,12 @@ export default function RoutesScreen() {
           text: "End Route", 
           style: "destructive",
           onPress: async () => {
-            await updateSession({ activeRoute: undefined });
+            try {
+              await updateSession({ activeRoute: undefined });
+              console.log('Route ended successfully');
+            } catch (error) {
+              console.error('Error ending route:', error);
+            }
           }
         }
       ]

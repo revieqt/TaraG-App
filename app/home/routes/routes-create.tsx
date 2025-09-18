@@ -304,8 +304,16 @@ export default function CreateRouteScreen() {
       await updateSession({ activeRoute });
       console.log('Route saved to session:', activeRoute);
 
-      // Navigate to maps tab
-      router.push('/(tabs)/maps');
+      // Use a more reliable navigation approach
+      try {
+        // Small delay to ensure state is updated
+        await new Promise(resolve => setTimeout(resolve, 50));
+        router.replace('/(tabs)/maps');
+      } catch (navError) {
+        console.error('Navigation error:', navError);
+        // Fallback navigation
+        router.push('/(tabs)/maps');
+      }
     } catch (error) {
       console.error('Error starting route:', error);
     }

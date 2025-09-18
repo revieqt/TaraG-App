@@ -180,7 +180,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={{ paddingHorizontal: 20 }}>
+        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
           <View style={styles.menu}>
             <View style={styles.menuOptions}>
               <CubeButton
@@ -306,14 +306,6 @@ export default function HomeScreen() {
               />
             </>
           )}
-
-          
-
-          <ThemedView color='primary' shadow style={styles.adsContainer}>
-            <View style={{width: 300, height: 250, backgroundColor: 'orange', alignSelf: 'center'}}>
-
-            </View>
-          </ThemedView>
         </View>
       </ScrollView>
       
@@ -402,7 +394,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
   },
   alertsSection: {
-    marginTop: 20,
+    marginVertical: 20,
   },
   alertsHeader: {
     flexDirection: 'row',
@@ -437,11 +429,6 @@ const styles = StyleSheet.create({
     height: 150,
     marginRight: -40,
     marginTop: -15,
-  },
-  adsContainer: {
-    padding: 20,
-    borderRadius: 10,
-    marginVertical: 30,
   },
   distance:{
     fontSize: 20,

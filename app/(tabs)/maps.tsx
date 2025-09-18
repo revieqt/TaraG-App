@@ -1,11 +1,12 @@
 import TaraMap from '@/components/maps/TaraMap';
 import RouteMap from '@/components/maps/RouteMap';
-import { StyleSheet,  View, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import { StyleSheet,  View, TouchableOpacity, Alert, Dimensions, Modal, ScrollView } from 'react-native';
 import { useSession } from '@/context/SessionContext';
 import { useTracking } from '@/context/TrackingContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { useRouter } from 'expo-router';
 import TextField from '@/components/TextField';
 import {useDistanceTracker} from '@/hooks/useDistanceTracker';
@@ -18,7 +19,8 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { useMapType } from '@/hooks/useMapType';
 import * as Device from 'expo-device';
 import * as Location from 'expo-location';
-import { renderDefaultMap } from '../maps/default-state';
+import RoundedButton from '@/components/RoundedButton';
+import BottomSheet from '@/components/BottomSheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function MapScreen() {
@@ -57,6 +59,19 @@ export default function MapScreen() {
   const secondaryColor = useThemeColor({}, 'secondary');
   const primaryColor = useThemeColor({}, 'primary');
 
+  // Default map states (always rendered to maintain hook consistency)
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAllCategoryVisible, setIsAllCategoryVisible] = useState(false);
+  const [isAccomodations, setIsAccomodations] = useState(false);
+  const [isFood, setIsFood] = useState(false);
+  const [isFacilities, setIsFacilities] = useState(false);
+  const [isAttractions, setIsAttractions] = useState(false);
+  const [isServices, setIsServices] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [bottomSheetKey, setBottomSheetKey] = useState(0);
+
   // Calculate bearing between two points
   const calculateBearing = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -75,6 +90,19 @@ export default function MapScreen() {
     if (session?.activeRoute) {
       setCurrentStepIndex(0);
       setCurrentSegmentIndex(0);
+    } else {
+      // Reset all navigation states when no active route
+      setCurrentStepIndex(0);
+      setCurrentSegmentIndex(0);
+      setCurrentInstruction('');
+      setNextStop('');
+      setDistanceToNextStep(0);
+      setLastSpokenInstruction('');
+      setLastSpokenStop('');
+      setIsNearStop(false);
+      setCurrentNearbyStop('');
+      setShowDirectionArrow(false);
+      setNextRouteDirection(0);
     }
   }, [session?.activeRoute?.routeID]);
 
@@ -185,7 +213,14 @@ export default function MapScreen() {
 
   // Navigation logic to find current instruction and next stop
   useEffect(() => {
-    if (!session?.activeRoute?.routeData || !latitude || !longitude) return;
+    if (!session?.activeRoute?.routeData || !latitude || !longitude) {
+      // Reset navigation states when no active route or location
+      setCurrentInstruction('');
+      setNextStop('');
+      setDistanceToNextStep(0);
+      setShowDirectionArrow(false);
+      return;
+    }
 
     const routeData = session.activeRoute.routeData;
     const locations = session.activeRoute.location;
@@ -410,10 +445,30 @@ export default function MapScreen() {
           text: "End Route", 
           style: "destructive",
           onPress: async () => {
-            // Stop tracking and clean up
-            await stopTracking();
-            await AsyncStorage.removeItem('trackingData');
-            await updateSession({ activeRoute: undefined });
+            try {
+              // Reset all states first
+              setCurrentInstruction('');
+              setNextStop('');
+              setDistanceToNextStep(0);
+              setCurrentStepIndex(0);
+              setCurrentSegmentIndex(0);
+              setLastSpokenInstruction('');
+              setLastSpokenStop('');
+              setIsNearStop(false);
+              setCurrentNearbyStop('');
+              setShowDirectionArrow(false);
+              setNextRouteDirection(0);
+              
+              // Stop tracking and clean up
+              await stopTracking();
+              await AsyncStorage.removeItem('trackingData');
+              
+              // Update session after state reset
+              await updateSession({ activeRoute: undefined });
+              console.log('Route ended successfully');
+            } catch (error) {
+              console.error('Error ending route:', error);
+            }
           }
         }
       ]
@@ -516,9 +571,115 @@ export default function MapScreen() {
     </View>
   )
 
+  // Default map functions
+  const handleCategorySelect = (category: string) => {
+    switch (category) {
+      case 'accomodations':
+        setIsAccomodations(true);
+        setIsModalVisible(true);
+        break;
+      case 'food':
+        setIsFood(true);
+        setIsModalVisible(true);
+        break;
+      case 'facilities':
+        setIsFacilities(true);
+        setIsModalVisible(true);
+        break;
+      case 'attractions':
+        setIsAttractions(true);
+        setIsModalVisible(true);
+        break;
+      case 'services':
+        setIsServices(true);
+        setIsModalVisible(true);
+        break;
+      default:
+        setIsAllCategoryVisible(true);
+        setIsModalVisible(true);
+        break;
+    }
+  };
+
+  const searchAmenities = async (amenity?: string, tourism?: string, aeroway?: string) => {
+    if (!latitude || !longitude) {
+      console.error('Location not available');
+      return;
+    }
+
+    setIsModalVisible(false);
+    setIsAllCategoryVisible(false);
+    setIsAccomodations(false);
+    setIsFood(false);
+    setIsFacilities(false);
+    setIsAttractions(false);
+    setIsServices(false);
+    setShowResults(true);
+    setIsLoading(true);
+    setSearchResults([]);
+    setBottomSheetKey(prev => prev + 1);
+
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/amenities/nearest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amenity, tourism, aeroway, latitude, longitude }),
+      });
+
+      if (response.ok) {
+        const results = await response.json();
+        setSearchResults(results);
+      } else {
+        console.error('Failed to fetch amenities');
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Error searching amenities:', error);
+      setSearchResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setIsAllCategoryVisible(false);
+    setIsAccomodations(false);
+    setIsFood(false);
+    setIsFacilities(false);
+    setIsAttractions(false);
+    setIsServices(false);
+    setShowResults(false);
+    setSearchResults([]);
+  };
+
+  const renderDefaultMap = () => (
+    <View style={styles.defaultMapContent}>
+      <LinearGradient
+        colors={['#000', 'transparent']}
+        style={styles.headerGradient}
+      />
+      <View style={styles.searchContent}>
+        <TouchableOpacity onPress={() => handleCategorySelect('all')}>
+          <ThemedView color='primary' shadow style={styles.searchButton}>
+            <ThemedText style={{opacity: .5}}>Search</ThemedText>
+          </ThemedView>
+        </TouchableOpacity>
+      </View>
+
+      <RoundedButton
+        size={60}
+        iconLibrary="MaterialDesignIcons"
+        iconName="compass"
+        iconColor="#fff"
+        onPress={() => router.push('/home/routes/routes-create')}
+        style={{position: 'absolute', bottom: 20, right: 20}}
+      />
+    </View>
+  );
+
   return (
     <View style={{flex: 1}}>
-      {/* <TaraMap /> */}
       {session?.activeRoute ? (
         renderActiveRoute()
       ):(
@@ -644,5 +805,19 @@ const styles = StyleSheet.create({
   directionArrow: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  defaultMapContent: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: 0,
+    zIndex: 1000
+  },
+  searchButton: {
+    width: '100%',
+    padding: 10,
+    borderRadius: 14,
+    height: 48,
   },
 });

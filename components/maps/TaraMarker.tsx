@@ -27,16 +27,15 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
   description,
   identifier,
 }) => {
-
-  // Prevent native re-parenting issues with remote images:
   const [tracksViewChanges, setTracksViewChanges] = useState<boolean>(true);
   const secondaryColor = useThemeColor({}, 'secondary');
+
   // If there's no remote icon, we can immediately stop tracking view changes for performance.
   useEffect(() => {
-    if (!icon) setTracksViewChanges(false);
+    if (!icon) {
+      setTracksViewChanges(false);
+    }
   }, [icon]);
-
-  console.log('TaraMarker rendering with:', { coordinate, color, label, title });
   
   return (
     <Marker
@@ -44,7 +43,7 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
       title={title}
       description={description}
       identifier={identifier}
-      tracksViewChanges={false}
+      tracksViewChanges={tracksViewChanges}
       anchor={{ x: 0.5, y: 0.5 }}
       zIndex={1000}
     >
@@ -54,12 +53,18 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
             source={{ uri: icon }}
             style={styles.icon}
             resizeMode="cover"
-            onLoad={() => setTracksViewChanges(false)}
-            onError={() => setTracksViewChanges(false)}
+            onLoad={() => {
+              console.log('Image loaded successfully');
+              setTracksViewChanges(false);
+            }}
+            onError={(error) => {
+              console.log('Image load error:', error);
+              setTracksViewChanges(false);
+            }}
           />
         ) : (
-          <ThemedText style={{textAlign: 'center', color: 'white', fontWeight: 'bold', fontSize: 14 }}>
-            {label}
+          <ThemedText style={styles.labelText}>
+            {label || 'U'}
           </ThemedText>
         )}
       </View>
@@ -79,10 +84,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   icon: {
     width: 28,
     height: 28,
     borderRadius: 14,
+  },
+  labelText: {
+    textAlign: 'center',
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });

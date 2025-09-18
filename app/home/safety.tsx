@@ -72,8 +72,16 @@ export default function SafetyScreen() {
         await updateSession({ activeRoute });
         console.log('Route to amenity created:', activeRoute);
         
-        // Navigate to maps
-        router.push('/(tabs)/maps');
+        // Use a more reliable navigation approach
+        try {
+          // Small delay to ensure state is updated
+          await new Promise(resolve => setTimeout(resolve, 50));
+          router.replace('/(tabs)/maps');
+        } catch (navError) {
+          console.error('Navigation error:', navError);
+          // Fallback navigation
+          router.push('/(tabs)/maps');
+        }
       } else {
         Alert.alert("Error", "Failed to generate route. Please try again.");
       }

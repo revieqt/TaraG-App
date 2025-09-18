@@ -1,12 +1,33 @@
 import { useLocation } from '@/hooks/useLocation';
+import { useSession } from '@/context/SessionContext';
+import { useMapType } from '@/hooks/useMapType';
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import TaraMap from './TaraMap';
+import { StyleSheet, View } from 'react-native';
+import MapView, { MAP_TYPES, PROVIDER_DEFAULT, Region } from 'react-native-maps';
+import TaraMarker from './TaraMarker';
 
 const HomeMap: React.FC = () => {
   const { latitude, longitude, loading } = useLocation();
+  const { session } = useSession();
+  const { mapType: currentMapType } = useMapType();
   const animationRef = useRef<number | null>(null);
+  const mapRef = useRef<MapView>(null);
   const [currentHeading, setCurrentHeading] = useState(0);
+
+  // Convert string map type to MAP_TYPES enum
+  const getMapTypeEnum = (mapType: string) => {
+    switch (mapType) {
+      case 'satellite':
+        return MAP_TYPES.SATELLITE;
+      case 'hybrid':
+        return MAP_TYPES.HYBRID;
+      case 'terrain':
+        return MAP_TYPES.TERRAIN;
+      case 'standard':
+      default:
+        return MAP_TYPES.STANDARD;
+    }
+  };
 
   // Start 360-degree rotation animation
   useEffect(() => {
@@ -31,35 +52,66 @@ const HomeMap: React.FC = () => {
     }
   }, [latitude, longitude, loading]);
 
-  // Camera props for 3D view with rotation - only when location is available
-  const cameraProps = latitude !== 0 && longitude !== 0 && !loading ? {
-    center: {
-      latitude: latitude as number,
-      longitude: longitude as number,
-    },
-    pitch: 45, // Better tilt angle to see buildings
-    heading: currentHeading,
-    zoom: 18, // Closer zoom to the user
-    altitude: 500, // Lower altitude for closer view
-    animationDuration: 100, // Slower animation for smoother transitions
-  } : undefined;
+  // Default region for Philippines
+  const defaultRegion: Region = {
+    latitude: latitude || 14.5995,
+    longitude: longitude || 120.9842,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
+  };
+
+  // Animate camera for 3D rotation effect
+  useEffect(() => {
+    if (latitude !== 0 && longitude !== 0 && mapRef.current && !loading) {
+      mapRef.current.animateCamera({
+        center: {
+          latitude: latitude as number,
+          longitude: longitude as number,
+        },
+        pitch: 45, // Better tilt angle to see buildings
+        heading: currentHeading,
+        zoom: 18, // Closer zoom to the user
+        altitude: 500, // Lower altitude for closer view
+      }, {
+        duration: 100, // Slower animation for smoother transitions
+      });
+    }
+  }, [latitude, longitude, currentHeading, loading]);
+
 
   return (
-    <TaraMap
-      showMarker={true}
-      markerTitle="You are here"
-      markerDescription="Current Location"
-      mapStyle={styles.map}
-      cameraProps={cameraProps}
-    />
+    <View style={{ flex: 1 }}>
+      <MapView
+        mapType={getMapTypeEnum(currentMapType)}
+        ref={mapRef}
+        style={styles.map}
+        provider={PROVIDER_DEFAULT}
+        initialRegion={defaultRegion}
+      >
+        {session &&
+          latitude !== 0 &&
+          longitude !== 0 &&
+          !loading && (
+            <TaraMarker
+              key="user-marker"
+              coordinate={{ latitude: latitude as number, longitude: longitude as number }}
+              title="You are here"
+              description="Current Location"
+              color="#0065F8"
+              icon={session.user?.profileImage}
+              label="U"
+            />
+          )}
+      </MapView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   map: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    borderRadius: 10,
+    overflow: 'hidden',
   },
 });
 
