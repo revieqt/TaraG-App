@@ -25,6 +25,8 @@ import BottomSheet from '@/components/BottomSheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsPopup from '@/components/OptionsPopup';
 import EndRouteModal from '@/components/modals/EndRouteModal';
+import Switch from '@/components/Switch';
+import { Image } from 'react-native';
 
 export default function MapScreen() {
   const { session, updateSession } = useSession();
@@ -35,7 +37,7 @@ export default function MapScreen() {
   const { latitude, longitude } = useLocation();
   const { mapType, setMapType } = useMapType();
   const [speechEnabled, setSpeechEnabled] = useState(false);
-  const [route3dEnabled, setRoute3dEnabled] = useState(false);
+  const [route3dEnabled, setRoute3dEnabled] = useState(true);
   const [currentInstruction, setCurrentInstruction] = useState<string>('');
   const [nextStop, setNextStop] = useState<string>('');
   const [distanceToNextStep, setDistanceToNextStep] = useState<number>(0);
@@ -48,7 +50,7 @@ export default function MapScreen() {
   
   // 3D View and Orientation states
   const [deviceOrientation, setDeviceOrientation] = useState(0);
-  const [is3DView, setIs3DView] = useState(false);
+  const [is3DView, setIs3DView] = useState(true);
   const [cameraHeading, setCameraHeading] = useState(0);
   const [cameraPitch, setCameraPitch] = useState(0);
   const [targetHeading, setTargetHeading] = useState(0);
@@ -60,6 +62,7 @@ export default function MapScreen() {
   const [nextRouteDirection, setNextRouteDirection] = useState(0);
   const [showDirectionArrow, setShowDirectionArrow] = useState(false);
   const secondaryColor = useThemeColor({}, 'secondary');
+  const accentColor = useThemeColor({}, 'accent');
   const primaryColor = useThemeColor({}, 'primary');
 
   // Default map states (always rendered to maintain hook consistency)
@@ -78,6 +81,58 @@ export default function MapScreen() {
   const [completedRouteStops, setCompletedRouteStops] = useState<{ latitude: number; longitude: number; locationName: string }[]>([]);
   const [completedDistance, setCompletedDistance] = useState(0);
   const [completedTime, setCompletedTime] = useState(0);
+  const [alarmNearStop, setAlarmNearStop] = useState<boolean>(false);
+
+  // Load alarm setting from AsyncStorage
+  useEffect(() => {
+    const loadAlarmSetting = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('alarmNearStop');
+        if (saved !== null) {
+          setAlarmNearStop(JSON.parse(saved));
+        }
+      } catch (error) {
+        console.error('Error loading alarm setting:', error);
+      }
+    };
+    loadAlarmSetting();
+  }, []);
+
+  // Save alarm setting to AsyncStorage
+  const handleAlarmToggle = async (value: boolean) => {
+    try {
+      setAlarmNearStop(value);
+      await AsyncStorage.setItem('alarmNearStop', JSON.stringify(value));
+    } catch (error) {
+      console.error('Error saving alarm setting:', error);
+    }
+  };
+
+  // Handle map type selection
+  const handleMapTypeSelect = async (mapType: string) => {
+    try {
+      await setMapType(mapType as any);
+    } catch (error) {
+      console.error('Error saving map type:', error);
+      Alert.alert('Error', 'Failed to save map type preference');
+    }
+  };
+
+  // Get map type display name
+  const getMapTypeDisplayName = (mapType: string) => {
+    switch (mapType) {
+      case MAP_TYPES.STANDARD:
+        return 'Standard';
+      case MAP_TYPES.TERRAIN:
+        return 'Terrain';
+      case MAP_TYPES.SATELLITE:
+        return 'Satellite';
+      case MAP_TYPES.HYBRID:
+        return 'Hybrid';
+      default:
+        return 'Standard';
+    }
+  };
 
   // Calculate bearing between two points
   const calculateBearing = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -174,23 +229,9 @@ export default function MapScreen() {
     return () => clearInterval(interval);
   }, [targetHeading, smoothHeading, is3DView]);
 
-  // Update camera pitch based on device orientation for 3D effect
+  // Reset camera states when disabling 3D view
   useEffect(() => {
-    if (is3DView) {
-      // First-person view with very low camera angle
-      const normalizedOrientation = (deviceOrientation % 360 + 360) % 360;
-      
-      // Minimal pitch variation for first-person feel
-      const pitchVariation = Math.sin(normalizedOrientation * Math.PI / 180) * 5; // -5 to 5 degrees
-      
-      // Very low base pitch for first-person perspective
-      const basePitch = 5; // Very low base pitch angle
-      const newPitch = basePitch + pitchVariation;
-      
-      // Clamp pitch to first-person range (0-15 degrees) for true first-person view
-      const clampedPitch = Math.max(0, Math.min(15, newPitch));
-      setTargetPitch(clampedPitch);
-    } else {
+    if (!is3DView) {
       setCameraPitch(0);
       setCameraHeading(0);
       setSmoothHeading(0);
@@ -198,24 +239,7 @@ export default function MapScreen() {
       setTargetPitch(0);
       setSmoothPitch(0);
     }
-  }, [deviceOrientation, is3DView]);
-
-  // Smooth pitch interpolation to prevent glitching
-  useEffect(() => {
-    if (!is3DView) return;
-
-    const smoothPitchUpdate = () => {
-      const diff = targetPitch - smoothPitch;
-      const lerpFactor = 0.1; // Slower pitch changes for stability
-      const newSmoothPitch = smoothPitch + (diff * lerpFactor);
-      
-      setSmoothPitch(newSmoothPitch);
-      setCameraPitch(newSmoothPitch);
-    };
-
-    const interval = setInterval(smoothPitchUpdate, 16); // ~60fps
-    return () => clearInterval(interval);
-  }, [targetPitch, smoothPitch, is3DView]);
+  }, [is3DView]);
   
 
   // Navigation logic to find current instruction and next stop
@@ -431,14 +455,11 @@ export default function MapScreen() {
       Speech.speak("3D view enabled");
     } else {
       Speech.speak("3D view disabled");
-      // Reset camera angles when disabling 3D
-      setCameraPitch(0);
+      // Reset camera states when disabling 3D
       setCameraHeading(0);
       setDeviceOrientation(0);
       setSmoothHeading(0);
       setTargetHeading(0);
-      setTargetPitch(0);
-      setSmoothPitch(0);
     }
   };
 
@@ -555,7 +576,7 @@ export default function MapScreen() {
                 library="MaterialIcons" 
                 name="navigation" 
                 size={50} 
-                color={secondaryColor} 
+                color={accentColor} 
               />
             </View>
           </View>
@@ -604,9 +625,66 @@ export default function MapScreen() {
         <OptionsPopup
         style={styles.sideButton}
           options={[
-            <TouchableOpacity key="standard" onPress={() => handleMapTypeSelect(MAP_TYPES.STANDARD)}>
-              <ThemedText>Standard</ThemedText>
-            </TouchableOpacity>
+            <OptionsPopup
+              key="mapType"
+              style={styles.settingsOption}
+              options={[
+                <TouchableOpacity 
+                  key="standard" 
+                  style={styles.mapTypeOption}
+                  onPress={() => handleMapTypeSelect(MAP_TYPES.STANDARD)}
+                >
+                  <Image source={require('@/assets/images/map-standard.png')} style={styles.mapTypeImage} />
+                  <ThemedText>Standard</ThemedText>
+                  {mapType === MAP_TYPES.STANDARD && (
+                    <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+                  )}
+                </TouchableOpacity>,
+                <TouchableOpacity 
+                  key="terrain" 
+                  style={styles.mapTypeOption}
+                  onPress={() => handleMapTypeSelect(MAP_TYPES.TERRAIN)}
+                >
+                  <Image source={require('@/assets/images/map-terrain.png')} style={styles.mapTypeImage} />
+                  <ThemedText>Terrain</ThemedText>
+                  {mapType === MAP_TYPES.TERRAIN && (
+                    <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+                  )}
+                </TouchableOpacity>,
+                <TouchableOpacity 
+                  key="satellite" 
+                  style={styles.mapTypeOption}
+                  onPress={() => handleMapTypeSelect(MAP_TYPES.SATELLITE)}
+                >
+                  <Image source={require('@/assets/images/map-satellite.png')} style={styles.mapTypeImage} />
+                  <ThemedText>Satellite</ThemedText>
+                  {mapType === MAP_TYPES.SATELLITE && (
+                    <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+                  )}
+                </TouchableOpacity>,
+                <TouchableOpacity 
+                  key="hybrid" 
+                  style={styles.mapTypeOption}
+                  onPress={() => handleMapTypeSelect(MAP_TYPES.HYBRID)}
+                >
+                  <Image source={require('@/assets/images/map-hybrid.png')} style={styles.mapTypeImage} />
+                  <ThemedText>Hybrid</ThemedText>
+                  {mapType === MAP_TYPES.HYBRID && (
+                    <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+                  )}
+                </TouchableOpacity>,
+              ]}
+            >
+              <ThemedText>Map Type</ThemedText>
+              <ThemedText style={styles.mapTypeValue}>{getMapTypeDisplayName(mapType)}</ThemedText>
+            </OptionsPopup>,
+            <View key="alarmToggle" style={styles.settingsOption}>
+              <ThemedText>Toggle Alarm near Stop</ThemedText>
+              <Switch 
+                value={alarmNearStop}
+                onValueChange={handleAlarmToggle}
+              />
+            </View>
           ]}
         >
           <ThemedIcons 
@@ -702,9 +780,6 @@ export default function MapScreen() {
     setSearchResults([]);
   };
 
-  const handleMapTypeSelect = (newMapType: any) => {
-    setMapType(newMapType);
-  };
 
   const renderDefaultMap = () => (
     <View style={styles.defaultMapContent}>
@@ -880,5 +955,27 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 14,
     height: 48,
+  },
+  settingsOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  mapTypeValue: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginLeft: 'auto',
+    marginRight: 8,
+  },
+  mapTypeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 20,
+  },
+  mapTypeImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
   },
 });

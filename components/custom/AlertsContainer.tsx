@@ -219,14 +219,14 @@ const styles = StyleSheet.create({
   container: {
     pointerEvents: 'box-none',
     position: 'absolute',
-    bottom: 0,
+    bottom: 10,
     right: 10,
     top: 10,
     zIndex: 1000,
     width: 70,
     alignItems: 'flex-end',
     flexDirection: 'column-reverse',
-    gap: 10,
+    gap: 7,
   },
   openContainer:{
     position: 'absolute',
