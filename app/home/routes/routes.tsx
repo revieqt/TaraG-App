@@ -20,6 +20,8 @@ export default function RoutesScreen() {
   const elapsed = useRouteTimer(session?.activeRoute !== undefined);
   const [showEndRouteModal, setShowEndRouteModal] = useState(false);
   const [completedRouteStops, setCompletedRouteStops] = useState<{ latitude: number; longitude: number; locationName: string }[]>([]);
+  const [completedDistance, setCompletedDistance] = useState(0);
+  const [completedTime, setCompletedTime] = useState(0);
 
   const handleAddRoute = () => {
     if (session?.activeRoute) {
@@ -44,10 +46,14 @@ export default function RoutesScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              // Capture route stops before clearing active route
+              // Capture route data before clearing active route
               if (session?.activeRoute?.location) {
                 setCompletedRouteStops(session.activeRoute.location);
               }
+              
+              // Capture current distance and time
+              setCompletedDistance(distance);
+              setCompletedTime(elapsed);
               
               // Show end route modal
               setShowEndRouteModal(true);
@@ -172,8 +178,8 @@ export default function RoutesScreen() {
       <EndRouteModal
         visible={showEndRouteModal}
         onClose={() => setShowEndRouteModal(false)}
-        distance={distance}
-        timeElapsed={elapsed}
+        distance={completedDistance}
+        timeElapsed={completedTime}
         routeStops={completedRouteStops}
       />
     </ThemedView>

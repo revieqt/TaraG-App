@@ -190,7 +190,7 @@ export default function HomeScreen() {
                 iconColor="#fff"
                 onPress={() => router.push('/home/routes/routes')}
               />
-              <ThemedText>Routes</ThemedText>
+              <ThemedText style={{fontSize: 12}}>Routes</ThemedText>
             </View>
 
             <View style={styles.menuOptions}>
@@ -201,7 +201,7 @@ export default function HomeScreen() {
                 iconColor="#fff"
                 onPress={() => router.push('/home/itineraries/itineraries')}
               />
-              <ThemedText>Itineraries</ThemedText>
+              <ThemedText style={{fontSize: 12}}>Itineraries</ThemedText>
             </View>
 
             <View style={styles.menuOptions}>
@@ -213,7 +213,7 @@ export default function HomeScreen() {
                 iconColor="#fff"
                 onPress={() => router.push('/home/safety')}
               />
-              <ThemedText>Safety</ThemedText>
+              <ThemedText style={{fontSize: 12}}>Safety</ThemedText>
             </View>
 
             <View style={styles.menuOptions}>
@@ -225,7 +225,7 @@ export default function HomeScreen() {
                 iconColor="#fff"
                 onPress={() => router.push('/home/aiChat')}
               />
-              <ThemedText>TaraAI</ThemedText>
+              <ThemedText style={{fontSize: 12}}>TaraAI</ThemedText>
             </View>
           </View>
 

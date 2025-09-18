@@ -5,10 +5,10 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  View,
 } from 'react-native';
 import { ThemedIcons } from '../ThemedIcons';
 import { ThemedText } from '../ThemedText';
-import { ThemedView } from '../ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTheme } from '@/hooks/useTheme';
 import { useColorScheme } from 'react-native';
@@ -198,8 +198,8 @@ export default function EndRouteModal({
             </ThemedText>
           )}
           
-          <ThemedView style={styles.statsContainer}>
-            <ThemedView style={styles.statItem}>
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
               <ThemedIcons 
                 library='MaterialIcons' 
                 name='straighten' 
@@ -211,9 +211,9 @@ export default function EndRouteModal({
               <ThemedText type="defaultSemiBold" style={[styles.statValue, { color: textColor }]}>
                 {formatDistance(distance)} km
               </ThemedText>
-            </ThemedView>
+            </View>
             
-            <ThemedView style={styles.statItem}>
+            <View style={styles.statItem}>
               <ThemedIcons 
                 library='MaterialIcons' 
                 name='schedule' 
@@ -225,8 +225,8 @@ export default function EndRouteModal({
               <ThemedText type="defaultSemiBold" style={[styles.statValue, { color: textColor }]}>
                 {formatTime(timeElapsed)}
               </ThemedText>
-            </ThemedView>
-          </ThemedView>
+            </View>
+          </View>
           
           
         </Animated.View>

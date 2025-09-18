@@ -484,9 +484,6 @@ export default function CreateRouteScreen() {
                 // Start Location
                 <View key="start" style={{marginBottom: 10}}>
                   <ThemedText type="defaultSemiBold">Your Location</ThemedText>
-                  {!loading && (
-                    <ThemedText style={{opacity: .5}}>{suburb}, {city}</ThemedText>
-                  )}
                 </View>,
                 
                 // Waypoints
