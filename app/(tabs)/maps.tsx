@@ -1,5 +1,6 @@
 import TaraMap from '@/components/maps/TaraMap';
-import { StyleSheet,  View, TouchableOpacity, Alert } from 'react-native';
+import RouteMap from '@/components/maps/RouteMap';
+import { StyleSheet,  View, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import { useSession } from '@/context/SessionContext';
 import { useTracking } from '@/context/TrackingContext';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,6 +15,9 @@ import { useState, useEffect } from 'react';
 import { useLocation } from '@/hooks/useLocation';
 import haversineDistance from '@/utils/haversineDistance';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useMapType } from '@/hooks/useMapType';
+import * as Device from 'expo-device';
+import * as Location from 'expo-location';
 import { renderDefaultMap } from '../maps/default-state';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -24,6 +28,7 @@ export default function MapScreen() {
   const distance = useDistanceTracker();
   const elapsed = useRouteTimer(session?.activeRoute !== undefined);
   const { latitude, longitude } = useLocation();
+  const { mapType } = useMapType();
   const [speechEnabled, setSpeechEnabled] = useState(false);
   const [route3dEnabled, setRoute3dEnabled] = useState(false);
   const [currentInstruction, setCurrentInstruction] = useState<string>('');
@@ -35,8 +40,35 @@ export default function MapScreen() {
   const [lastSpokenStop, setLastSpokenStop] = useState<string>('');
   const [isNearStop, setIsNearStop] = useState<boolean>(false);
   const [currentNearbyStop, setCurrentNearbyStop] = useState<string>('');
+  
+  // 3D View and Orientation states
+  const [deviceOrientation, setDeviceOrientation] = useState(0);
+  const [is3DView, setIs3DView] = useState(false);
+  const [cameraHeading, setCameraHeading] = useState(0);
+  const [cameraPitch, setCameraPitch] = useState(0);
+  const [targetHeading, setTargetHeading] = useState(0);
+  const [smoothHeading, setSmoothHeading] = useState(0);
+  const [targetPitch, setTargetPitch] = useState(0);
+  const [smoothPitch, setSmoothPitch] = useState(0);
+  
+  // Direction arrow states
+  const [nextRouteDirection, setNextRouteDirection] = useState(0);
+  const [showDirectionArrow, setShowDirectionArrow] = useState(false);
   const secondaryColor = useThemeColor({}, 'secondary');
   const primaryColor = useThemeColor({}, 'primary');
+
+  // Calculate bearing between two points
+  const calculateBearing = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const lat1Rad = lat1 * Math.PI / 180;
+    const lat2Rad = lat2 * Math.PI / 180;
+    
+    const y = Math.sin(dLon) * Math.cos(lat2Rad);
+    const x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLon);
+    
+    let bearing = Math.atan2(y, x) * 180 / Math.PI;
+    return (bearing + 360) % 360;
+  };
 
   // Reset navigation state when route changes
   useEffect(() => {
@@ -45,6 +77,110 @@ export default function MapScreen() {
       setCurrentSegmentIndex(0);
     }
   }, [session?.activeRoute?.routeID]);
+
+  // Device orientation listener for both normal and 3D view
+  useEffect(() => {
+    let orientationSubscription: any;
+
+    const startOrientationTracking = async () => {
+      try {
+        // Request permission for location (needed for orientation)
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          console.log('Location permission not granted');
+          return;
+        }
+
+        // Start watching device orientation
+        orientationSubscription = Location.watchHeadingAsync((heading) => {
+          setDeviceOrientation(heading.magHeading);
+          setTargetHeading(heading.magHeading);
+        });
+      } catch (error) {
+        console.error('Error starting orientation tracking:', error);
+      }
+    };
+
+    startOrientationTracking();
+
+    return () => {
+      if (orientationSubscription && typeof orientationSubscription.remove === 'function') {
+        orientationSubscription.remove();
+      }
+    };
+  }, []); // Always track orientation
+
+  // Smooth rotation interpolation for 3D view only
+  useEffect(() => {
+    if (!is3DView) return;
+
+    const smoothRotation = () => {
+      const diff = targetHeading - smoothHeading;
+      const absDiff = Math.abs(diff);
+      
+      // Handle 360-degree wraparound
+      let normalizedDiff = diff;
+      if (absDiff > 180) {
+        normalizedDiff = diff > 0 ? diff - 360 : diff + 360;
+      }
+      
+      // Smooth rotation for 3D view
+      const lerpFactor = 0.15;
+      const newSmoothHeading = smoothHeading + (normalizedDiff * lerpFactor);
+      
+      // Normalize to 0-360 range
+      const normalizedHeading = ((newSmoothHeading % 360) + 360) % 360;
+      
+      setSmoothHeading(normalizedHeading);
+      setCameraHeading(normalizedHeading);
+    };
+
+    const interval = setInterval(smoothRotation, 16); // ~60fps
+    return () => clearInterval(interval);
+  }, [targetHeading, smoothHeading, is3DView]);
+
+  // Update camera pitch based on device orientation for 3D effect
+  useEffect(() => {
+    if (is3DView) {
+      // First-person view with very low camera angle
+      const normalizedOrientation = (deviceOrientation % 360 + 360) % 360;
+      
+      // Minimal pitch variation for first-person feel
+      const pitchVariation = Math.sin(normalizedOrientation * Math.PI / 180) * 5; // -5 to 5 degrees
+      
+      // Very low base pitch for first-person perspective
+      const basePitch = 5; // Very low base pitch angle
+      const newPitch = basePitch + pitchVariation;
+      
+      // Clamp pitch to first-person range (0-15 degrees) for true first-person view
+      const clampedPitch = Math.max(0, Math.min(15, newPitch));
+      setTargetPitch(clampedPitch);
+    } else {
+      setCameraPitch(0);
+      setCameraHeading(0);
+      setSmoothHeading(0);
+      setTargetHeading(0);
+      setTargetPitch(0);
+      setSmoothPitch(0);
+    }
+  }, [deviceOrientation, is3DView]);
+
+  // Smooth pitch interpolation to prevent glitching
+  useEffect(() => {
+    if (!is3DView) return;
+
+    const smoothPitchUpdate = () => {
+      const diff = targetPitch - smoothPitch;
+      const lerpFactor = 0.1; // Slower pitch changes for stability
+      const newSmoothPitch = smoothPitch + (diff * lerpFactor);
+      
+      setSmoothPitch(newSmoothPitch);
+      setCameraPitch(newSmoothPitch);
+    };
+
+    const interval = setInterval(smoothPitchUpdate, 16); // ~60fps
+    return () => clearInterval(interval);
+  }, [targetPitch, smoothPitch, is3DView]);
   
 
   // Navigation logic to find current instruction and next stop
@@ -182,6 +318,14 @@ export default function MapScreen() {
       setCurrentInstruction(newInstruction);
       setDistanceToNextStep(minStepDistance);
       
+      // Calculate direction to next step for arrow
+      if (currentStep.way_points && routeData.geometry.coordinates[currentStep.way_points[0]]) {
+        const [lon, lat] = routeData.geometry.coordinates[currentStep.way_points[0]];
+        const bearing = calculateBearing(latitude, longitude, lat, lon);
+        setNextRouteDirection(bearing);
+        setShowDirectionArrow(true);
+      }
+      
       // Check if current step is completed (within 30m)
       if (minStepDistance < 30) {
         const segIndex = stepSegmentMap[targetStepIndex];
@@ -204,6 +348,8 @@ export default function MapScreen() {
         Speech.speak(newInstruction);
         setLastSpokenInstruction(newInstruction);
       }
+    } else {
+      setShowDirectionArrow(false);
     }
 
     console.log('Navigation Debug:', {
@@ -231,6 +377,26 @@ export default function MapScreen() {
       }
     } else {
       Speech.speak("Voice navigation disabled");
+    }
+  };
+
+  const toggle3DView = () => {
+    const new3DState = !is3DView;
+    setIs3DView(new3DState);
+    setRoute3dEnabled(new3DState);
+    
+    if (new3DState) {
+      Speech.speak("3D view enabled");
+    } else {
+      Speech.speak("3D view disabled");
+      // Reset camera angles when disabling 3D
+      setCameraPitch(0);
+      setCameraHeading(0);
+      setDeviceOrientation(0);
+      setSmoothHeading(0);
+      setTargetHeading(0);
+      setTargetPitch(0);
+      setSmoothPitch(0);
     }
   };
 
@@ -266,6 +432,19 @@ export default function MapScreen() {
 
   const renderActiveRoute = () => (
     <View style={styles.contentContainer}>
+      {/* Route Map */}
+      <RouteMap 
+        style={styles.mapContainer}
+        mapType={mapType}
+        showUserLocation={true}
+        showRouteMarkers={true}
+        is3DView={is3DView}
+        cameraHeading={cameraHeading}
+        cameraPitch={cameraPitch}
+        focusOnUserLocation={!is3DView}
+      />
+      
+
       <View style={styles.headerContainer}>
         <LinearGradient
           colors={['#000', 'transparent']}
@@ -286,9 +465,31 @@ export default function MapScreen() {
           colors={['transparent','transparent', primaryColor]}
           style={styles.bottomGradient}
         />
+        
+        {/* Direction Arrow above stop button */}
+        {showDirectionArrow && (
+          <View style={styles.directionArrowContainer}>
+            <View style={[
+              styles.directionArrow,
+              {
+                transform: [
+                  { rotate: `${nextRouteDirection - (is3DView ? smoothHeading : 0)}deg` }
+                ]
+              }
+            ]}>
+              <ThemedIcons 
+                library="MaterialIcons" 
+                name="navigation" 
+                size={50} 
+                color={secondaryColor} 
+              />
+            </View>
+          </View>
+        )}
+        
         <TouchableOpacity 
           style={[styles.sideButton, route3dEnabled && {backgroundColor: secondaryColor}]} 
-          onPress={() => []}
+          onPress={toggle3DView}
         >
           <ThemedIcons 
             library='MaterialDesignIcons' 
@@ -336,6 +537,14 @@ const styles = StyleSheet.create({
     top: 0,
     zIndex: 1000
   },
+  mapContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
   headerContainer:{
     position: 'absolute',
     top: 0,
@@ -352,8 +561,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 200,
-    opacity: .7,
+    height: 300,
+    opacity: .9,
     pointerEvents: 'none',
   },
   bottomGradient: {
@@ -381,6 +590,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    zIndex: 1001,
     gap: 15
   },
   sideButton:{
@@ -422,5 +632,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 7,
     zIndex: 10000000
+  },
+  directionArrowContainer: {
+    position: 'absolute',
+    bottom: 120, // Position above the stop button (70px button + 30px margin + 20px gap)
+    left: '50%',
+    marginLeft: -25, // Half of arrow width (50px)
+    zIndex: 1002,
+    pointerEvents: 'none',
+  },
+  directionArrow: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

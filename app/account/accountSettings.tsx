@@ -5,12 +5,13 @@ import { TouchableOpacity, Image } from "react-native";
 import { useSession } from "@/context/SessionContext";
 import { ThemedIcons } from "@/components/ThemedIcons";
 import Button from "@/components/Button";
-import { StyleSheet, View, Alert, Animated } from "react-native";
+import { StyleSheet, View, Alert, Animated, Modal, Dimensions } from "react-native";
 import { useState, useEffect } from "react";
 import InputModal from "@/components/modals/InputModal";
 import { useMapType } from "@/hooks/useMapType";
 import { useTheme } from "@/hooks/useTheme";
 import { useThemeAnimation } from "@/context/ThemeAnimationContext";
+import { useColorScheme } from "@/hooks/useThemeColor";
 
 import { batchUpdateUserInfo, canUpdateUserInfo, updateUserBooleanField } from "@/services/userApiService";
 
@@ -312,7 +313,6 @@ export const renderMapType = () => {
   const handleMapTypeSelect = async (mapType: string) => {
     try {
       await setMapType(mapType as any);
-      Alert.alert('Success', `Map type changed to ${mapType}`);
     } catch (error) {
       console.error('Error saving map type:', error);
       Alert.alert('Error', 'Failed to save map type preference');
@@ -380,62 +380,250 @@ export const renderMapType = () => {
 export const renderSystemTheme = () => {
   const { theme: selectedTheme, setTheme, THEME_TYPES } = useTheme();
   const { animateThemeChange } = useThemeAnimation();
+  const deviceColorScheme = useColorScheme();
+  const [showThemeModal, setShowThemeModal] = useState(false);
+  const [transitioningTheme, setTransitioningTheme] = useState<string>('');
+  const [modalAnimation] = useState(new Animated.Value(0));
+  const [slideAnimation] = useState(new Animated.Value(300)); // Start from bottom
+  const [iconAnimation] = useState(new Animated.Value(0));
+  const [rotationAnimation] = useState(new Animated.Value(0));
+  
+  // Get theme colors for modal
+  const getThemeColors = (themeType: string) => {
+    switch (themeType) {
+      case THEME_TYPES.LIGHT:
+        return {
+          overlay: 'rgba(244,244,244,.95)',
+          icon: '#FFB74D',
+          text: '#000000',
+          contentBg: '#FFFFFF'
+        };
+      case THEME_TYPES.DARK:
+        return {
+          overlay: 'rgba(2,13,25,.95)',
+          icon: '#C0C0C0',
+          text: '#FFFFFF',
+          contentBg: '#001C30'
+        };
+      case THEME_TYPES.DEVICE:
+        // Use device's actual theme colors
+        if (deviceColorScheme === 'light') {
+          return {
+            overlay: 'rgba(244,244,244,.95)',
+            icon: '#FFB74D',
+            text: '#000000',
+            contentBg: '#FFFFFF'
+          };
+        } else {
+          return {
+            overlay: 'rgba(2,13,25,.95)',
+            icon: '#C0C0C0',
+            text: '#FFFFFF',
+            contentBg: '#001C30'
+          };
+        }
+      default:
+        // Fallback to system theme colors
+        return {
+          overlay: 'rgba(0, 0, 0, 0.9)',
+          icon: '#007AFF',
+          text: '#FFFFFF',
+          contentBg: '#1C1C1E'
+        };
+    }
+  };
 
   const handleThemeSelect = async (themeType: string) => {
     try {
+      // Set the transitioning theme and show modal
+      setTransitioningTheme(themeType);
+      setShowThemeModal(true);
+      
+      // Start modal animations
+      Animated.parallel([
+        Animated.timing(modalAnimation, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnimation, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(iconAnimation, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.loop(
+          Animated.timing(rotationAnimation, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          { iterations: 3 }
+        )
+      ]).start();
+
       // Use the global animation context for smooth app-wide theme transitions
       animateThemeChange(async () => {
         await setTheme(themeType as any);
       });
+
+      // Hide modal after theme transition completes
+      setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(modalAnimation, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(slideAnimation, {
+            toValue: 300,
+            duration: 300,
+            useNativeDriver: true,
+          })
+        ]).start(() => {
+          setShowThemeModal(false);
+          setTransitioningTheme('');
+          // Reset animations
+          modalAnimation.setValue(0);
+          slideAnimation.setValue(300);
+          iconAnimation.setValue(0);
+          rotationAnimation.setValue(0);
+        });
+      }, 2000); // Show modal for 2 seconds
     } catch (error) {
       console.error('Error saving theme:', error);
+      setShowThemeModal(false);
     }
   };
 
-  return(
-    <OptionsPopup
-      key="systemTheme"
-      style={styles.optionsChild}
-      options={[
-        <TouchableOpacity 
-          key="device" 
-          style={styles.themeOption}
-          onPress={() => handleThemeSelect(THEME_TYPES.DEVICE)}
-        >
-          <ThemedIcons library='MaterialIcons' name='phone-android' size={20} />
-          <ThemedText>Device Theme</ThemedText>
-          {selectedTheme === THEME_TYPES.DEVICE && (
-            <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
-          )}
-        </TouchableOpacity>,
-        <TouchableOpacity 
-          key="light" 
-          style={styles.themeOption}
-          onPress={() => handleThemeSelect(THEME_TYPES.LIGHT)}
-        >
-          <ThemedIcons library='MaterialIcons' name='light-mode' size={20} />
-          <ThemedText>Light Mode</ThemedText>
-          {selectedTheme === THEME_TYPES.LIGHT && (
-            <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
-          )}
-        </TouchableOpacity>,
-        <TouchableOpacity 
-          key="dark" 
-          style={styles.themeOption}
-          onPress={() => handleThemeSelect(THEME_TYPES.DARK)}
-        >
-          <ThemedIcons library='MaterialIcons' name='dark-mode' size={20} />
-          <ThemedText>Dark Mode</ThemedText>
-          {selectedTheme === THEME_TYPES.DARK && (
-            <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
-          )}
-        </TouchableOpacity>,
-      ]}
-        >
+  // Get theme display info
+  const getThemeInfo = (themeType: string) => {
+    switch (themeType) {
+      case THEME_TYPES.DEVICE:
+        return { icon: 'phone-android', name: 'Device Theme' };
+      case THEME_TYPES.LIGHT:
+        return { icon: 'light-mode', name: 'Light Mode' };
+      case THEME_TYPES.DARK:
+        return { icon: 'dark-mode', name: 'Dark Mode' };
+      default:
+        return { icon: 'palette', name: 'Theme' };
+    }
+  };
 
-          <ThemedIcons library='MaterialIcons' name='palette' size={15} />
-          <ThemedText>App Theme</ThemedText>
-        </OptionsPopup>
+  const themeInfo = getThemeInfo(transitioningTheme);
+  const themeColors = getThemeColors(transitioningTheme);
+
+  return(
+    <>
+      {/* Theme Transition Modal */}
+      <Modal
+        visible={showThemeModal}
+        transparent={true}
+        animationType="none"
+        statusBarTranslucent={true}
+      >
+        <Animated.View 
+          style={[
+            styles.themeModalOverlay,
+            {
+              backgroundColor: themeColors.overlay,
+              opacity: modalAnimation,
+            }
+          ]}
+        >
+          <Animated.View 
+            style={[
+              styles.themeModalContent,
+              {
+                transform: [
+                  {
+                    translateY: slideAnimation
+                  },
+                  {
+                    scale: iconAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.5, 1],
+                    })
+                  }
+                ]
+              }
+            ]}
+          >
+            <Animated.View
+              style={{
+                transform: [{
+                  rotate: rotationAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['0deg', '360deg'],
+                  })
+                }]
+              }}
+            >
+              <ThemedIcons 
+                library='MaterialIcons' 
+                name={themeInfo.icon} 
+                size={80} 
+                color={themeColors.icon} 
+              />
+            </Animated.View>
+            <ThemedText style={[styles.themeModalSubtitle, { color: themeColors.text }]}>
+              Switching to
+            </ThemedText>
+            <ThemedText type="title" style={[styles.themeModalTitle, { color: themeColors.text }]}>
+              {themeInfo.name}
+            </ThemedText>
+          </Animated.View>
+        </Animated.View>
+      </Modal>
+
+      <OptionsPopup
+        key="systemTheme"
+        style={styles.optionsChild}
+        options={[
+          <TouchableOpacity 
+            key="device" 
+            style={styles.themeOption}
+            onPress={() => handleThemeSelect(THEME_TYPES.DEVICE)}
+          >
+            <ThemedIcons library='MaterialIcons' name='phone-android' size={20} />
+            <ThemedText>Device Theme</ThemedText>
+            {selectedTheme === THEME_TYPES.DEVICE && (
+              <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+            )}
+          </TouchableOpacity>,
+          <TouchableOpacity 
+            key="light" 
+            style={styles.themeOption}
+            onPress={() => handleThemeSelect(THEME_TYPES.LIGHT)}
+          >
+            <ThemedIcons library='MaterialIcons' name='light-mode' size={20} />
+            <ThemedText>Light Mode</ThemedText>
+            {selectedTheme === THEME_TYPES.LIGHT && (
+              <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+            )}
+          </TouchableOpacity>,
+          <TouchableOpacity 
+            key="dark" 
+            style={styles.themeOption}
+            onPress={() => handleThemeSelect(THEME_TYPES.DARK)}
+          >
+            <ThemedIcons library='MaterialIcons' name='dark-mode' size={20} />
+            <ThemedText>Dark Mode</ThemedText>
+            {selectedTheme === THEME_TYPES.DARK && (
+              <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+            )}
+          </TouchableOpacity>,
+        ]}
+          >
+
+            <ThemedIcons library='MaterialIcons' name='palette' size={15} />
+            <ThemedText>App Theme</ThemedText>
+          </OptionsPopup>
+    </>
   )
 }
 
@@ -481,5 +669,24 @@ const styles = StyleSheet.create({
       gap: 15,
       alignItems: 'center',
       flex: 1,
+    },
+    themeModalOverlay: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    themeModalContent: {
+      padding: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: 250,
+    },
+    themeModalTitle: {
+      textAlign: 'center',
+    },
+    themeModalSubtitle: {
+      marginTop: 30,
+      textAlign: 'center',
+      fontSize: 16,
     },
   });
