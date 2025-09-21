@@ -546,21 +546,24 @@ export default function GroupView() {
                     ) : itineraryData ? (
                       <View style={styles.itineraryContainer}>
                         <ViewItinerary json={itineraryData} />
-                        <View style={styles.itineraryButtonContainer}>
-                          <TouchableOpacity 
-                            style={[styles.itineraryButton, {backgroundColor: backgroundColor}]}
-                            onPress={handleEditItinerary}
-                          >
-                            <ThemedIcons library='MaterialDesignIcons' name='pencil' size={20}/>
-                          </TouchableOpacity>
-                          <TouchableOpacity 
-                            style={[styles.itineraryButton, {backgroundColor: 'red'}]}
-                            onPress={handleDeleteItinerary}
-                          >
-                            <ThemedIcons library='MaterialIcons' name='delete' size={20} color='white'/>
-                          </TouchableOpacity>
-                          
-                        </View>
+                        {isCurrentUserAdmin && (
+                          <View style={styles.itineraryButtonContainer}>
+                            <TouchableOpacity 
+                              style={[styles.itineraryButton, {backgroundColor: backgroundColor}]}
+                              onPress={handleEditItinerary}
+                            >
+                              <ThemedIcons library='MaterialDesignIcons' name='pencil' size={20}/>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                              style={[styles.itineraryButton, {backgroundColor: 'red'}]}
+                              onPress={handleDeleteItinerary}
+                            >
+                              <ThemedIcons library='MaterialIcons' name='delete' size={20} color='white'/>
+                            </TouchableOpacity>
+                            
+                          </View>
+                        )}
+                        
                         
                       </View>
                       

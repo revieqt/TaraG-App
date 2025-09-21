@@ -1,7 +1,8 @@
 import { SessionProvider, useSession } from '@/context/SessionContext';
 import { TrackingProvider } from '@/context/TrackingContext';
-import { ThemeAnimationProvider, useThemeAnimation } from '@/context/ThemeAnimationContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { initializeThemeCache } from '@/hooks/useTheme';
 // import { socketService } from '@/services/socketService';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -10,7 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-get-random-values';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Animated } from 'react-native';
+import { View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -40,13 +41,17 @@ export default function RootLayout() {
     PoppinsBold: require('../assets/fonts/Poppins-Bold.ttf'),
   });
 
-  // Themed background color
-  const backgroundColor = useThemeColor({}, 'primary');
-
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
+    const initialize = async () => {
+      // Initialize theme cache early to prevent flickering
+      await initializeThemeCache();
+      
+      if (loaded) {
+        SplashScreen.hideAsync();
+      }
+    };
+    
+    initialize();
   }, [loaded]);
 
   if (!loaded) {
@@ -54,21 +59,22 @@ export default function RootLayout() {
   }
 
   return (
-    <SessionProvider>
-      <TrackingProvider>
-        <ThemeAnimationProvider>
-          <AppContent backgroundColor={backgroundColor} />
-        </ThemeAnimationProvider>
-      </TrackingProvider>
-    </SessionProvider>
+    <ThemeProvider>
+      <SessionProvider>
+        <TrackingProvider>
+          <AppContent />
+        </TrackingProvider>
+      </SessionProvider>
+    </ThemeProvider>
   );
 }
 
-function AppContent({ backgroundColor }: { backgroundColor: string }) {
-  const { fadeAnim, scaleAnim } = useThemeAnimation();
+function AppContent() {
+  // Get themed background color inside the ThemeProvider
+  const backgroundColor = useThemeColor({}, 'primary');
 
   return (
-    <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
+    <View style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1, backgroundColor }} edges={['top', 'bottom']}>
         <SessionInitializer />
         <StatusBar style="light" backgroundColor={backgroundColor} />
@@ -102,6 +108,6 @@ function AppContent({ backgroundColor }: { backgroundColor: string }) {
           <Stack.Screen name="+not-found" />
         </Stack>
       </SafeAreaView>
-    </Animated.View>
+    </View>
   );
 }

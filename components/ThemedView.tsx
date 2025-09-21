@@ -1,4 +1,5 @@
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTheme } from '@/context/ThemeContext';
 import { type ViewProps, View } from 'react-native';
 
 export type ThemedViewProps = ViewProps & {
@@ -20,6 +21,8 @@ export function ThemedView({
   roundness,
   ...otherProps
 }: ThemedViewProps) {
+  const { isLoading } = useTheme();
+  
   let colorKey:
     | 'background'
     | 'primary'

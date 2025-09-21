@@ -9,8 +9,7 @@ import { StyleSheet, View, Alert, Animated, Modal, Dimensions } from "react-nati
 import { useState, useEffect } from "react";
 import InputModal from "@/components/modals/InputModal";
 import { useMapType } from "@/hooks/useMapType";
-import { useTheme } from "@/hooks/useTheme";
-import { useThemeAnimation } from "@/context/ThemeAnimationContext";
+import { useTheme } from "@/context/ThemeContext";
 import { useColorScheme } from "@/hooks/useThemeColor";
 
 import { batchUpdateUserInfo, canUpdateUserInfo, updateUserBooleanField } from "@/services/userApiService";
@@ -379,7 +378,6 @@ export const renderMapType = () => {
 
 export const renderSystemTheme = () => {
   const { theme: selectedTheme, setTheme, THEME_TYPES } = useTheme();
-  const { animateThemeChange } = useThemeAnimation();
   const deviceColorScheme = useColorScheme();
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [transitioningTheme, setTransitioningTheme] = useState<string>('');
@@ -466,10 +464,8 @@ export const renderSystemTheme = () => {
         )
       ]).start();
 
-      // Use the global animation context for smooth app-wide theme transitions
-      animateThemeChange(async () => {
-        await setTheme(themeType as any);
-      });
+      // Set the theme directly without animation
+      await setTheme(themeType as any);
 
       // Hide modal after theme transition completes
       setTimeout(() => {
