@@ -16,6 +16,7 @@ import { getItinerariesById } from '@/services/itinerariesApiService';
 import ViewItinerary from '@/components/custom/ViewItinerary';
 import EmptyMessage from '@/components/EmptyMessage';
 import ItineraryMap from '@/components/maps/ItineraryMap';
+import GroupChat from '@/components/custom/GroupChat';
 
 export default function GroupView() {
   const params = useLocalSearchParams();
@@ -595,6 +596,10 @@ export default function GroupView() {
                 )}
               </>
             )}
+
+            {selectedButton === 'chat' && (
+              <GroupChat groupId={groupID} />
+            )}
             
           </View>
 
@@ -610,6 +615,7 @@ const styles = StyleSheet.create({
   groupHeader: {
     paddingBottom: 15,
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
   groupTitleSection: {
     marginBottom: 15,
@@ -638,6 +644,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 10,
+    marginHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.1)',
   },
@@ -678,6 +685,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginBottom: 20,
+    marginHorizontal: 20,
     borderWidth: 1,
     borderColor: 'rgba(0,0,0,0.1)',
   },
