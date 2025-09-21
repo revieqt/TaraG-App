@@ -190,7 +190,7 @@ export default function HomeScreen() {
                 iconColor="#fff"
                 onPress={() => router.push('/home/routes/routes')}
               />
-              <ThemedText style={{fontSize: 12}}>Routes</ThemedText>
+              <ThemedText style={styles.menuOptionText}>Routes</ThemedText>
             </View>
 
             <View style={styles.menuOptions}>
@@ -201,7 +201,7 @@ export default function HomeScreen() {
                 iconColor="#fff"
                 onPress={() => router.push('/home/itineraries/itineraries')}
               />
-              <ThemedText style={{fontSize: 12}}>Itineraries</ThemedText>
+              <ThemedText style={styles.menuOptionText}>Itineraries</ThemedText>
             </View>
 
             <View style={styles.menuOptions}>
@@ -213,7 +213,7 @@ export default function HomeScreen() {
                 iconColor="#fff"
                 onPress={() => router.push('/home/safety')}
               />
-              <ThemedText style={{fontSize: 12}}>Safety</ThemedText>
+              <ThemedText style={styles.menuOptionText}>Safety</ThemedText>
             </View>
 
             <View style={styles.menuOptions}>
@@ -225,7 +225,7 @@ export default function HomeScreen() {
                 iconColor="#fff"
                 onPress={() => router.push('/home/aiChat')}
               />
-              <ThemedText style={{fontSize: 12}}>TaraAI</ThemedText>
+              <ThemedText style={styles.menuOptionText}>TaraAI</ThemedText>
             </View>
           </View>
 
@@ -433,5 +433,10 @@ const styles = StyleSheet.create({
   distance:{
     fontSize: 20,
     textAlign: 'center',
-  }
+  },
+  menuOptionText:{
+    fontSize: 12,
+    marginTop: 5,
+    opacity: 0.6,
+  },
 });

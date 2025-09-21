@@ -30,7 +30,7 @@ const ViewItinerary: React.FC<ViewItineraryProps> = ({ json }) => {
     <View style={{ flex: 1 }}>
       {itinerary && (
         <>
-          <ThemedText type="title" style={{ marginBottom: 8, flex: 1 }}>{itinerary.title}</ThemedText>
+          <ThemedText type="subtitle" style={{ marginBottom: 8, flex: 1 }}>{itinerary.title}</ThemedText>
 
           <View style={styles.typesContainer}>
             <ThemedIcons library="MaterialIcons" name="edit-calendar" size={15}/>
