@@ -10,14 +10,17 @@ import { ThemedView } from '@/components/ThemedView';
 import InputModal from '@/components/modals/InputModal';
 import { useSession } from '@/context/SessionContext';
 import { updateUserStringField } from '@/services/userApiService';
+import { useImageUpload } from '@/hooks/useImageUpload';
+import { BACKEND_URL } from '@/constants/Config';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
 
 
 export default function ProfileScreen() {
   const { userId } = useLocalSearchParams();
-  const { session } = useSession();
+  const { session, updateSession } = useSession();
   const sessionUser = session?.user;
   
   let user = sessionUser;
@@ -35,6 +38,7 @@ export default function ProfileScreen() {
   const [viewImageVisible, setViewImageVisible] = useState(false);
   const [editBioVisible, setEditBioVisible] = useState(false);
   const [isUpdatingBio, setIsUpdatingBio] = useState(false);
+  const { uploadImage, loading: uploadingImage } = useImageUpload(`${BACKEND_URL}/user/update-profile-image`);
 
   const handleBioUpdate = async (newBio: string | { areaCode: string; number: string }) => {
     if (typeof newBio !== 'string' || !sessionUser?.id || !session?.accessToken) {
@@ -53,7 +57,12 @@ export default function ProfileScreen() {
       
       // Update the local session user data
       if (session.user) {
-        session.user.bio = newBio;
+        await updateSession({
+          user: {
+            ...session.user,
+            bio: newBio
+          }
+        });
       }
       
       Alert.alert('Success', 'Bio updated successfully!');
@@ -62,6 +71,45 @@ export default function ProfileScreen() {
       Alert.alert('Error', error instanceof Error ? error.message : 'Failed to update bio');
     } finally {
       setIsUpdatingBio(false);
+    }
+  };
+
+  // Add this function
+  const handleUpdateProfileImage = async () => {
+    if (!sessionUser?.id || !session?.accessToken) {
+      Alert.alert('Error', 'You must be logged in.');
+      return;
+    }
+    // Pick image
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      const uri = asset.uri;
+      try {
+        const uploadResult = await uploadImage(uri, sessionUser.id, session.accessToken);
+        if (uploadResult.success && uploadResult.url) {
+          // Update SessionContext with new profile image using proper updateSession method
+          if (session.user) {
+            await updateSession({
+              user: {
+                ...session.user,
+                profileImage: uploadResult.url
+              }
+            });
+          }
+          Alert.alert('Success', 'Profile image updated!');
+        } else {
+          Alert.alert('Error', uploadResult.error || 'Failed to upload image');
+        }
+      } catch (err: any) {
+        Alert.alert('Error', err.message || 'Failed to upload image');
+      }
     }
   };
 
@@ -88,14 +136,11 @@ export default function ProfileScreen() {
                 </TouchableOpacity>,
                 <TouchableOpacity
                   key="updateImage"
-                  onPress={() => {
-                    // TODO: Implement update profile image functionality
-                    console.log('Update Profile Image pressed');
-                  }}
+                  onPress={handleUpdateProfileImage}
                   style={styles.optionButton}
                 >
                   <ThemedIcons library="MaterialIcons" name="edit" size={20} />
-                  <ThemedText>Update Profile Image</ThemedText>
+                  <ThemedText>{uploadingImage ? "Uploading..." : "Update Profile Image"}</ThemedText>
                 </TouchableOpacity>
               ]}
             >
