@@ -15,6 +15,7 @@ import OptionsPopup from '@/components/OptionsPopup';
 import { getItinerariesById } from '@/services/itinerariesApiService';
 import ViewItinerary from '@/components/custom/ViewItinerary';
 import EmptyMessage from '@/components/EmptyMessage';
+import ItineraryMap from '@/components/maps/ItineraryMap';
 
 export default function GroupView() {
   const params = useLocalSearchParams();
@@ -466,7 +467,9 @@ export default function GroupView() {
   return (
     <ThemedView style={{flex: 1}}>
       <BackButton type='floating' />
-      
+      {itineraryData && selectedButton === 'itinerary' && (
+        <ItineraryMap itinerary={itineraryData} />
+      )}
       <BottomSheet snapPoints={[0.3, 0.6, 0.9]} defaultIndex={1}>
         <OptionsPopup options={[
           <TouchableOpacity style={styles.options} onPress={handleLeaveGroup}>
@@ -498,18 +501,24 @@ export default function GroupView() {
             </View>
 
             
-
-            <View style={styles.buttonRow}>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.buttonRow}
+            >
               <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'members' ? accentColor : backgroundColor}]} onPress={() => handleButtonPress('members')}>
                 <ThemedText>Members</ThemedText>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'itinerary' ? accentColor : backgroundColor}]} onPress={() => handleButtonPress('itinerary')}>
                 <ThemedText>Itinerary</ThemedText>
               </TouchableOpacity>
+              <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'bills' ? accentColor : backgroundColor}]} onPress={() => []}>
+                <ThemedText>Bill Split</ThemedText>
+              </TouchableOpacity>
               <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'chat' ? accentColor : backgroundColor}]} onPress={() => handleButtonPress('chat')}>
                 <ThemedText>Chat</ThemedText>
               </TouchableOpacity>
-            </View>
+            </ScrollView>
           </View>
 
           <View style={{flex: 1}}>
