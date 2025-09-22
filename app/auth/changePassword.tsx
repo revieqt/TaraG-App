@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, View } from 'react-native';
 import { changePasswordViaBackend } from '@/services/authApiService';
 import { useSession } from '@/context/SessionContext';
+import Header from '@/components/Header';
 
 export default function ChangePasswordScreen() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -51,16 +52,13 @@ export default function ChangePasswordScreen() {
 
     return (
     
-      <ThemedView style={{flex:1, padding: 20, justifyContent: 'center'}}>
-        <BackButton type='floating'/>
+      <ThemedView style={{flex:1}}>
+        <Header label="Change Password"/>
         <KeyboardAvoidingView
-          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} // Center the container
+          style={{ flex: 1}} // Center the container
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-        <View style={{width: '100%'}}>
-          <ThemedText type="title">
-            Change Password
-          </ThemedText>
+        <View style={{padding: 20}}>
           <ThemedText style={{marginVertical: 10, marginBottom: 20}}>
             Make your account secure by changing your password regularly.
           </ThemedText>
