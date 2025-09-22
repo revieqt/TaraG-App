@@ -17,6 +17,8 @@ import ViewItinerary from '@/components/custom/ViewItinerary';
 import EmptyMessage from '@/components/EmptyMessage';
 import ItineraryMap from '@/components/maps/ItineraryMap';
 import GroupChat from '@/components/custom/GroupChat';
+import GroupMap from '@/components/maps/GroupMap';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function GroupView() {
   const params = useLocalSearchParams();
@@ -467,60 +469,76 @@ export default function GroupView() {
 
   return (
     <ThemedView style={{flex: 1}}>
-      <BackButton type='floating' />
+      {/* Default GroupMap background - always rendered */}
+      <GroupMap 
+        groupId={groupID} 
+        groupMembers={approvedMembers}
+      />
+      
+      {/* ItineraryMap overlay - only when itinerary data is successfully loaded */}
       {itineraryData && selectedButton === 'itinerary' && (
-        <ItineraryMap itinerary={itineraryData} />
+        <View style={styles.mapOverlay}>
+          <ItineraryMap itinerary={itineraryData} />
+        </View>
       )}
-      <BottomSheet snapPoints={[0.3, 0.6, 0.9]} defaultIndex={1}>
+
+      <View style={styles.headerContainer}>
+        <LinearGradient
+          colors={['#000', 'transparent']}
+          style={styles.headerGradient}
+        />
         <OptionsPopup options={[
           <TouchableOpacity style={styles.options} onPress={handleLeaveGroup}>
             <ThemedIcons library="MaterialIcons" name="person-off" size={20} />
             <ThemedText>Leave Group</ThemedText>
           </TouchableOpacity>,
         ]} style={styles.optionsButton}> 
-          <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#222" />
+          <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#fff" />
         </OptionsPopup>
+        <ThemedText type="title" style={{color: '#fff'}}>
+         {groupData.name}
+        </ThemedText>
+        <View style={styles.groupStats}>
+          <View style={styles.statItem}>
+            <ThemedIcons library='MaterialIcons' name='code' size={16} color='#fff'/>
+            <ThemedText style={styles.statText}>Invite Code: {groupData.inviteCode}</ThemedText>
+          </View>
+          <View style={styles.statItem}>
+            <ThemedIcons library='MaterialIcons' name='group' size={16} color='#fff'/>
+            <ThemedText style={styles.statText}>
+              {approvedMembers.length} member{approvedMembers.length !== 1 ? 's' : ''}
+            </ThemedText>
+          </View>
+        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.buttonRow}
+          style={{pointerEvents: 'auto'}}
+        >
+          <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'members' ? accentColor : 'rgba(0,0,0,0.5)'}]} onPress={() => handleButtonPress('members')}>
+            <ThemedText style={{color: selectedButton === 'members' ? '#222' : '#fff'}}>Members</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'itinerary' ? accentColor : 'rgba(0,0,0,0.5)'}]} onPress={() => handleButtonPress('itinerary')}>
+            <ThemedText style={{color: selectedButton === 'itinerary' ? '#222' : '#fff'}}>Itinerary</ThemedText>
+          </TouchableOpacity>
+          {/* <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'bills' ? accentColor : 'rgba(0,0,0,0.5)'}]} onPress={() => []}>
+            <ThemedText style={{color: selectedButton === 'bills' ? '#222' : '#fff'}}>Bill Split</ThemedText>
+          </TouchableOpacity> */}
+          <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'chat' ? accentColor : 'rgba(0,0,0,0.5)'}]} onPress={() => handleButtonPress('chat')}>
+            <ThemedText style={{color: selectedButton === 'chat' ? '#222' : '#fff'}}>Chat</ThemedText>
+          </TouchableOpacity>
+        </ScrollView>
+
+        
+      </View>
+      
+      <BottomSheet snapPoints={[0.3, 0.6, 0.9]} defaultIndex={1} style={{zIndex: 100000}}>
+        
   
         
 
         <ScrollView>
-          <View style={styles.groupHeader}>
-            <View style={styles.groupTitleSection}>
-              <ThemedText type="title">{groupData.name}</ThemedText>
-              <View style={styles.groupStats}>
-                <View style={styles.statItem}>
-                  <ThemedIcons library='MaterialIcons' name='code' size={16} />
-                  <ThemedText style={styles.statText}>Invite Code: {groupData.inviteCode}</ThemedText>
-                </View>
-                <View style={styles.statItem}>
-                  <ThemedIcons library='MaterialIcons' name='group' size={16} />
-                  <ThemedText style={styles.statText}>
-                    {approvedMembers.length} member{approvedMembers.length !== 1 ? 's' : ''}
-                  </ThemedText>
-                </View>
-              </View>
-            </View>
-
-            
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.buttonRow}
-            >
-              <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'members' ? accentColor : backgroundColor}]} onPress={() => handleButtonPress('members')}>
-                <ThemedText>Members</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'itinerary' ? accentColor : backgroundColor}]} onPress={() => handleButtonPress('itinerary')}>
-                <ThemedText>Itinerary</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'bills' ? accentColor : backgroundColor}]} onPress={() => []}>
-                <ThemedText>Bill Split</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'chat' ? accentColor : backgroundColor}]} onPress={() => handleButtonPress('chat')}>
-                <ThemedText>Chat</ThemedText>
-              </TouchableOpacity>
-            </ScrollView>
-          </View>
 
           <View style={{flex: 1}}>
             {selectedButton === 'members' && (
@@ -612,14 +630,6 @@ export default function GroupView() {
 }
 
 const styles = StyleSheet.create({
-  groupHeader: {
-    paddingBottom: 15,
-    marginBottom: 20,
-    paddingHorizontal: 20,
-  },
-  groupTitleSection: {
-    marginBottom: 15,
-  },
   groupStats: {
     flexDirection: 'row',
     gap: 15,
@@ -632,7 +642,7 @@ const styles = StyleSheet.create({
   },
   statText: {
     fontSize: 12,
-    opacity: 0.7,
+    color: '#fff',
   },
   inviteCodeContainer: {
     padding: 15,
@@ -661,6 +671,9 @@ const styles = StyleSheet.create({
   buttonRow:{
     flexDirection: 'row',
     gap: 10,
+    height: 35,
+    zIndex: 10000,
+    marginTop: 10,
   },
   button:{
     borderRadius: 30,
@@ -668,6 +681,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 10000,
   },
   optionsButton:{
     position: 'absolute',
@@ -682,12 +696,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   itineraryContainer:{
-    padding: 15,
-    borderRadius: 10,
     marginBottom: 20,
     marginHorizontal: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
   },
   itineraryButtonContainer:{
     flex: 1,
@@ -699,5 +709,33 @@ const styles = StyleSheet.create({
   itineraryButton:{
     padding: 10,
     borderRadius: 30
-  }
+  },
+  mapOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+  headerContainer:{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    pointerEvents: 'box-none',
+    padding: 20,
+    paddingTop: 40,
+    height: 200,
+  },
+  headerGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 300,
+    opacity: .9,
+    pointerEvents: 'none',
+  },
 });

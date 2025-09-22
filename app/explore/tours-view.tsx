@@ -21,9 +21,9 @@ export default function TourView() {
         <View style={styles.carouselContainer}>
           <Carousel
             images={[
-              'https://scontent.fceb3-1.fna.fbcdn.net/v/t39.30808-6/538287052_640597579089569_295885445416347281_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHzobkTiFqG366kjW3egNIKYOy2-iXpenZg7Lb6Jel6dhN9OdRajCf2Vg6lBkpkhwFxPiwcR-4Qza5va6qonuHK&_nc_ohc=yYyv7nky0zoQ7kNvwGkj0Zl&_nc_oc=AdnLi8hmYoE9gILiE_savI_7teWdDLZg9lstw297nrTexeW66WNxhVnJHL7ELMOGgJI&_nc_zt=23&_nc_ht=scontent.fceb3-1.fna&_nc_gid=l9V7l8PgHfg9mPH3h9g00A&oh=00_AfVWFLIdDM-c4VaBohWb73xtjQkT3kcCCtiPbXzps19YPQ&oe=68B86435', 
-              'https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/527495542_623044884178172_2105755532645257880_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeFF3UqDwUsXzdpqcCxuYlqYLCEBkEEeRhYsIQGQQR5GFth6WBVe6MZ7D64MNAMu9ZaBzxz6a4A_fT-dkR1h-_Ks&_nc_ohc=9hKLBa_CYdEQ7kNvwFwwE6Q&_nc_oc=AdlbIjLg3P1xp7m5TEVLtSYW7S6AsGw6qTlEfdgQM3wxCFxYvw1Rv9YbiZpWoWNED7Q&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=msOZePLq6CW-z9m_GEZoLw&oh=00_AfVDgTnSWOpydFJ23kvnusacLbA1Cv44PqB96Lgmc5lpcg&oe=68B88292',
-              'https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/506441581_584094611406533_1072900559871384123_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeEtoZq0Dv4VhuTKmKyJK52cmOP4GztRwN2Y4_gbO1HA3TBK8fGIxR6Julvv-BHnQ4n_1OLfQbMjE4abPk3WXcjv&_nc_ohc=0P9rrdvZS9AQ7kNvwGQogA-&_nc_oc=Adkiq6z3y4u8CJUHbMZ-09r8V9AGBOJ4f_6mi1buhKu7e_PgFmPePNQI5tIDHVe348g&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=xK0JSBlj5uHsoyUsPKpPdA&oh=00_AfWtaVtyYM7wflgg7nUgtzZ7o-OWAJTJNqhoglw24V5UOQ&oe=68B8797C'
+              'https://www.google.com/url?sa=i&url=https%3A%2F%2Fguidetothephilippines.ph%2Farticles%2Fultimate-guides%2Fmoalboal-cebu-travel-guide&psig=AOvVaw3jUD5NYjBB0sxZgsgkYQCD&ust=1758588734763000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCMD7qtmT648DFQAAAAAdAAAAABAE', 
+              'gs://taralets-3adb8.firebasestorage.app/tours/basilica.jpg',
+              'gs://taralets-3adb8.firebasestorage.app/tours/fuente.jpg'
             ]}
             navigationArrows
           />

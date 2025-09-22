@@ -47,7 +47,7 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
       anchor={{ x: 0.5, y: 0.5 }}
       zIndex={1000}
     >
-      <View style={[styles.circle, { backgroundColor: color || '#f4f4f4' }]}>
+      <View style={[styles.circle, { backgroundColor: color }]}>
         {icon ? (
           <Image
             source={{ uri: icon }}
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
+    zIndex: 1000
   },
   labelText: {
     textAlign: 'center',

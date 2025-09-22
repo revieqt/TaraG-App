@@ -259,21 +259,21 @@ export default function HomeScreen() {
                     <ThemedText type='defaultSemiBold' style={{marginTop: 3}}>
                       {weatherData ? `${Math.round(weatherData.temperature)}°C` : '0°C'}
                     </ThemedText>
-                    <ThemedText style={{opacity: .5}}>Temperature</ThemedText>
+                    <ThemedText style={styles.menuOptionText}>Temperature</ThemedText>
                   </View>
                   <View style={styles.weather}>
                     <ThemedIcons library='MaterialDesignIcons' name='cloud' size={20} color='#6B8BA4'/>
                     <ThemedText type='defaultSemiBold' style={{marginTop: 3}}>
                       {weatherData ? `${weatherData.precipitation}mm` : '0mm'}
                     </ThemedText>
-                    <ThemedText style={{opacity: .5}}>Precipitation</ThemedText>
+                    <ThemedText style={styles.menuOptionText}>Precipitation</ThemedText>
                   </View>
                   <View style={styles.weather}>
                     <ThemedIcons library='MaterialDesignIcons' name='water' size={20} color='#5A7D9A'/>
                     <ThemedText type='defaultSemiBold' style={{marginTop: 3}}>
                       {weatherData ? `${weatherData.humidity}%` : '0%'}
                     </ThemedText>
-                    <ThemedText style={{opacity: .5}}>Air Humidity</ThemedText>
+                    <ThemedText style={styles.menuOptionText}>Air Humidity</ThemedText>
                   </View>
                 </View>
               </ThemedView>

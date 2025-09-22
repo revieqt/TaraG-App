@@ -87,23 +87,20 @@ export default function ExploreScreen() {
         <View style={styles.carouselContainer}>
           <Carousel
             images={[
-              'https://scontent.fceb3-1.fna.fbcdn.net/v/t39.30808-6/538287052_640597579089569_295885445416347281_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHzobkTiFqG366kjW3egNIKYOy2-iXpenZg7Lb6Jel6dhN9OdRajCf2Vg6lBkpkhwFxPiwcR-4Qza5va6qonuHK&_nc_ohc=yYyv7nky0zoQ7kNvwGkj0Zl&_nc_oc=AdnLi8hmYoE9gILiE_savI_7teWdDLZg9lstw297nrTexeW66WNxhVnJHL7ELMOGgJI&_nc_zt=23&_nc_ht=scontent.fceb3-1.fna&_nc_gid=l9V7l8PgHfg9mPH3h9g00A&oh=00_AfVWFLIdDM-c4VaBohWb73xtjQkT3kcCCtiPbXzps19YPQ&oe=68B86435', 
-              'https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/527495542_623044884178172_2105755532645257880_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeFF3UqDwUsXzdpqcCxuYlqYLCEBkEEeRhYsIQGQQR5GFth6WBVe6MZ7D64MNAMu9ZaBzxz6a4A_fT-dkR1h-_Ks&_nc_ohc=9hKLBa_CYdEQ7kNvwFwwE6Q&_nc_oc=AdlbIjLg3P1xp7m5TEVLtSYW7S6AsGw6qTlEfdgQM3wxCFxYvw1Rv9YbiZpWoWNED7Q&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=msOZePLq6CW-z9m_GEZoLw&oh=00_AfVDgTnSWOpydFJ23kvnusacLbA1Cv44PqB96Lgmc5lpcg&oe=68B88292',
-              'https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/506441581_584094611406533_1072900559871384123_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeEtoZq0Dv4VhuTKmKyJK52cmOP4GztRwN2Y4_gbO1HA3TBK8fGIxR6Julvv-BHnQ4n_1OLfQbMjE4abPk3WXcjv&_nc_ohc=0P9rrdvZS9AQ7kNvwGQogA-&_nc_oc=Adkiq6z3y4u8CJUHbMZ-09r8V9AGBOJ4f_6mi1buhKu7e_PgFmPePNQI5tIDHVe348g&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=xK0JSBlj5uHsoyUsPKpPdA&oh=00_AfWtaVtyYM7wflgg7nUgtzZ7o-OWAJTJNqhoglw24V5UOQ&oe=68B8797C'
+              'https://scontent.fceb3-1.fna.fbcdn.net/v/t39.30808-6/481925042_1058188923004845_1719553000271680775_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeH6KVqdbWNIBeuCANlStG2GGpV19-A21B0alXX34DbUHWDqX99QWlZ9gKJ8sbsL3j_QAGDVmlZ6J8H62ZkJ8pCN&_nc_ohc=UNystwMfczYQ7kNvwGw_4jn&_nc_oc=AdmVL5dY_cd8OnovDBVZZUkBVzyVh9SnnoumlEr5IUTqKZUIK7ya7z_YmFbJA-XEd_I&_nc_zt=23&_nc_ht=scontent.fceb3-1.fna&_nc_gid=aZFwUY7uXbmujxTFtITPcg&oh=00_AfYbHR1Rq-UdXK3pFpV7KsrrvLWFBsS24G9tn8giGU8vxg&oe=68D69479', 
+              'https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/300695256_621320363028355_910404220287332843_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFAf_a1e8sXzgmaaSWeERo_Hazek1R7MWYdrN6TVHsxZiGelmPX-EtOZS8HWzBwAvhWOhUYHjzyeQXuG0MssIJy&_nc_ohc=LNeSMfbTbpMQ7kNvwGqPWcr&_nc_oc=AdkVspznP2s9J-CwhZYkf49xBot3kYCvTMHm0pxSmO2FPvrN_Np9lD5dYfU5ze1Yqu8&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=9tYS_4sTY7SyNEdTLT-N9Q&oh=00_AfYsX7ndsfcgBOQkKW_juw3-oqpix3Y2WnVl4YVCkNXtiQ&oe=68D6B644',
+              'https://scontent.fceb3-1.fna.fbcdn.net/v/t1.6435-9/51441804_2258917914139788_8538702684495020032_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeFqAUmCxLfwDjtLiLgKhWDPVd7DJJX6jitV3sMklfqOK0ffGSLscR8uYdT4o5zAefJl-InTyzrMPO1TdU_0NHXE&_nc_ohc=decouDG6yIQQ7kNvwGxGVK2&_nc_oc=Admd1MXakUUwOxuuadSb1NiCZ7MyQLwb-7AM-P3moY_T4XDto20YdFryIEsLpRakpsM&_nc_zt=23&_nc_ht=scontent.fceb3-1.fna&_nc_gid=q1jp_lJUXtPPyF8WDOEr-A&oh=00_AfbFeKwFAyAJvjSClT7ZVfOShMwVY4AFfM79lWOMHg_CXg&oe=68F83323'
             ]}
-            titles={['Mark Ken Yangyang', 'Ed Lorenz Quiroga', 'Joel Janzel Brigildo']}
-            subtitles={['potangina', 'oh oh', 'fiesta stall']}
+            titles={['Anjo World Cebu', 'Moalboal Beach Invasion', 'Cebu Historical Tour']}
+            subtitles={['Enjoy the first world-class theme park in the Visayas', 
+              'Explore the beauty of Moalboal', 
+              'Discover the rich history of Cebu']}
             buttonLabels={['View Tour', 'View Tour','View Tour']}
             buttonLinks={[() => alert('Next'), () => alert('Done'), () => alert('Done')]}
             darkenImage
             navigationArrows
           />
         </View>
-
-        <ThemedText type='subtitle'>Tours Near You</ThemedText>
-        <ThemedText type='subtitle'>Tours you might like</ThemedText>
-        <ThemedText type='subtitle'>Popular in Cebu</ThemedText>
-        <ThemedText type='subtitle'>Popular in Cebu</ThemedText>
        </ScrollView>
    );
 

@@ -97,9 +97,7 @@ const HomeMap: React.FC = () => {
               coordinate={{ latitude: latitude as number, longitude: longitude as number }}
               title="You are here"
               description="Current Location"
-              color="#0065F8"
               icon={session.user?.profileImage}
-              label="U"
             />
           )}
       </MapView>
