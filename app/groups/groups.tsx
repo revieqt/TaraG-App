@@ -227,7 +227,7 @@ export default function GroupsSection(){
             </>):(<>
                 <TouchableOpacity 
                     onPress={() => router.push({
-                        pathname: '/explore/groups-view',
+                        pathname: '/groups/groups-view',
                         params: { groupID: item.id }
                     })}
                 >

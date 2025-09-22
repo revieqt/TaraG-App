@@ -7,8 +7,7 @@ import { useSession } from '@/context/SessionContext';
 import { Alert, useAlerts } from '@/hooks/useAlerts';
 import { useLocation } from '@/hooks/useLocation';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useWeather } from '@/hooks/useWeather';
-import { getWeatherImage } from '@/utils/weatherUtils';
+import WeatherCard from '@/components/WeatherCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import HomeMap from '@/components/maps/HomeMap';
 import { router } from 'expo-router';
@@ -25,7 +24,6 @@ export default function HomeScreen() {
   const { session } = useSession();
   const user = session?.user;
   const { suburb, city, loading, error, latitude, longitude } = useLocation();
-  const { weatherData, loading: weatherLoading, error: weatherError } = useWeather(latitude || 0, longitude || 0);
   const backgroundColor = useThemeColor({}, 'background');
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
@@ -44,13 +42,6 @@ export default function HomeScreen() {
   const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
 
-  const getLocationText = () => {
-    if (error) return 'Location unavailable';
-    if (suburb && city) return `${suburb}, ${city}`;
-    if (city) return city;
-    if (suburb) return suburb;
-    return 'Location unavailable';
-  };
 
   const handleAlertPress = (alert: Alert) => {
     router.push({
@@ -231,52 +222,13 @@ export default function HomeScreen() {
 
           
           
-          {(loading || weatherLoading ) ? (
+          {loading ? (
              <View style={styles.loadingContainer}>
                <ActivityIndicator size="large"/>
              </View>
            ) : (
             <>
-              <ThemedView shadow color='primary' style={styles.locationContent}>
-                {/* Weather Image */}
-                {weatherData && (
-                  <Image 
-                    source={getWeatherImage(weatherData.weatherCode)} 
-                    style={styles.weatherImage}
-                  />
-                )}
-                
-                <ThemedText style={{opacity: .5}}>You're currently at</ThemedText>
-                <ThemedText type='subtitle'>{getLocationText()}</ThemedText>
-                {weatherData && (
-                  <ThemedText style={{opacity: .5}}>
-                    {weatherData.weatherType}
-                  </ThemedText>
-                )}
-                <View style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', gap: 10, marginTop: 30}}>
-                  <View style={styles.weather}>
-                    <ThemedIcons library='MaterialDesignIcons' name='thermometer' size={20} color='#B36B6B'/>
-                    <ThemedText type='defaultSemiBold' style={{marginTop: 3}}>
-                      {weatherData ? `${Math.round(weatherData.temperature)}°C` : '0°C'}
-                    </ThemedText>
-                    <ThemedText style={styles.menuOptionText}>Temperature</ThemedText>
-                  </View>
-                  <View style={styles.weather}>
-                    <ThemedIcons library='MaterialDesignIcons' name='cloud' size={20} color='#6B8BA4'/>
-                    <ThemedText type='defaultSemiBold' style={{marginTop: 3}}>
-                      {weatherData ? `${weatherData.precipitation}mm` : '0mm'}
-                    </ThemedText>
-                    <ThemedText style={styles.menuOptionText}>Precipitation</ThemedText>
-                  </View>
-                  <View style={styles.weather}>
-                    <ThemedIcons library='MaterialDesignIcons' name='water' size={20} color='#5A7D9A'/>
-                    <ThemedText type='defaultSemiBold' style={{marginTop: 3}}>
-                      {weatherData ? `${weatherData.humidity}%` : '0%'}
-                    </ThemedText>
-                    <ThemedText style={styles.menuOptionText}>Air Humidity</ThemedText>
-                  </View>
-                </View>
-              </ThemedView>
+              <WeatherCard current />
 
               {/* Alerts Section */}
               {alerts.length > 0 && (
@@ -367,13 +319,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  locationContent: {
-    width: '100%',
-    padding: 20,
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginBottom: 15
-  },
   redirectToTara: {
     paddingHorizontal: 20,
     paddingVertical: 13,
@@ -415,19 +360,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
     paddingVertical: 40,
-  },
-  weather:{
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '30%'
-  },
-  weatherImage: {
-    position: 'absolute',
-    right: 0,
-    width: 150,
-    height: 150,
-    marginRight: -40,
-    marginTop: -15,
   },
   distance:{
     fontSize: 20,

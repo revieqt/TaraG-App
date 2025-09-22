@@ -125,9 +125,6 @@ export default function ExploreScreen() {
 
       {/* Content */}
       <View style={{flex: 1}}>
-        {/* <View style={[styles.sectionContainer, { display: activeTab === 0 ? 'flex' : 'none' }]}>
-          {renderExploreSection()}
-        </View> */}
         <View style={[styles.sectionContainer, { display: activeTab === 0 ? 'flex' : 'none' }]}>
           <ScrollView 
             ref={activeTab === 0 ? scrollViewRef : null}

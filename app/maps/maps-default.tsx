@@ -42,7 +42,7 @@ interface Amenity {
     website: string | null;
 }
 
-export const renderDefaultMap = () => {
+export default function DefaultMap() {
     const primaryColor = useThemeColor({}, 'primary');
     const secondaryColor = useThemeColor({}, 'secondary');
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -212,7 +212,7 @@ export const renderDefaultMap = () => {
             iconLibrary="MaterialDesignIcons"
             iconName="compass"
             iconColor="#fff"
-            onPress={() => router.push('/home/routes/routes-create')}
+            onPress={() => router.push('/routes/routes-create')}
             style={{position: 'absolute', bottom: 20, right: 20}}
         />
 

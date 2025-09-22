@@ -9,7 +9,7 @@ interface WeatherData {
   humidity: number;
 }
 
-export const useWeather = (latitude: number, longitude: number) => {
+export const useWeather = (latitude: number, longitude: number, date?: string) => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,10 +23,16 @@ export const useWeather = (latitude: number, longitude: number) => {
     setLoading(true);
     setError(null);
 
-    console.log('🌤️ Fetching weather for:', { latitude, longitude });
+    console.log('🌤️ Fetching weather for:', { latitude, longitude, date });
 
     try {
-      const url = `${BACKEND_URL}/weather/current?latitude=${latitude}&longitude=${longitude}`;
+      let url = `${BACKEND_URL}/weather/current?latitude=${latitude}&longitude=${longitude}`;
+      
+      // Add date parameter if provided
+      if (date) {
+        url += `&date=${date}`;
+      }
+      
       console.log('🌤️ Weather API URL:', url);
 
       const response = await fetch(url);
@@ -54,7 +60,7 @@ export const useWeather = (latitude: number, longitude: number) => {
     if (latitude && longitude && latitude !== 0 && longitude !== 0) {
       fetchWeather();
     }
-  }, [latitude, longitude]);
+  }, [latitude, longitude, date]);
 
   return {
     weatherData,

@@ -95,7 +95,6 @@ function AppContent() {
           <Stack.Screen name="account/settings-mapType" />
           <Stack.Screen name="routes/routes" />
           <Stack.Screen name="routes/routes-create" />
-          <Stack.Screen name="routes/routes-history" />
           <Stack.Screen name="itineraries/itineraries" />
           <Stack.Screen name="itineraries/itineraries-create" />
           <Stack.Screen name="itineraries/itineraries-update" />

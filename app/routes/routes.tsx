@@ -10,7 +10,6 @@ import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { useSession } from '@/context/SessionContext';
 import EndRouteModal from '@/components/modals/EndRouteModal';
-import { useTracking } from '@/context/TrackingContext';
 import { useDistanceTracker } from '@/hooks/useDistanceTracker';
 import { useRouteTimer } from '@/hooks/useTimer';
 
@@ -88,7 +87,7 @@ export default function RoutesScreen() {
             <ThemedText>Route Settings</ThemedText>
           </TouchableOpacity>,
           ]}> 
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#222" />
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22}/>
           </OptionsPopup>
         }
       />
