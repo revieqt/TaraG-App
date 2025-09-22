@@ -580,7 +580,7 @@ export default function MapScreen() {
         
         <TouchableOpacity 
           style={styles.sideButton} 
-          onPress={() => router.push('/home/routes/routes')}
+          onPress={() => router.push('/routes/routes')}
         >
           <ThemedIcons 
             library='MaterialIcons' 
@@ -796,7 +796,7 @@ export default function MapScreen() {
         iconLibrary="MaterialDesignIcons"
         iconName="compass"
         iconColor="#fff"
-        onPress={() => router.push('/home/routes/routes-create')}
+        onPress={() => router.push('/routes/routes-create')}
         style={{position: 'absolute', bottom: 20, right: 20}}
       />
     </View>

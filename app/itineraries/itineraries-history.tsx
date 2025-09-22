@@ -80,7 +80,7 @@ export default function ItinerariesHistoryScreen() {
   // Pass the itinerary data directly to the view screen
   const goToViewItinerary = (itinerary: any) => {
     router.push({
-      pathname: '/home/itineraries/itineraries-view',
+      pathname: '/itineraries/itineraries-view',
       params: { itineraryData: JSON.stringify(itinerary) }
     });
   };

@@ -190,12 +190,12 @@ export default function UpdateItineraryScreen() {
         // Handle navigation based on returnTo parameter
         if (params.returnTo === 'groups-view' && params.groupID) {
           router.replace({
-            pathname: '/explore/groups-view',
+            pathname: '/groups/groups-view',
             params: { groupID: params.groupID }
           });
         } else {
           // Default navigation back to itineraries list
-          router.replace('/home/itineraries/itineraries');
+          router.replace('/itineraries/itineraries');
         }
       }
     })();

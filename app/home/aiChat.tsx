@@ -408,7 +408,7 @@ export default function AIChatScreen() {
                         paddingHorizontal: 14,
                         alignSelf: 'flex-start',
                       }}
-                      onPress={() => router.push('/home/routes/routes')}
+                      onPress={() => router.push('/routes/routes')}
                     >
                       <ThemedText
                         style={{ color: '#fff', fontWeight: 'bold' }}

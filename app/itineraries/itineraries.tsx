@@ -9,7 +9,6 @@ import { useSession } from '@/context/SessionContext';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
-import GradientHeader from '@/components/GradientHeader';
 
 export default function ItinerariesScreen() {
   const { session } = useSession();
@@ -83,7 +82,7 @@ export default function ItinerariesScreen() {
   // Pass the itinerary data directly to the view screen
   const goToViewItinerary = (itinerary: any) => {
     router.push({
-      pathname: '/home/itineraries/itineraries-view',
+      pathname: '/itineraries/itineraries-view',
       params: { itineraryData: JSON.stringify(itinerary) }
     });
   };
@@ -115,7 +114,7 @@ export default function ItinerariesScreen() {
         label="Itineraries" 
         rightButton={
           <OptionsPopup options={[
-            <TouchableOpacity onPress={() => router.push('/home/itineraries/itineraries-history')} style={styles.options}>
+            <TouchableOpacity onPress={() => router.push('/itineraries/itineraries-history')} style={styles.options}>
               <ThemedIcons library="MaterialIcons" name="history" size={22} color="#222" />
               <ThemedText>View History</ThemedText>
             </TouchableOpacity>
@@ -159,7 +158,7 @@ export default function ItinerariesScreen() {
         size={60}
         iconName="add"
         iconColor="#fff"
-        onPress={() => router.push('/home/itineraries/itineraries-create')}
+        onPress={() => router.push('/itineraries/itineraries-create')}
         style={{position: 'absolute', bottom: 20, right: 20}}
       />
     </ThemedView>

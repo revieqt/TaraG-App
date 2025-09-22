@@ -1,6 +1,5 @@
 import Button from '@/components/Button';
 import BottomSheet from '@/components/BottomSheet';
-import { BackButton } from '@/components/custom/BackButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ThemedIcons from '@/components/ThemedIcons';
@@ -330,7 +329,7 @@ export default function GroupView() {
     }
     
     router.push({
-      pathname: '/explore/groups-linkItinerary',
+      pathname: '/groups/groups-linkItinerary',
       params: { groupID: groupData.id }
     });
   };
@@ -343,7 +342,7 @@ export default function GroupView() {
     }
     
     router.push({
-      pathname: '/home/itineraries/itineraries-update',
+      pathname: '/itineraries/itineraries-update',
       params: { 
         itineraryData: JSON.stringify(itineraryData),
         returnTo: 'groups-view',
@@ -603,7 +602,7 @@ export default function GroupView() {
                       <Button
                         title="Link Itinerary"
                         onPress={() => router.push({
-                          pathname: '/explore/groups-linkItinerary',
+                          pathname: '/groups/groups-linkItinerary',
                           params: { groupID: groupData.id }
                         })}
                         buttonStyle={{ marginTop: 15 }}
@@ -726,7 +725,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     pointerEvents: 'box-none',
     padding: 20,
-    paddingTop: 40,
+    paddingTop: 30,
     height: 200,
   },
   headerGradient: {
@@ -734,7 +733,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: 300,
+    height: 250,
     opacity: .9,
     pointerEvents: 'none',
   },

@@ -32,7 +32,7 @@ export default function RoutesScreen() {
       );
       return;
     }
-    router.push('/home/routes/routes-create');
+    router.push('/routes/routes-create');
   };
 
   const handleEndRoute = async () => {
@@ -79,7 +79,7 @@ export default function RoutesScreen() {
         label="Routes" 
         rightButton={
           <OptionsPopup options={[
-            <TouchableOpacity style={styles.options} onPress={() => router.push('/home/routes/routes-history')}>
+            <TouchableOpacity style={styles.options} onPress={() => router.push('/routes/routes-history')}>
               <ThemedIcons library="MaterialIcons" name="history" size={20} />
               <ThemedText>View History</ThemedText>
             </TouchableOpacity>,

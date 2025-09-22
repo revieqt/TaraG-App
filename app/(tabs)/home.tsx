@@ -188,7 +188,7 @@ export default function HomeScreen() {
                 iconName="route"
                 iconSize={27}
                 iconColor="#fff"
-                onPress={() => router.push('/home/routes/routes')}
+                onPress={() => router.push('/routes/routes')}
               />
               <ThemedText style={styles.menuOptionText}>Routes</ThemedText>
             </View>
@@ -199,7 +199,7 @@ export default function HomeScreen() {
                 iconName="event-note"
                 iconSize={27}
                 iconColor="#fff"
-                onPress={() => router.push('/home/itineraries/itineraries')}
+                onPress={() => router.push('/itineraries/itineraries')}
               />
               <ThemedText style={styles.menuOptionText}>Itineraries</ThemedText>
             </View>
@@ -323,7 +323,6 @@ const styles = StyleSheet.create({
     height: 300,
     overflow: 'hidden',
     backgroundColor: 'blue',
-    borderBottomLeftRadius: 200,
   },
   taraImage: {
     position: 'absolute',
@@ -340,7 +339,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 3,
-    pointerEvents: 'none', // Allow touches to pass through to map
+    pointerEvents: 'none',
   },
   headerContent: {
     overflow: 'hidden',
@@ -361,7 +360,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-between',
-    paddingVertical: 30,
+    paddingVertical: 25,
   },
   menuOptions:{
     width: '20%',

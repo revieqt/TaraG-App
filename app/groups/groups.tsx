@@ -13,7 +13,7 @@ import EmptyMessage from '@/components/EmptyMessage';
 import { useSession } from "@/context/SessionContext";
 import { groupsApiService, Group } from "@/services/groupsApiService";
 
-export const renderGroupsSection = () => {
+export default function GroupsSection(){
     const primaryColor = useThemeColor({}, 'primary');
     const secondaryColor = useThemeColor({}, 'secondary');
     const { session } = useSession();

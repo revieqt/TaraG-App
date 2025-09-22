@@ -1,9 +1,7 @@
 import Button from '@/components/Button';
 import ProBadge from '@/components/custom/ProBadge';
 import GradientHeader from '@/components/GradientHeader';
-import OptionsPopup from '@/components/OptionsPopup';
-import Switch from '@/components/Switch';
-import { renderMapType, renderSystemTheme, renderUpdateInfo, renderVisibilitySettings } from '@/app/account/accountSettings';
+import { renderSystemTheme } from '@/app/account/settings-systemTheme';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -15,6 +13,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { renderProUpgrade } from '@/app/account/proUpgrade';
+import { renderMapTypeSettings } from '@/app/account/settings-mapType';
 
 export default function AccountScreen() {
   const { session, clearSession } = useSession();
@@ -76,7 +75,7 @@ export default function AccountScreen() {
           <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
             Customization
           </ThemedText>
-          {renderMapType()}
+          {renderMapTypeSettings()}
           {renderSystemTheme()}
           <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
             Privacy and Security
@@ -89,9 +88,18 @@ export default function AccountScreen() {
             <ThemedText>Change Password</ThemedText>
           </TouchableOpacity>
 
-          {renderUpdateInfo()}
+          <TouchableOpacity
+            onPress={() => router.push('/account/settings-updateInfo')}
+            style={styles.optionsChild}
+          >
+            <ThemedIcons library='MaterialIcons' name='info' size={15} />
+            <ThemedText>Update Information</ThemedText>
+          </TouchableOpacity>
 
-          {renderVisibilitySettings()}
+          <TouchableOpacity onPress={() => router.push('/account/settings-visibility')} style={styles.optionsChild}>
+            <ThemedIcons library='MaterialIcons' name='supervised-user-circle' size={15} />
+            <ThemedText>Profile Visibility</ThemedText>
+          </TouchableOpacity>
 
           <TouchableOpacity onPress={() => openDocument('privacyPolicy-mobileApp')} style={styles.optionsChild}>
             <ThemedIcons library='MaterialDesignIcons' name='file-eye' size={15} />

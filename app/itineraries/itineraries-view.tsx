@@ -85,7 +85,7 @@ export default function ItineraryViewScreen() {
     if (result.success) {
       setItinerary({ ...itinerary, status: 'completed', manuallyUpdated: true });
       Alert.alert('Success', 'Itinerary marked as completed.');
-      router.replace('/home/itineraries/itineraries');
+      router.replace('/itineraries/itineraries');
     } else {
       setError(result.errorMessage || 'Failed to mark as completed');
     }
@@ -102,7 +102,7 @@ export default function ItineraryViewScreen() {
     if (result.success) {
       setItinerary({ ...itinerary, status: 'cancelled', manuallyUpdated: true });
       Alert.alert('Success', 'Itinerary cancelled.');
-      router.replace('/home/itineraries/itineraries');
+      router.replace('/itineraries/itineraries');
     } else {
       setError(result.errorMessage || 'Failed to cancel itinerary');
     }
@@ -126,7 +126,7 @@ export default function ItineraryViewScreen() {
             setLoading(false);
             if (result.success) {
               Alert.alert('Deleted', 'Itinerary deleted.');
-              router.replace('/home/itineraries/itineraries');
+              router.replace('/itineraries/itineraries');
             } else {
               setError(result.errorMessage || 'Failed to delete itinerary');
             }
@@ -142,7 +142,7 @@ export default function ItineraryViewScreen() {
       return;
     }
     router.push({
-      pathname: '/home/itineraries/itineraries-update',
+      pathname: '/itineraries/itineraries-update',
       params: { itineraryData: JSON.stringify(itinerary) }
     });
   };
