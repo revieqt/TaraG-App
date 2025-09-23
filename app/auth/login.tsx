@@ -107,7 +107,7 @@ export default function LoginScreen() {
       {/* Top Splash Page */}
       <ThemedView color='secondary' style={[styles.page, styles.splash]}>
         <Image
-          source={require('@/assets/images/icon.png')}
+          source={require('@/assets/images/logo.png')}
           style={styles.logoImage}
         />
       </ThemedView>
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     marginTop: 17,
   },
   taraImage: {
-    width: 280,
+    width: 250,
     position: 'absolute',
     resizeMode: 'contain',
     borderRadius: 50,
@@ -249,17 +249,17 @@ const styles = StyleSheet.create({
   },
   textContainer:{
     bottom: 300,
-    gap: 10,
+    gap: 8,
     position: 'absolute',
     padding: 16
   },
   title:{
-    fontSize: 35,
+    fontSize: 32,
     color: '#fff',
     textAlign: 'center'
   },
   subtitle:{
-    fontSize: 16,
+    fontSize: 15,
     color: '#fff',
     textAlign: 'center'
   },
