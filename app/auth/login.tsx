@@ -1,3 +1,4 @@
+import React, { useEffect, useRef, useState } from "react";
 import Button from '@/components/Button';
 import GradientHeader from '@/components/GradientHeader';
 import PasswordField from '@/components/PasswordField';
@@ -7,17 +8,38 @@ import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/context/SessionContext';
 import { loginUserViaBackend } from '@/services/authApiService';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform,Animated, Dimensions,Easing, StyleSheet, TouchableOpacity, View, Image, ScrollView } from 'react-native';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import {LinearGradient} from 'expo-linear-gradient';
+
+const { height } = Dimensions.get("window");
 
 export default function LoginScreen() {
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      Animated.timing(translateY, {
+        toValue: -height,     // move splash up by screen height
+        duration: 3000,       // make it slow (2s total)
+        easing: Easing.inOut(Easing.quad), // slow in + slow out
+        useNativeDriver: true,
+      }).start();
+    }, 2000);
+  
+    return () => clearTimeout(timer);
+  }, []);
+  
+  
+  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const { updateSession } = useSession();
-  // const { signIn: googleSignIn, ready: googleReady } = useGoogleLogin();
+  const primaryColor = useThemeColor({}, 'primary');
 
   const handleLogin = async () => {
     setErrorMsg('');
@@ -74,105 +96,178 @@ export default function LoginScreen() {
   };
 
   return (
-    <ThemedView style={styles.background}>
-      <GradientHeader/>
-      <KeyboardAvoidingView
-        style={{width: '100%'}}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <View style={styles.formContainer}>
-          <ThemedText type='title'>Smart Plans,</ThemedText>
-          <ThemedText style={{ marginBottom: 30 }}>Safer Journeys. Join TaraG!</ThemedText>
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          transform: [{ translateY }],
+        },
+      ]}
+    >
+      {/* Top Splash Page */}
+      <ThemedView color='secondary' style={[styles.page, styles.splash]}>
+        <Image
+          source={require('@/assets/images/icon.png')}
+          style={styles.logoImage}
+        />
+      </ThemedView>
 
-          {errorMsg ? (
-            <ThemedText type='error'>{errorMsg}</ThemedText>
-          ) : null}
-
-          <TextField
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            onFocus={() => setFocusedInput('email')}
-            onBlur={() => setFocusedInput(null)}
-            isFocused={focusedInput === 'email'}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          <PasswordField
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            onFocus={() => setFocusedInput('password')}
-            onBlur={() => setFocusedInput(null)}
-            isFocused={focusedInput === 'password'}
-          />
-
-          <Button
-            title={loading ? 'Logging in...' : 'Login'}
-            onPress={handleLogin}
-            type="primary"
-            loading={loading}
-            buttonStyle={{ width: '100%', marginTop: 16 }}
-          />
-
-          <View style={styles.options}>
-            <ThemedText>or</ThemedText>
-            {/* <TouchableOpacity
-              onPress={googleSignIn}
-              disabled={!googleReady}
-            >
-              <ThemedView style={styles.circularButton} color='primary'>
-                <FontAwesome name="google" size={30} color="#4285F4" />
+      {/* Bottom Login Page */}
+      <View style={styles.page}>
+        <ThemedView color='secondary' style={{flex: 1}}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{flex: 1}}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        >
+          <ScrollView 
+            contentContainerStyle={{flexGrow: 1}}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
+          >
+            <View style={styles.contentSpacer}>
+              <View style={styles.textContainer}>
+                <ThemedText type='title' style={styles.title}>Smart Plans</ThemedText>
+                <ThemedText type='defaultSemiBold' style={styles.subtitle}>Safe Travels, Welcome to TaraG!</ThemedText>
+              </View>
+              <ThemedView color='primary' style={[styles.circle, {width: 400, aspectRatio: 1, marginBottom: -250}]}>
+                <ThemedView color='primary' style={styles.circle}>
+                  <ThemedView color='primary' style={styles.circle}>
+                  </ThemedView>
+                </ThemedView>
               </ThemedView>
-            </TouchableOpacity> */}
-            <TouchableOpacity
-              onPress={() => router.push('/auth/forgotPassword')}
-              style={{ marginTop: 20, marginBottom: 10 }}
-            >
-              <ThemedText style={{ textAlign: 'center', color: '#205781', textDecorationLine: 'underline' }}>
-                Forgot Password?
-              </ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push('/auth/register')}
-              style={{ marginVertical: 20 }}>
-              <ThemedText>Dont have an account yet? Register</ThemedText>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-    </ThemedView>
+              <Image
+                source={require('@/assets/images/tara-cheerful.png')}
+                style={styles.taraImage}
+              />
+              <LinearGradient
+                colors={['transparent', primaryColor]}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.gradientOverlay}
+                pointerEvents="none"
+              />
+            </View>
+            <ThemedView color='primary' style={{padding: 20}}>
+              {errorMsg ? (
+                <ThemedText type='error'>{errorMsg}</ThemedText>
+              ) : null}
+
+              <TextField
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                onFocus={() => setFocusedInput('email')}
+                onBlur={() => setFocusedInput(null)}
+                isFocused={focusedInput === 'email'}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <PasswordField
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                onFocus={() => setFocusedInput('password')}
+                onBlur={() => setFocusedInput(null)}
+                isFocused={focusedInput === 'password'}
+              />
+
+              <TouchableOpacity
+                onPress={() => router.push('/auth/forgotPassword')}
+              >
+                <ThemedText style={{ textAlign: 'right', color: '#205781' }}>
+                  Forgot Password?
+                </ThemedText>
+              </TouchableOpacity>
+
+              <Button
+                title={loading ? 'Logging in...' : 'Login'}
+                onPress={handleLogin}
+                type="primary"
+                loading={loading}
+                buttonStyle={{ width: '100%', marginTop: 16 }}
+              />
+
+              <View style={styles.options}>
+                <TouchableOpacity
+                  onPress={() => router.push('/auth/register')}>
+                  <ThemedText>Dont have an account yet? Register</ThemedText>
+                </TouchableOpacity>
+              </View>
+            </ThemedView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </ThemedView>
+      </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+  container: {
+    flexDirection: "column",
+    height: height * 2, // 2 pages stacked
   },
-  formContainer: {
-    marginTop: 150,
-    padding: 20
+  page: {
+    width: "100%",
+    height: height,
+  },
+  splash: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  logoImage: {
+    width: 80,
+    resizeMode: 'contain',
+  },
+  contentSpacer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   options: {
     alignItems: 'center',
     marginTop: 17,
   },
-  // circularButton: {
-  //   width: 60,
-  //   height: 60,
-  //   marginTop: 10,
-  //   marginBottom: 50,
-  //   borderRadius: 30,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   shadowColor: '#000',
-  //   shadowOffset: { width: 0, height: 2 },
-  //   shadowOpacity: 0.25,
-  //   shadowRadius: 3.84,
-  //   elevation: 5,
-  // },
+  taraImage: {
+    width: 280,
+    position: 'absolute',
+    resizeMode: 'contain',
+    borderRadius: 50,
+    marginBottom: -200,
+    marginLeft: 20
+  },
+  gradientOverlay: {
+    height: 100,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 3,
+    pointerEvents: 'none',
+  },
+  textContainer:{
+    bottom: 300,
+    gap: 10,
+    position: 'absolute',
+    padding: 16
+  },
+  title:{
+    fontSize: 35,
+    color: '#fff',
+    textAlign: 'center'
+  },
+  subtitle:{
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center'
+  },
+  circle:{
+    padding: 50,
+    width: '100%',
+    height: '100%',
+    borderRadius: 500,
+    opacity: 0.5
+  }
 });

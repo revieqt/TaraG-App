@@ -15,7 +15,6 @@ import { View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
-// 🔑 This component safely runs session-dependent effects
 function SessionInitializer() {
   const { session } = useSession();
 
@@ -43,9 +42,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     const initialize = async () => {
-      // Initialize theme cache early to prevent flickering
       await initializeThemeCache();
-      
       if (loaded) {
         SplashScreen.hideAsync();
       }
@@ -70,19 +67,9 @@ export default function RootLayout() {
 }
 
 function AppContent() {
-  // Get themed background color inside the ThemeProvider
   const backgroundColor = useThemeColor({}, 'primary');
   const { session, loading } = useSession();
-
-  // Debug logging for layout-level authentication
-  console.log('🔍 _layout.tsx - Loading:', loading);
-  console.log('🔍 _layout.tsx - Session exists:', !!session);
-  console.log('🔍 _layout.tsx - User exists:', !!session?.user);
-  console.log('🔍 _layout.tsx - Access token exists:', !!session?.accessToken);
-
-  // Determine initial route name based on authentication
   const initialRouteName = !loading && session?.user && session?.accessToken ? "(tabs)" : "index";
-  console.log('🔍 _layout.tsx - Initial route name:', initialRouteName);
 
   return (
     <View style={{ flex: 1 }}>
@@ -93,7 +80,6 @@ function AppContent() {
           screenOptions={{ headerShown: false }}
           initialRouteName={initialRouteName}
         >
-          <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="auth/login" />
           <Stack.Screen name="auth/register" />
