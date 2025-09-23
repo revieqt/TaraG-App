@@ -70,85 +70,49 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
 
   return (
     <View style={styles.container} onLayout={handleLayout}>
-      {/* Left Box - Day Display */}
-      <ThemedView color='primary' shadow
-        style={[styles.box, { width: boxWidth }]}
-      >
-        {/* Day + Date */}
-        <View style={styles.dayContent}>
-          <ThemedText style={styles.dateText}>
-            {selectedDay.toLocaleDateString("en-US", {
-              day: "numeric",
-            })}
-          </ThemedText>
-          <ThemedText style={styles.dayText}>
-            {selectedDay.toLocaleDateString("en-US", {
-              month: "long",
-            })}, {selectedDay.toLocaleDateString("en-US", {
-              year: "numeric",
-            })}
-          </ThemedText>
-          <ThemedText style={styles.dayText}>
-            {selectedDay.toLocaleDateString("en-US", { weekday: "long" })}
-          </ThemedText>
-          {/* Navigation with Dot Indicators */}
-          <View style={styles.navigationRow}>
-            {/* Left Arrow */}
-            <TouchableOpacity
-              style={styles.arrowButtonInside}
-              onPress={() =>
-                setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev))
-              }
-              disabled={selectedIndex === 0}
-            >
-              <ThemedIcons 
-                  library="MaterialIcons" 
-                  name="arrow-back-ios" 
-                  size={16}
-              />
-            </TouchableOpacity>
-
-            {/* Dot Indicators */}
-            <View style={styles.dotContainer}>
-              {weekDays.map((_, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.dot,
-                    { backgroundColor: index === selectedIndex ? accentColor : "#ccc" }
-                  ]}
-                />
-              ))}
+      {/* Left Box - Day Display with Horizontal Scroll */}
+      <ThemedView color='primary' shadow style={[styles.box, { width: boxWidth }]}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(event) => {
+            const scrollX = event.nativeEvent.contentOffset.x;
+            const dayWidth = boxWidth - 24; // Account for padding
+            const newIndex = Math.round(scrollX / dayWidth);
+            setSelectedIndex(Math.min(Math.max(0, newIndex), weekDays.length - 1));
+          }}
+        >
+          {weekDays.map((day, index) => (
+            <View key={index} style={[styles.dayContent, { width: boxWidth - 24 }]}>
+              <ThemedText style={styles.dateText}>
+                {day.toLocaleDateString("en-US", {
+                  day: "numeric",
+                })}
+              </ThemedText>
+              <ThemedText style={styles.dayText}>
+                {day.toLocaleDateString("en-US", {
+                  month: "long",
+                })}, {day.toLocaleDateString("en-US", {
+                  year: "numeric",
+                })}
+              </ThemedText>
+              <ThemedText style={styles.dayText}>
+                {day.toLocaleDateString("en-US", { weekday: "long" })}
+              </ThemedText>
             </View>
-
-            {/* Right Arrow */}
-            <TouchableOpacity
-              style={styles.arrowButtonInside}
-              onPress={() =>
-                setSelectedIndex((prev) =>
-                  prev < weekDays.length - 1 ? prev + 1 : prev
-                )
-              }
-              disabled={selectedIndex === weekDays.length - 1}
-            >
-              <ThemedIcons 
-                  library="MaterialIcons" 
-                  name="arrow-forward-ios" 
-                  size={16}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
+          ))}
+        </ScrollView>
       </ThemedView>
 
-      {/* Right Box - Events */}
+      {/* Right Box - Events for Selected Day */}
       <ThemedView color='primary' shadow style={[styles.box, { width: boxWidth }]}>
         <ScrollView>
           {dayEvents.length > 0 ? (
             dayEvents.map((ev) => (
               <View
                 key={ev.id}
-                style={[styles.eventItem,{backgroundColor: accentColor}]}
+                style={[styles.eventItem, { backgroundColor: accentColor }]}
               >
                 <ThemedText style={styles.eventTitle}>{ev.title}</ThemedText>
                 <ThemedText style={styles.eventTime}>
@@ -158,13 +122,14 @@ const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
               </View>
             ))
           ) : (
-            <View style={{padding: 15}}>
-                <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='camera-timer'
+            <View style={{ padding: 15 }}>
+              <EmptyMessage
+                iconLibrary='MaterialDesignIcons'
+                iconName='camera-timer'
                 title='No Events'
                 description="scheduled for this day"
-                />
+              />
             </View>
-            
           )}
         </ScrollView>
       </ThemedView>
@@ -178,14 +143,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  arrowButton: {
-    padding: 4,
-    marginHorizontal: 8,
-  },
-  arrowButtonInside: {
-    padding: 4,
-    marginHorizontal: 8,
-  },
   box: {
     aspectRatio: 1,
     borderRadius: 12,
@@ -193,33 +150,17 @@ const styles = StyleSheet.create({
   },
   dayContent: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   dayText: {
-    opacity: .5
+    opacity: .5,
+    textAlign: "center",
   },
   dateText: {
     fontSize: 40,
-    marginBottom: -10
-  },
-  navigationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    justifyContent: "center",
-    opacity: .5
-  },
-  dotContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 2,
+    marginBottom: -10,
+    textAlign: "center",
   },
   eventItem: {
     padding: 8,
@@ -234,10 +175,6 @@ const styles = StyleSheet.create({
   eventTime: {
     fontSize: 11,
     color: "#555",
-  },
-  noEventsText: {
-    fontSize: 14,
-    color: "#999",
   },
 });
 

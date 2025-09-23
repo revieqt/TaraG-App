@@ -72,13 +72,28 @@ export default function RootLayout() {
 function AppContent() {
   // Get themed background color inside the ThemeProvider
   const backgroundColor = useThemeColor({}, 'primary');
+  const { session, loading } = useSession();
+
+  // Debug logging for layout-level authentication
+  console.log('🔍 _layout.tsx - Loading:', loading);
+  console.log('🔍 _layout.tsx - Session exists:', !!session);
+  console.log('🔍 _layout.tsx - User exists:', !!session?.user);
+  console.log('🔍 _layout.tsx - Access token exists:', !!session?.accessToken);
+
+  // Determine initial route name based on authentication
+  const initialRouteName = !loading && session?.user && session?.accessToken ? "(tabs)" : "index";
+  console.log('🔍 _layout.tsx - Initial route name:', initialRouteName);
 
   return (
     <View style={{ flex: 1 }}>
       <SafeAreaView style={{ flex: 1, backgroundColor }} edges={['top', 'bottom']}>
         <SessionInitializer />
         <StatusBar style="light" backgroundColor={backgroundColor} />
-        <Stack screenOptions={{ headerShown: false }}>
+        <Stack 
+          screenOptions={{ headerShown: false }}
+          initialRouteName={initialRouteName}
+        >
+          <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="auth/login" />
           <Stack.Screen name="auth/register" />
@@ -106,7 +121,6 @@ function AppContent() {
           <Stack.Screen name="groups/groups-view" />
           <Stack.Screen name="groups/groups-linkItinerary" />
           <Stack.Screen name="payment" />
-          <Stack.Screen name="index" />
           <Stack.Screen name="+not-found" />
         </Stack>
       </SafeAreaView>

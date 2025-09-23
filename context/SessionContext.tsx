@@ -96,11 +96,15 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     (async () => {
       try {
+        console.log('🚀 SessionContext: Starting session initialization');
         const stored = await AsyncStorage.getItem('session');
-        console.log('🔍 SessionContext: Stored session data:', stored);
+        console.log('🔍 SessionContext: Raw stored data:', stored);
         
         if (stored) {
           const parsed = JSON.parse(stored);
+          console.log('🔍 SessionContext: Parsed session data:', parsed);
+          console.log('🔍 SessionContext: Has user:', !!parsed.user);
+          console.log('🔍 SessionContext: Has accessToken:', !!parsed.accessToken);
 
           if (parsed.user) {
             parsed.user.bdate = new Date(parsed.user.bdate);
@@ -113,15 +117,17 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
           }
 
           setSession(parsed);
-          console.log('✅ SessionContext: Session loaded successfully');
+          console.log('✅ SessionContext: Session loaded successfully', parsed);
         } else {
-          console.log('❌ SessionContext: No stored session found');
+          console.log('❌ SessionContext: No stored session found - AsyncStorage is empty');
+          setSession(null);
         }
       } catch (err) {
         console.error('❌ SessionContext: Failed to load session:', err);
+        setSession(null);
       } finally {
         setLoading(false);
-        console.log('🏁 SessionContext: Loading complete');
+        console.log('🏁 SessionContext: Loading complete, session state:', session);
       }
     })();
   }, []);
@@ -138,10 +144,16 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
 
   const clearSession = async () => {
     try {
+      console.log('🧹 SessionContext: Clearing session...');
       setSession(null);
       await AsyncStorage.removeItem('session');
+      console.log('✅ SessionContext: Session cleared successfully');
+      
+      // Verify session was cleared
+      const verification = await AsyncStorage.getItem('session');
+      console.log('🔍 SessionContext: Post-clear verification:', verification);
     } catch (err) {
-      console.error('Failed to clear session:', err);
+      console.error('❌ SessionContext: Failed to clear session:', err);
     }
   };
 
