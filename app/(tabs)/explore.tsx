@@ -1,7 +1,8 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import ToursSection from '@/app/tours/tours';
+// import ToursSection from '@/app/tours/tours';
+import TaraBuddySection from '@/app/taraBuddy/taraBuddy';
 import GroupsSection from '@/app/groups/groups';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -95,7 +96,7 @@ export default function ExploreScreen() {
         <ThemedView color='primary' style={styles.tabRow}>
           {[
             // 'Feed', 
-            'Tours', 
+            'TaraBuddy', 
             'Your Groups'
           ].map((label, idx) => (
             <TouchableOpacity
@@ -126,16 +127,16 @@ export default function ExploreScreen() {
       {/* Content */}
       <View style={{flex: 1}}>
         <View style={[styles.sectionContainer, { display: activeTab === 0 ? 'flex' : 'none' }]}>
-          <ScrollView 
+          {/* <ScrollView 
             ref={activeTab === 0 ? scrollViewRef : null}
             showsVerticalScrollIndicator={false}
             style={{width: '100%', height: '100%'}}
             contentContainerStyle={{ paddingTop: stickyHeight }}
             onScroll={handleScroll}
             scrollEventThrottle={16}
-          >
-            <ToursSection/>
-          </ScrollView>
+          > */}
+            <TaraBuddySection/>
+          {/* </ScrollView> */}
         </View>
         <View style={[styles.sectionContainer, { display: activeTab === 1 ? 'flex' : 'none' }]}>
           <ScrollView 

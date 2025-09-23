@@ -123,7 +123,7 @@ export default function LoginScreen() {
             <View style={styles.contentSpacer}>
               <View style={styles.textContainer}>
                 <ThemedText type='title' style={styles.title}>Smart Plans</ThemedText>
-                <ThemedText type='defaultSemiBold' style={styles.subtitle}>Safe Travels, Welcome to TaraG!</ThemedText>
+                <ThemedText type='defaultSemiBold' style={styles.subtitle}>Safer Journeys, Travel with TaraG!</ThemedText>
               </View>
               <ThemedView color='primary' style={[styles.circle, {width: 400, aspectRatio: 1, marginBottom: -250}]}>
                 <ThemedView color='primary' style={styles.circle}>

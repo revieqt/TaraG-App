@@ -36,7 +36,7 @@ export function ThemedText({
 const styles = StyleSheet.create({
   default: {
     fontFamily: 'Poppins',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
   },
   defaultSemiBold: {
@@ -55,13 +55,13 @@ const styles = StyleSheet.create({
   link: {
     fontFamily: 'Poppins',
     lineHeight: 30,
-    fontSize: 14,
+    fontSize: 13,
     color: '#0a7ea4',
     textDecorationLine: 'underline',
   },
   error: {
     fontFamily: 'Poppins',
-    fontSize: 14,
+    fontSize: 13,
     paddingVertical: 10,
     color: '#d32f2f',
   },
