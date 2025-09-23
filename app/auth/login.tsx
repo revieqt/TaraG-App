@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import Button from '@/components/Button';
-import GradientHeader from '@/components/GradientHeader';
 import PasswordField from '@/components/PasswordField';
 import TextField from '@/components/TextField';
 import { ThemedText } from '@/components/ThemedText';
@@ -20,9 +19,9 @@ export default function LoginScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       Animated.timing(translateY, {
-        toValue: -height,     // move splash up by screen height
-        duration: 3000,       // make it slow (2s total)
-        easing: Easing.inOut(Easing.quad), // slow in + slow out
+        toValue: -height,
+        duration: 3000,
+        easing: Easing.inOut(Easing.quad),
         useNativeDriver: true,
       }).start();
     }, 2000);
@@ -52,14 +51,12 @@ export default function LoginScreen() {
     try {
       const response = await loginUserViaBackend(email, password);
       
-      // Update session with user data and tokens
       await updateSession({ 
         user: response.user,
         accessToken: response.accessToken,
         refreshToken: response.refreshToken
       });
       
-      // Check if this is the user's first login
       if (response.user.isFirstLogin) {
         router.replace('/auth/firstLogin');
         setLoading(false);
@@ -69,7 +66,6 @@ export default function LoginScreen() {
       router.replace('/');
     } catch (error: any) {
       if (error.requiresVerification) {
-        // Store partial session data for email verification
         await updateSession({ 
           user: { email } as any,
           accessToken: undefined,
@@ -104,7 +100,7 @@ export default function LoginScreen() {
         },
       ]}
     >
-      {/* Top Splash Page */}
+
       <ThemedView color='secondary' style={[styles.page, styles.splash]}>
         <Image
           source={require('@/assets/images/logo.png')}
@@ -112,7 +108,6 @@ export default function LoginScreen() {
         />
       </ThemedView>
 
-      {/* Bottom Login Page */}
       <View style={styles.page}>
         <ThemedView color='secondary' style={{flex: 1}}>
         <KeyboardAvoidingView
@@ -149,10 +144,6 @@ export default function LoginScreen() {
               />
             </View>
             <ThemedView color='primary' style={{padding: 20}}>
-              {errorMsg ? (
-                <ThemedText type='error'>{errorMsg}</ThemedText>
-              ) : null}
-
               <TextField
                 placeholder="Email"
                 value={email}
@@ -172,14 +163,17 @@ export default function LoginScreen() {
                 onBlur={() => setFocusedInput(null)}
                 isFocused={focusedInput === 'password'}
               />
-
-              <TouchableOpacity
-                onPress={() => router.push('/auth/forgotPassword')}
-              >
-                <ThemedText style={{ textAlign: 'right', color: '#205781' }}>
-                  Forgot Password?
-                </ThemedText>
-              </TouchableOpacity>
+              <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <ThemedText style={{ textAlign: 'right', color: 'red', fontSize: 13 }}>{errorMsg || ''}</ThemedText>
+                <TouchableOpacity
+                  onPress={() => router.push('/auth/forgotPassword')}
+                >
+                  <ThemedText style={{ textAlign: 'right', color: '#205781', fontSize: 13 }}>
+                    Forgot Password?
+                  </ThemedText>
+                </TouchableOpacity>
+              </View>
+              
 
               <Button
                 title={loading ? 'Logging in...' : 'Login'}
@@ -207,7 +201,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
-    height: height * 2, // 2 pages stacked
+    height: height * 2,
   },
   page: {
     width: "100%",
