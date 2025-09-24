@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { renderProUpgrade } from '@/app/account/proUpgrade';
 import { renderMapTypeSettings } from '@/app/account/settings-mapType';
+import SliderBar from '@/components/SliderBar';
 
 export default function TaraBuddySettingsScreen() {
   const { session} = useSession();
@@ -28,7 +29,9 @@ export default function TaraBuddySettingsScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={true}
       >
+        
         <ThemedView shadow color='primary' style={styles.header}>
+          
           <TouchableOpacity
             style={styles.profileButton}
             onPress={() =>
@@ -57,10 +60,124 @@ export default function TaraBuddySettingsScreen() {
         
         {/* Options */}
         <View style={styles.options}>
-          <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
-            Preference
-          </ThemedText>
           
+          
+          <ThemedText style={styles.warning}>
+            We’ll always try to match you with people who fit your preferences first. But if no one nearby fits the bill, we might show you other users in the area—you never know where a great connection might pop up!
+          </ThemedText>
+          <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
+            Gender
+          </ThemedText>
+          <View style={styles.buttonOptionsContainer}>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='gender-male' size={20} />
+                <ThemedText>Male</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='gender-female' size={20} />
+                <ThemedText>Female</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='gender-male-female-variant' size={20} />
+                <ThemedText>Other</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='gender-male-female' size={20} />
+                <ThemedText>Open to All</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+          </View>
+          <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
+            Distance
+          </ThemedText>
+          <SliderBar range={[10, 100]} displayValue/>
+          <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
+            Age
+          </ThemedText>
+          <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
+            Zodiac Sign
+          </ThemedText>
+          <View style={styles.buttonOptionsContainer}>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-aries' size={20} />
+                <ThemedText>Aries</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-taurus' size={20} />
+                <ThemedText>Taurus</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-gemini' size={20} />
+                <ThemedText>Gemini</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-cancer' size={20} />
+                <ThemedText>Cancer</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-leo' size={20} />
+                <ThemedText>Leo</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-virgo' size={20} />
+                <ThemedText>Virgo</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-libra' size={20} />
+                <ThemedText>Libra</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-scorpio' size={20} />
+                <ThemedText>Scorpio</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-sagittarius' size={20} />
+                <ThemedText>Sagittarius</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-capricorn' size={20} />
+                <ThemedText>Capricorn</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-aquarius' size={20} />
+                <ThemedText>Aquarius</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <ThemedView color='primary' style={styles.buttonOption}>
+                <ThemedIcons library='MaterialDesignIcons' name='zodiac-pisces' size={20} />
+                <ThemedText>Pisces</ThemedText>
+              </ThemedView>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </ThemedView>
@@ -112,5 +229,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     alignItems: 'center',
+  },
+  warning: {
+    opacity: .5,
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  buttonOptionsContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  buttonOption: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
 });

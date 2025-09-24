@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
         padding: 20,
         flexDirection: 'row',
         justifyContent: 'center',
-        gap: 10,
+        gap: 20,
     },
     bottomOption: {
         alignItems: 'center',
