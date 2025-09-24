@@ -1,4 +1,4 @@
-import { AlertCard } from '@/components/AlertCard';
+import { AlertCard } from '@/components/custom/AlertCard';
 import CubeButton from '@/components/RoundedButton';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';

@@ -453,7 +453,8 @@ export default function CreateRouteScreen() {
           defaultIndex={0} 
           style={{zIndex: 100}}
         >
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false}
+            style={{paddingHorizontal: 20}}>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
@@ -558,7 +559,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 200,
-    opacity: .7,
+    opacity: .9,
     pointerEvents: 'none',
   },
   waypointHeader: {

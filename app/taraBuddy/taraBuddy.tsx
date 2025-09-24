@@ -18,24 +18,39 @@ export default function TaraBuddySection(){
 
     return (
     <View style={{flex: 1}}>
-        <TouchableOpacity onPress={() => router.push('/taraBuddy/taraBuddy-settings')}>
-            <ThemedView color="primary" shadow style={styles.settings}>
-                <ThemedIcons library='MaterialIcons' name="settings" size={20}/>
+
+        <View style={styles.cardContainer}>
+            <ThemedView color='primary' shadow style={[styles.card, styles.welcomeCard]}>
+                <ThemedText type='subtitle' style={{marginTop: 20}}>Meet new Friends with</ThemedText>
+                <ThemedText type='title'>TaraBuddy</ThemedText>
+                <ThemedText style={{opacity: .5, textAlign: 'center', paddingVertical: 10}}>Find fellow adventurers, plan trips together, and turn every journey into a story worth sharing.</ThemedText>
+                <Button title="Start Matching" onPress={() => router.push('/taraBuddy/taraBuddy-settings')}/>
             </ThemedView>
-        </TouchableOpacity>
+        </View>
+
         <View style={styles.bottomOptionContainer}>
-            <LinearGradient
+            {/* <LinearGradient
             colors={['transparent', primaryColor]}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
             style={styles.gradientOverlay}
             pointerEvents="none"
-            />
+            /> */}
+            <TouchableOpacity onPress={() => router.push('/account/viewProfile')}>
+                <ThemedView color="primary" shadow style={styles.settings}>
+                    <ThemedIcons library='MaterialIcons' name="person" size={20}/>
+                </ThemedView>
+            </TouchableOpacity>
             <TouchableOpacity style={[styles.bottomOption, {backgroundColor: '#4CAF50'}]}>
                 <ThemedIcons library='MaterialIcons' name="close" size={40} color="white"/>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.bottomOption, {backgroundColor: '#4CAF50'}]}>
                 <Foundation name="like" size={40} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/taraBuddy/taraBuddy-settings')}>
+                <ThemedView color="primary" shadow style={styles.settings}>
+                    <ThemedIcons library='MaterialIcons' name="settings" size={20}/>
+                </ThemedView>
             </TouchableOpacity>
         </View>
         
@@ -64,7 +79,8 @@ const styles = StyleSheet.create({
         padding: 20,
         flexDirection: 'row',
         justifyContent: 'center',
-        gap: 20,
+        alignItems: 'center',
+        gap: 15,
     },
     bottomOption: {
         alignItems: 'center',
@@ -84,15 +100,39 @@ const styles = StyleSheet.create({
         zIndex: 4,
     },
     settings: {
-        position: 'absolute',
-        top: 135,
-        right: 15,
-        zIndex: 4,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 8,
+        width: 40,
+        aspectRatio: 1,
         borderRadius: 50,
-        opacity: 0.5,
+        backgroundColor: 'white',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        zIndex: 4,
     },
-
+    cardContainer: {
+        flex: 1,
+        margin: 20,
+        zIndex: 0,
+        marginBottom: 40,
+        gap: 20,
+        marginTop: 135,
+    },
+    card: {
+        padding: 20,
+        borderRadius: 15,
+        zIndex: 2,
+        width: '100%',
+        height: '100%',
+    },
+    welcomeCard: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 });

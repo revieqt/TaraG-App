@@ -188,9 +188,10 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
           }}
         >
           <ThemedView style={styles.alertButton} shadow>
-            <TouchableOpacity onPress={() => setHideAlert(true)} style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5}}>
+            {/* DISPLAY ALERTS HERE WHEN CLICKED */}
+            <TouchableOpacity onPress={() => []} style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5}}>
               <Image source={require('@/assets/images/tara-worried.png')} style={styles.taraImage} />
-            </TouchableOpacity>
+            </TouchableOpacity> 
           </ThemedView>
         </Animated.View>
 

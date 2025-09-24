@@ -40,36 +40,6 @@ export default function TaraBuddySettingsScreen() {
             We’ll always try to match you with people who fit your preferences first. But if no one nearby fits the bill, we might show you other users in the area—you never know where a great connection might pop up!
           </ThemedText>
           <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
-            Your Profile
-          </ThemedText>
-          <ThemedView shadow color='primary' style={styles.header}>
-          
-            <TouchableOpacity
-              style={styles.profileButton}
-              onPress={() =>
-                router.push({
-                  pathname: '/account/viewProfile',
-                  params: { userId: user?.id },
-                })
-              }
-            >
-              <Image
-                source={{ uri: session?.user?.profileImage || 'https://ui-avatars.com/api/?name=User' }}
-                style={styles.profileImage}
-              />
-              <View style={{ justifyContent: 'center' }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <ThemedText type='defaultSemiBold'>{fullName}</ThemedText>
-                  <ProBadge/>
-                </View>
-                <ThemedText style={{opacity: .5}}>@{user?.username}</ThemedText>
-              </View>
-              <View style={{ position: 'absolute', right: 0 }}>
-                <ThemedIcons library='MaterialIcons' name='arrow-forward-ios' size={20} />
-              </View>
-            </TouchableOpacity>
-          </ThemedView>
-          <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
             Gender
           </ThemedText>
           <ThemedText>
