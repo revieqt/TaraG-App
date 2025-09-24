@@ -96,8 +96,9 @@ export default function ExploreScreen() {
         <ThemedView color='primary' style={styles.tabRow}>
           {[
             // 'Feed', 
+            
+            'Your Groups',
             'TaraBuddy', 
-            'Your Groups'
           ].map((label, idx) => (
             <TouchableOpacity
               key={label}
@@ -127,18 +128,6 @@ export default function ExploreScreen() {
       {/* Content */}
       <View style={{flex: 1}}>
         <View style={[styles.sectionContainer, { display: activeTab === 0 ? 'flex' : 'none' }]}>
-          {/* <ScrollView 
-            ref={activeTab === 0 ? scrollViewRef : null}
-            showsVerticalScrollIndicator={false}
-            style={{width: '100%', height: '100%'}}
-            contentContainerStyle={{ paddingTop: stickyHeight }}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-          > */}
-            <TaraBuddySection/>
-          {/* </ScrollView> */}
-        </View>
-        <View style={[styles.sectionContainer, { display: activeTab === 1 ? 'flex' : 'none' }]}>
           <ScrollView 
             ref={activeTab === 1 ? scrollViewRef : null}
             showsVerticalScrollIndicator={false}
@@ -150,6 +139,19 @@ export default function ExploreScreen() {
             <GroupsSection/>
           </ScrollView>
         </View>
+        <View style={[styles.sectionContainer, { display: activeTab === 1 ? 'flex' : 'none' }]}>
+          {/* <ScrollView 
+            ref={activeTab === 0 ? scrollViewRef : null}
+            showsVerticalScrollIndicator={false}
+            style={{width: '100%', height: '100%'}}
+            contentContainerStyle={{ paddingTop: stickyHeight }}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+          > */}
+            <TaraBuddySection/>
+          {/* </ScrollView> */}
+        </View>
+        
       </View>
     </ThemedView>
   );

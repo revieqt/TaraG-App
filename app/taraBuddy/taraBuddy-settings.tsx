@@ -14,7 +14,7 @@ import React, { useState } from 'react';
 import { Alert, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { renderProUpgrade } from '@/app/account/proUpgrade';
 import { renderMapTypeSettings } from '@/app/account/settings-mapType';
-import SliderBar from '@/components/SliderBar';
+import RangeBar from '@/components/RangeBar';
 
 export default function TaraBuddySettingsScreen() {
   const { session} = useSession();
@@ -29,34 +29,8 @@ export default function TaraBuddySettingsScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={true}
       >
+        <ThemedText type='title'>Preference</ThemedText>
         
-        <ThemedView shadow color='primary' style={styles.header}>
-          
-          <TouchableOpacity
-            style={styles.profileButton}
-            onPress={() =>
-              router.push({
-                pathname: '/account/viewProfile',
-                params: { userId: user?.id },
-              })
-            }
-          >
-            <Image
-              source={{ uri: session?.user?.profileImage || 'https://ui-avatars.com/api/?name=User' }}
-              style={styles.profileImage}
-            />
-            <View style={{ justifyContent: 'center' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <ThemedText type='defaultSemiBold'>{fullName}</ThemedText>
-                <ProBadge/>
-              </View>
-              <ThemedText style={{opacity: .5}}>@{user?.username}</ThemedText>
-            </View>
-            <View style={{ position: 'absolute', right: 0 }}>
-              <ThemedIcons library='MaterialIcons' name='arrow-forward-ios' size={20} />
-            </View>
-          </TouchableOpacity>
-        </ThemedView>
         
         {/* Options */}
         <View style={styles.options}>
@@ -66,7 +40,40 @@ export default function TaraBuddySettingsScreen() {
             We’ll always try to match you with people who fit your preferences first. But if no one nearby fits the bill, we might show you other users in the area—you never know where a great connection might pop up!
           </ThemedText>
           <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
+            Your Profile
+          </ThemedText>
+          <ThemedView shadow color='primary' style={styles.header}>
+          
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={() =>
+                router.push({
+                  pathname: '/account/viewProfile',
+                  params: { userId: user?.id },
+                })
+              }
+            >
+              <Image
+                source={{ uri: session?.user?.profileImage || 'https://ui-avatars.com/api/?name=User' }}
+                style={styles.profileImage}
+              />
+              <View style={{ justifyContent: 'center' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <ThemedText type='defaultSemiBold'>{fullName}</ThemedText>
+                  <ProBadge/>
+                </View>
+                <ThemedText style={{opacity: .5}}>@{user?.username}</ThemedText>
+              </View>
+              <View style={{ position: 'absolute', right: 0 }}>
+                <ThemedIcons library='MaterialIcons' name='arrow-forward-ios' size={20} />
+              </View>
+            </TouchableOpacity>
+          </ThemedView>
+          <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
             Gender
+          </ThemedText>
+          <ThemedText>
+            Choose a gender preference for your buddy search.
           </ThemedText>
           <View style={styles.buttonOptionsContainer}>
             <TouchableOpacity>
@@ -97,12 +104,37 @@ export default function TaraBuddySettingsScreen() {
           <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
             Distance
           </ThemedText>
-          <SliderBar range={[10, 100]} displayValue/>
+          <ThemedText>
+            Choose a distance preference for your buddy search.
+          </ThemedText>
+          <RangeBar 
+            range={[1, 100]} 
+            displayValue 
+            label="km"
+            description="Maximum distance"
+            initialValue={25}
+            step={1}
+          />
           <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
             Age
           </ThemedText>
+          <ThemedText>
+            Choose an age preference for your buddy search.
+          </ThemedText>
+          <RangeBar 
+            range={[18, 80]} 
+            rangeBar 
+            displayValue 
+            label="years"
+            description="Age range"
+            initialValues={[22, 35]}
+            step={1}
+          />
           <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
             Zodiac Sign
+          </ThemedText>
+          <ThemedText>
+            You can choose one or more zodiac sign(s) for your buddy search.
           </ThemedText>
           <View style={styles.buttonOptionsContainer}>
             <TouchableOpacity>
@@ -191,15 +223,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     height: 80,
-    marginTop: 30,
     padding: 20,
     borderRadius: 15,
-    marginBottom: 20,
   },
   container: {
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+    padding: 20,
+    paddingTop: 60,
+    zIndex: 1000,
   },
   profileButton: {
     flexDirection: 'row',
@@ -217,7 +247,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   optionsTitle: {
-    marginTop: 10,
+    marginTop: 20,
+    marginBottom: 5,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     paddingBottom: 5,
@@ -232,7 +263,6 @@ const styles = StyleSheet.create({
   },
   warning: {
     opacity: .5,
-    textAlign: 'center',
     marginVertical: 10,
   },
   buttonOptionsContainer: {
