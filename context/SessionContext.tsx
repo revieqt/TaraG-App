@@ -30,6 +30,14 @@ export type User = {
     isTravelInfoPublic: boolean;
     isPersonalInfoPublic: boolean;
   };
+/** 🍐 TaraBuddy preferences */
+  taraBuddyPreference?: {
+    gender: string;
+    maxDistance: number;
+    ageRange: number[];
+    zodiac?: string[];
+    likedUsers?: string[];
+  };
 };
 
 // 🛣️ Route Data
