@@ -1,6 +1,7 @@
 import { SessionProvider, useSession } from '@/context/SessionContext';
 import { TrackingProvider } from '@/context/TrackingContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { AlertsProvider } from '@/context/AlertsContext';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { initializeThemeCache } from '@/hooks/useTheme';
 // import { socketService } from '@/services/socketService';
@@ -59,7 +60,9 @@ export default function RootLayout() {
     <ThemeProvider>
       <SessionProvider>
         <TrackingProvider>
-          <AppContent />
+          <AlertsProvider>
+            <AppContent />
+          </AlertsProvider>
         </TrackingProvider>
       </SessionProvider>
     </ThemeProvider>
