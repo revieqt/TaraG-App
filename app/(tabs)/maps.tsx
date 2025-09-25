@@ -1,5 +1,5 @@
 import RouteMap from '@/components/maps/RouteMap';
-import { StyleSheet,  View, TouchableOpacity, Alert, Dimensions, Modal, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Alert, Dimensions, Modal, ScrollView } from 'react-native';
 import { useSession } from '@/context/SessionContext';
 import { useTracking } from '@/context/TrackingContext';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,7 +7,7 @@ import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useRouter } from 'expo-router';
-import {useDistanceTracker} from '@/hooks/useDistanceTracker';
+import { useDistanceTracker } from '@/hooks/useDistanceTracker';
 import { useRouteTimer } from "@/hooks/useTimer";
 import * as Speech from 'expo-speech';
 import { useState, useEffect } from 'react';
@@ -23,6 +23,7 @@ import OptionsPopup from '@/components/OptionsPopup';
 import EndRouteModal from '@/components/modals/EndRouteModal';
 import Switch from '@/components/Switch';
 import { Image } from 'react-native';
+import DefaultMap from '@/app/maps/maps-default';
 
 export default function MapScreen() {
   const { session, updateSession } = useSession();
@@ -779,26 +780,7 @@ export default function MapScreen() {
 
   const renderDefaultMap = () => (
     <View style={styles.defaultMapContent}>
-      <LinearGradient
-        colors={['#000', 'transparent']}
-        style={styles.headerGradient}
-      />
-      <View style={styles.searchContent}>
-        <TouchableOpacity onPress={() => handleCategorySelect('all')}>
-          <ThemedView color='primary' shadow style={styles.searchButton}>
-            <ThemedText style={{opacity: .5}}>Search</ThemedText>
-          </ThemedView>
-        </TouchableOpacity>
-      </View>
-
-      <RoundedButton
-        size={60}
-        iconLibrary="MaterialDesignIcons"
-        iconName="compass"
-        iconColor="#fff"
-        onPress={() => router.push('/routes/routes-create')}
-        style={{position: 'absolute', bottom: 20, right: 20}}
-      />
+      <DefaultMap />
     </View>
   );
 
