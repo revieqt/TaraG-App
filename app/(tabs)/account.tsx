@@ -8,19 +8,25 @@ import { ThemedView } from '@/components/ThemedView';
 import WebViewModal from '@/components/WebView';
 import { BACKEND_URL, SUPPORT_FORM_URL, TRAVELLER_PRO_PRICE } from '@/constants/Config';
 import { useSession } from '@/context/SessionContext';
+import { useAlerts } from '@/context/AlertsContext';
+import { useLocation } from '@/hooks/useLocation';
 import { openDocument } from '@/utils/documentUtils';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { renderProUpgrade } from '@/app/account/proUpgrade';
 import { renderMapTypeSettings } from '@/app/account/settings-mapType';
 
 export default function AccountScreen() {
   const { session, clearSession } = useSession();
   const user = session?.user;
+  const { refreshGlobalAlerts, loading: alertsLoading } = useAlerts();
+  const location = useLocation();
   const [showPayment, setShowPayment] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [showSupport, setShowSupport] = useState(false);
+  const [devMode, setDevMode] = useState(false);
+  const [isFetchingAlerts, setIsFetchingAlerts] = useState(false);
 
   const fullName = [user?.fname, user?.mname, user?.lname].filter(Boolean).join(' ');
 
@@ -30,6 +36,27 @@ export default function AccountScreen() {
       router.replace('/auth/login');
     } catch (err) {
       Alert.alert('Logout Failed', 'An error occurred while logging out.');
+    }
+  };
+
+  const handleManualFetchAlerts = async () => {
+    if (!location.latitude || !location.longitude) {
+      Alert.alert('Location Required', 'Location data is required to fetch alerts. Please ensure location services are enabled.');
+      return;
+    }
+
+    // Show fetching alert
+    Alert.alert('Fetching Alerts', 'Please wait while we fetch the latest global alerts...');
+    
+    setIsFetchingAlerts(true);
+    try {
+      await refreshGlobalAlerts({ force: true });
+      Alert.alert('Success', 'Global alerts have been manually fetched and updated.');
+    } catch (error) {
+      console.error('Manual fetch error:', error);
+      Alert.alert('Fetch Failed', 'Failed to fetch global alerts. Please try again.');
+    } finally {
+      setIsFetchingAlerts(false);
     }
   };
   
@@ -125,6 +152,47 @@ export default function AccountScreen() {
             <ThemedIcons library='MaterialDesignIcons' name='file-find' size={15} />
             <ThemedText>About TaraG</ThemedText>
           </TouchableOpacity>
+          <Pressable 
+            onLongPress={() => {
+              const timer = setTimeout(() => {
+                setDevMode(!devMode);
+                Alert.alert(
+                  'Developer Mode', 
+                  devMode ? 'Developer mode disabled' : 'Developer mode enabled!'
+                );
+              }, 3000);
+              
+              // Clear the timer if the press is released before 3 seconds
+              return () => clearTimeout(timer);
+            }}
+            style={({ pressed }) => [
+              styles.optionsChild,
+              pressed && { opacity: 0.6 }
+            ]}
+            delayLongPress={100} // Slight delay before long press is recognized
+          >
+            <ThemedIcons library='MaterialDesignIcons' name='diversify' size={15} />
+            <ThemedText>TaraG Version 1.0 {devMode ? ' (Dev Mode)' : ''}</ThemedText>
+          </Pressable>
+
+          {devMode && (
+            <>
+              <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
+                Developer Tools
+              </ThemedText>
+              <TouchableOpacity 
+                onPress={handleManualFetchAlerts} 
+                style={styles.optionsChild}
+              >
+                <ThemedIcons 
+                  library='MaterialDesignIcons' 
+                  name='download' 
+                  size={15} 
+                />
+                <ThemedText>Manually Fetch Global Alerts</ThemedText>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         {/* Logout Button */}

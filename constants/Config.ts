@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const BACKEND_URL = "http://192.168.68.46:5000/api";
+export const BACKEND_URL = "http://192.168.1.57:5000/api";
 export const SUPPORT_FORM_URL = "https://forms.gle/PPqT7Sy2JNY5NH2c6";
 export const MAX_FREE_MESSAGES_PER_DAY = 5;
 export const TRAVELLER_PRO_PRICE = 4.99;

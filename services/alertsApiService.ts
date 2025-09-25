@@ -95,13 +95,7 @@ const fetchAlertsFromBackend = async (locations: string[]): Promise<Alert[]> => 
     console.log('Fetching alerts for locations:', locations);
     console.log('Backend URL:', `${BACKEND_URL}/alerts`);
     
-    const response = await fetch(`${BACKEND_URL}/alerts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ locations }),
-    });
+    const response = await fetch(`${BACKEND_URL}/alerts/by-location?locations=${encodeURIComponent(locations.join(','))}`);
     
     console.log('Response status:', response.status);
     
@@ -114,12 +108,9 @@ const fetchAlertsFromBackend = async (locations: string[]): Promise<Alert[]> => 
     const data = await response.json();
     console.log('Response data:', data);
     
-    if (!data.success) {
-      throw new Error(data.error || 'Failed to fetch alerts');
-    }
     
     // Process alerts to convert Firestore timestamps
-    const processedAlerts = (data.data || []).map((alert: any) => {
+    const processedAlerts = (data || []).map((alert: any) => {
       console.log('Processing alert:', alert);
       return {
         ...alert,
@@ -188,6 +179,35 @@ export const getAlerts = async (location: LocationData): Promise<Alert[]> => {
       console.error('Error reading from cache:', cacheError);
     }
     
+    throw error;
+  }
+};
+
+/**
+ * Manually fetch alerts bypassing time restrictions (for developer use)
+ */
+export const manualFetchAlerts = async (location: LocationData): Promise<Alert[]> => {
+  try {
+    console.log('Manual fetch alerts triggered');
+    
+    const locations = generateLocationQueries(location);
+    if (locations.length === 0) {
+      throw new Error('No valid location data available');
+    }
+    
+    // Force fetch from backend regardless of time restrictions
+    const alerts = await fetchAlertsFromBackend(locations);
+    
+    // Cache the results
+    await AsyncStorage.setItem(ALERTS_CACHE_KEY, JSON.stringify({
+      data: alerts,
+      timestamp: Date.now(),
+    }));
+    
+    console.log(`Manual fetch completed: ${alerts.length} alerts retrieved`);
+    return alerts;
+  } catch (error) {
+    console.error('Error in manual fetch alerts:', error);
     throw error;
   }
 };

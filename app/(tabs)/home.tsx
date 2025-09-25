@@ -229,30 +229,6 @@ export default function HomeScreen() {
            ) : (
             <>
               <WeatherCard current />
-
-              {/* Alerts Section */}
-              {alerts.length > 0 && (
-                <View style={styles.alertsSection}>
-                  <View style={styles.alertsHeader}>
-                    <ThemedText type="subtitle">Local Alerts</ThemedText>
-                    <ThemedText style={styles.alertCount}>{alerts.length} alert{alerts.length !== 1 ? 's' : ''}</ThemedText>
-                  </View>
-                  <ScrollView 
-                    horizontal 
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.alertsScrollContainer}
-                  >
-                    {alerts.map((alert) => (
-                      <AlertCard
-                        key={alert.id}
-                        alert={alert}
-                        onPress={handleAlertPress}
-                      />
-                    ))}
-                  </ScrollView>
-                </View>
-              )}
-
               <WeeklyCalendar
                 events={calendarEvents}
               />

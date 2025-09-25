@@ -24,6 +24,7 @@ export interface AlertItem {
   locations: string[]; // affected locations
   createdOn?: Date;
   source?: 'global' | 'local';
+  state: 'unread' | 'read';
 }
 
 export interface AlertsContextProps {
@@ -36,6 +37,7 @@ export interface AlertsContextProps {
   addLocalAlert: (alert: Omit<AlertItem, 'id' | 'source'> & { id?: string }) => string;
   removeLocalAlert: (id: string) => void;
   clearLocalAlerts: () => void;
+  markAsRead: (id: string) => void;
 }
 
 const AlertsContext = createContext<AlertsContextProps | undefined>(undefined);
@@ -67,6 +69,11 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetchedAt, setLastFetchedAt] = useState<Date | null>(null);
+
+  // Clear any local alerts on app start (remove test data)
+  useEffect(() => {
+    setLocalAlerts([]);
+  }, []);
 
   const isMountedRef = useRef(true);
   const isFetchingRef = useRef(false);
@@ -113,6 +120,7 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         const normalized = (fetched ?? []).map((a) => ({
           ...a,
           source: 'global' as const,
+          state: 'unread' as const,
         }));
         setGlobalAlerts(normalized);
         setLastFetchedAt(new Date());
@@ -143,7 +151,8 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       location.suburb || location.city || location.state || location.region || location.country
     );
     if (!location.loading && hasLocationStrings) {
-      doFetchGlobalAlerts();
+      // Clear cache and force fresh fetch to remove any test alerts
+      doFetchGlobalAlerts({ force: true });
     }
     // We intentionally depend on location fields in doFetchGlobalAlerts dependency array.
   }, [location.loading, location.suburb, location.city, location.state, location.region, location.country, doFetchGlobalAlerts]);
@@ -158,6 +167,27 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
     const sub = AppState.addEventListener('change', handler);
     return () => sub.remove();
   }, [doFetchGlobalAlerts]);
+// Schedule automatic cache clear & refetch at 6-hour windows (6am,12pm,6pm,12am)
+  useEffect(() => {
+    const scheduleNext = () => {
+      const now = new Date();
+      const fetchHours = [0, 6, 12, 18];
+      let nextHour = fetchHours.find(h => now.getHours() < h);
+      const next = new Date(now);
+      if (nextHour === undefined) {
+        nextHour = fetchHours[0];
+        next.setDate(now.getDate() + 1);
+      }
+      next.setHours(nextHour, 0, 0, 0);
+      const delay = next.getTime() - now.getTime();
+      setTimeout(async () => {
+        await clearAlertsCache();
+        await doFetchGlobalAlerts({ force: true });
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
+  }, [doFetchGlobalAlerts]);
 
   const addLocalAlert = useCallback<
     AlertsContextProps['addLocalAlert']
@@ -167,6 +197,7 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       ...alert,
       id,
       source: 'local',
+      state: 'unread',
     };
     setLocalAlerts((prev) => [normalized, ...prev]);
     return id;
@@ -180,6 +211,19 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
 
   const clearLocalAlerts = useCallback(() => setLocalAlerts([]), []);
 
+  const markAsRead = useCallback<AlertsContextProps['markAsRead']>((id) => {
+    setGlobalAlerts((prev) => 
+      prev.map((alert) => 
+        alert.id === id ? { ...alert, state: 'read' } : alert
+      )
+    );
+    setLocalAlerts((prev) => 
+      prev.map((alert) => 
+        alert.id === id ? { ...alert, state: 'read' } : alert
+      )
+    );
+  }, []);
+
   const value = useMemo<AlertsContextProps>(
     () => ({
       globalAlerts,
@@ -191,8 +235,9 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       addLocalAlert,
       removeLocalAlert,
       clearLocalAlerts,
+      markAsRead,
     }),
-    [globalAlerts, localAlerts, loading, error, lastFetchedAt, doFetchGlobalAlerts, addLocalAlert, removeLocalAlert]
+    [globalAlerts, localAlerts, loading, error, lastFetchedAt, doFetchGlobalAlerts, addLocalAlert, removeLocalAlert, markAsRead]
   );
 
   return <AlertsContext.Provider value={value}>{children}</AlertsContext.Provider>;
