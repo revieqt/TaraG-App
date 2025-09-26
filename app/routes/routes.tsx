@@ -76,12 +76,7 @@ export default function RoutesScreen() {
     <ThemedView style={{ flex: 1 }}>
       
       <Header 
-        label="Routes" 
-        rightButton={
-          <TouchableOpacity onPress={() => router.push('/routes/routes-settings')}> 
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22}/>
-          </TouchableOpacity>
-        }
+        label="Routes"
       />
       
       <View style={{padding: 20}}>

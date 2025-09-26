@@ -1,11 +1,11 @@
 import RouteMap from '@/components/maps/RouteMap';
-import { StyleSheet,  View, TouchableOpacity, Alert, Dimensions, Modal, ScrollView } from 'react-native';
+import { StyleSheet,  View, TouchableOpacity, Alert, Image } from 'react-native';
 import { useSession } from '@/context/SessionContext';
 import { useTracking } from '@/context/TrackingContext';
+import { useRouteTracker } from '@/context/RouteTrackerContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { useRouter } from 'expo-router';
 import {useDistanceTracker} from '@/hooks/useDistanceTracker';
 import { useRouteTimer } from "@/hooks/useTimer";
@@ -17,13 +17,9 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { useMapType } from '@/hooks/useMapType';
 import { MAP_TYPES } from 'react-native-maps';
 import * as Location from 'expo-location';
-import RoundedButton from '@/components/RoundedButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsPopup from '@/components/OptionsPopup';
 import EndRouteModal from '@/components/modals/EndRouteModal';
-import Switch from '@/components/Switch';
-import { Image } from 'react-native';
-import RouteSettingsModal from '@/app/routes/routes-settings';
 
 export default function ActiveRouteMap() {
   const { session, updateSession } = useSession();
@@ -67,32 +63,12 @@ export default function ActiveRouteMap() {
   const [completedRouteStops, setCompletedRouteStops] = useState<{ latitude: number; longitude: number; locationName: string }[]>([]);
   const [completedDistance, setCompletedDistance] = useState(0);
   const [completedTime, setCompletedTime] = useState(0);
-  const [alarmNearStop, setAlarmNearStop] = useState<boolean>(false);
-  const [showRouteSettingsModal, setShowRouteSettingsModal] = useState(false);
+  // Use RouteTracker context for alarm functionality
+  const { alarmNearStop, setAlarmNearStop } = useRouteTracker();
 
-  // Load alarm setting from AsyncStorage
-  useEffect(() => {
-    const loadAlarmSetting = async () => {
-      try {
-        const saved = await AsyncStorage.getItem('alarmNearStop');
-        if (saved !== null) {
-          setAlarmNearStop(JSON.parse(saved));
-        }
-      } catch (error) {
-        console.error('Error loading alarm setting:', error);
-      }
-    };
-    loadAlarmSetting();
-  }, []);
-
-  // Save alarm setting to AsyncStorage
-  const handleAlarmToggle = async (value: boolean) => {
-    try {
-      setAlarmNearStop(value);
-      await AsyncStorage.setItem('alarmNearStop', JSON.stringify(value));
-    } catch (error) {
-      console.error('Error saving alarm setting:', error);
-    }
+  // Alarm toggle handler - now uses RouteTracker context
+  const handleAlarmToggle = (value: boolean) => {
+    setAlarmNearStop(value);
   };
 
   // Handle map type selection
@@ -102,22 +78,6 @@ export default function ActiveRouteMap() {
     } catch (error) {
       console.error('Error saving map type:', error);
       Alert.alert('Error', 'Failed to save map type preference');
-    }
-  };
-
-  // Get map type display name
-  const getMapTypeDisplayName = (mapType: string) => {
-    switch (mapType) {
-      case MAP_TYPES.STANDARD:
-        return 'Standard';
-      case MAP_TYPES.TERRAIN:
-        return 'Terrain';
-      case MAP_TYPES.SATELLITE:
-        return 'Satellite';
-      case MAP_TYPES.HYBRID:
-        return 'Hybrid';
-      default:
-        return 'Standard';
     }
   };
 
