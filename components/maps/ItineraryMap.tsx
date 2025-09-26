@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, { MAP_TYPES } from 'react-native-maps';
 import TaraMarker from './TaraMarker';
+import { useMapType } from '@/hooks/useMapType';
 
 interface Location {
   latitude: number;
@@ -35,7 +36,7 @@ interface ItineraryMapProps {
 }
 
 const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
-  // Flatten all locations from all days and filter out invalid entries
+  const { mapType: currentMapType } = useMapType();
   const allLocations: Location[] = Array.isArray(itinerary.locations)
     ? itinerary.locations
         .flatMap(day => Array.isArray(day.locations) ? day.locations : [])
@@ -62,9 +63,23 @@ const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
         longitudeDelta: 1,
       };
 
+    const getMapTypeEnum = (mapType: string) => {
+        switch (mapType) {
+          case 'satellite':
+            return MAP_TYPES.SATELLITE;
+          case 'hybrid':
+            return MAP_TYPES.HYBRID;
+          case 'terrain':
+            return MAP_TYPES.TERRAIN;
+          case 'standard':
+          default:
+            return MAP_TYPES.STANDARD;
+        }
+      };
+
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={initialRegion}>
+      <MapView style={styles.map} initialRegion={initialRegion} mapType={getMapTypeEnum(currentMapType)}>
         {allLocations.map((loc, idx) => (
           <TaraMarker
             key={`${loc.latitude},${loc.longitude},${idx}`}

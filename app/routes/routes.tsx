@@ -74,31 +74,19 @@ export default function RoutesScreen() {
 
   return (
     <ThemedView style={{ flex: 1 }}>
+      
       <Header 
         label="Routes" 
         rightButton={
-          <OptionsPopup options={[
-            <TouchableOpacity style={styles.options} onPress={() => router.push('/routes/routes-history')}>
-              <ThemedIcons library="MaterialIcons" name="history" size={20} />
-              <ThemedText>View History</ThemedText>
-            </TouchableOpacity>,
-            <TouchableOpacity style={styles.options}>
-            <ThemedIcons library="MaterialIcons" name="settings" size={20} />
-            <ThemedText>Route Settings</ThemedText>
-          </TouchableOpacity>,
-          ]}> 
+          <TouchableOpacity onPress={() => router.push('/routes/routes-settings')}> 
             <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22}/>
-          </OptionsPopup>
+          </TouchableOpacity>
         }
       />
       
       <View style={{padding: 20}}>
         {(session?.activeRoute && (
           <ThemedView color='primary' shadow style={{padding: 20, borderRadius: 10}}>
-            {/* Route Summary */}
-            
-
-            {/* Location Display */}
             <LocationDisplay 
               content={session.activeRoute.location.map((loc, index) => (
                 <View key={index}>

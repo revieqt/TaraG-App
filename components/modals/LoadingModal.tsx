@@ -16,7 +16,7 @@ const LoadingModal: React.FC<LoadingModalProps> = ({ visible, success, successMe
   useEffect(() => {
     if (visible && success && redirectTo) {
       const timer = setTimeout(() => {
-        router.replace(redirectTo);
+        router.push('/itineraries/itineraries');
       }, 2000);
       return () => clearTimeout(timer);
     }

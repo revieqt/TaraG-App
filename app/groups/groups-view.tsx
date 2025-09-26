@@ -15,9 +15,9 @@ import { getItinerariesById } from '@/services/itinerariesApiService';
 import ViewItinerary from '@/components/custom/ViewItinerary';
 import EmptyMessage from '@/components/EmptyMessage';
 import ItineraryMap from '@/components/maps/ItineraryMap';
-import GroupChat from '@/components/custom/GroupChat';
 import GroupMap from '@/components/maps/GroupMap';
 import { LinearGradient } from 'expo-linear-gradient';
+import GroupChat from './groups-chat';
 
 export default function GroupView() {
   const params = useLocalSearchParams();
@@ -32,6 +32,7 @@ export default function GroupView() {
   const [loadingGroup, setLoadingGroup] = useState(true);
   const [lastGroupFetchTime, setLastGroupFetchTime] = useState<number>(0);
   const [forceGroupRefresh, setForceGroupRefresh] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
 
   // Cache configuration
   const GROUP_CACHE_DURATION = 30000; // 30 seconds cache
@@ -317,24 +318,7 @@ export default function GroupView() {
     );
   };
 
-  // Handle linking itinerary to group
-  const handleLinkItinerary = () => {
-    if (!session?.user?.id || !groupData) return;
-    
-    // Check if current user is admin
-    const isCurrentUserAdmin = groupData.admins.includes(session.user.id);
-    if (!isCurrentUserAdmin) {
-      Alert.alert('Access Denied', 'Only admins can link itineraries to the group.');
-      return;
-    }
-    
-    router.push({
-      pathname: '/groups/groups-linkItinerary',
-      params: { groupID: groupData.id }
-    });
-  };
 
-  // Handle editing itinerary
   const handleEditItinerary = () => {
     if (!itineraryData) {
       Alert.alert('Error', 'No itinerary data available to edit.');
@@ -481,6 +465,13 @@ export default function GroupView() {
         </View>
       )}
 
+      {/* Chat Modal */}
+      <GroupChat 
+        visible={showChatModal}
+        onClose={() => setShowChatModal(false)}
+        groupData={groupData}
+      />
+
       <View style={styles.headerContainer}>
         <LinearGradient
           colors={['#000', 'transparent']}
@@ -524,8 +515,8 @@ export default function GroupView() {
           {/* <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'bills' ? accentColor : 'rgba(0,0,0,0.5)'}]} onPress={() => []}>
             <ThemedText style={{color: selectedButton === 'bills' ? '#222' : '#fff'}}>Bill Split</ThemedText>
           </TouchableOpacity> */}
-          <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'chat' ? accentColor : 'rgba(0,0,0,0.5)'}]} onPress={() => handleButtonPress('chat')}>
-            <ThemedText style={{color: selectedButton === 'chat' ? '#222' : '#fff'}}>Chat</ThemedText>
+          <TouchableOpacity style={[styles.button, {backgroundColor: 'rgba(0,0,0,0.5)'}]} onPress={() => setShowChatModal(true)}>
+            <ThemedText style={{color: '#fff'}}>Chat</ThemedText>
           </TouchableOpacity>
         </ScrollView>
 
@@ -613,16 +604,8 @@ export default function GroupView() {
                 )}
               </>
             )}
-
-            {selectedButton === 'chat' && (
-              <GroupChat groupId={groupID} />
-            )}
-            
           </View>
-
-          
         </ScrollView>
-        
       </BottomSheet>
     </ThemedView>
   );

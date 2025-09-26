@@ -27,14 +27,6 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
   
   const allAlerts = [...globalAlerts, ...localAlerts];
   const hasUnreadAlerts = allAlerts.some(alert => alert.state === 'unread');
-  
-  console.log('🔍 AlertsContainer Debug:');
-  console.log('📊 All alerts:', allAlerts.length);
-  console.log('🔴 Has unread alerts:', hasUnreadAlerts);
-  console.log('👁️ Alert button should show:', allAlerts.length > 0);
-  
-  
-  // Animation values
   const containerOpacity = useRef(new Animated.Value(0)).current;
   const containerScale = useRef(new Animated.Value(0.8)).current;
   const contentSlide = useRef(new Animated.Value(-50)).current;
@@ -173,23 +165,17 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
   }, []);
 
   const openModal = () => {
-    console.log('🔔 Alert button clicked!');
-    console.log('📊 All alerts count:', allAlerts.length);
-    console.log('📋 Alerts data:', allAlerts);
     
     if (allAlerts.length === 0) {
-      console.log('❌ No alerts to display');
       return;
     }
     
-    console.log('✅ Opening alert modal');
     setIsModalVisible(true);
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 200,
       useNativeDriver: true,
     }).start(() => {
-      console.log('🎬 Modal animation completed');
     });
   };
   
@@ -306,8 +292,6 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
         </Animated.View>
       </Animated.View>
       
-      {/* Alert Modal */}
-      {console.log('🎭 Modal render - visible:', isModalVisible, 'alerts:', allAlerts.length)}
       <Modal
         visible={isModalVisible}
         transparent

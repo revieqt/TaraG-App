@@ -19,6 +19,7 @@ import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, View } from 're
 import { groupsApiService } from '@/services/groupsApiService';
 import TextField from '@/components/TextField';
 import Button from '@/components/Button';
+import ItineraryMap from '@/components/maps/ItineraryMap';
 
 export default function ItineraryViewScreen() {
   const { itineraryData } = useLocalSearchParams<{ itineraryData?: string }>();
@@ -213,21 +214,9 @@ export default function ItineraryViewScreen() {
   return (
     <ThemedView style={{ flex: 1 }}>
       <BackButton type='floating' />
-      {/* <TaraMap showMarker={false}>
-        {getAllLocations().map((location, index) => (
-          <TaraMarker
-            key={`${location.dayIndex}-${location.locIndex}`}
-            coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-            }}
-            color="#4300FF"
-            label={location.label}
-          />
-        ))}
-      </TaraMap> */}
+      <ItineraryMap itinerary={itinerary} />
 
-      <BottomSheet snapPoints={[0.25, 0.9]} defaultIndex={0}>
+      <BottomSheet snapPoints={[0.25, 0.9]} defaultIndex={0} style={{paddingHorizontal: 20}}>
         {showFirstOptions ? (
           <OptionsPopup
             options={[

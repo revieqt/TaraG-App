@@ -91,13 +91,14 @@ const SOSButton: React.FC<SOSButtonProps> = ({
 
 export default SOSButton;
 
-const BUTTON_SIZE = 80;
-const RING_SIZE = 100;
+const BUTTON_SIZE = 100;
+const RING_SIZE = 120;
 
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 1000,
   },
   wrapper: {
     width: RING_SIZE,

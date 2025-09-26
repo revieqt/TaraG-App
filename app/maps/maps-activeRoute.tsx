@@ -23,6 +23,7 @@ import OptionsPopup from '@/components/OptionsPopup';
 import EndRouteModal from '@/components/modals/EndRouteModal';
 import Switch from '@/components/Switch';
 import { Image } from 'react-native';
+import RouteSettingsModal from '@/app/routes/routes-settings';
 
 export default function ActiveRouteMap() {
   const { session, updateSession } = useSession();
@@ -62,22 +63,12 @@ export default function ActiveRouteMap() {
   const primaryColor = useThemeColor({}, 'primary');
 
   // Default map states (always rendered to maintain hook consistency)
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [isAllCategoryVisible, setIsAllCategoryVisible] = useState(false);
-  const [isAccomodations, setIsAccomodations] = useState(false);
-  const [isFood, setIsFood] = useState(false);
-  const [isFacilities, setIsFacilities] = useState(false);
-  const [isAttractions, setIsAttractions] = useState(false);
-  const [isServices, setIsServices] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [bottomSheetKey, setBottomSheetKey] = useState(0);
   const [showEndRouteModal, setShowEndRouteModal] = useState(false);
   const [completedRouteStops, setCompletedRouteStops] = useState<{ latitude: number; longitude: number; locationName: string }[]>([]);
   const [completedDistance, setCompletedDistance] = useState(0);
   const [completedTime, setCompletedTime] = useState(0);
   const [alarmNearStop, setAlarmNearStop] = useState<boolean>(false);
+  const [showRouteSettingsModal, setShowRouteSettingsModal] = useState(false);
 
   // Load alarm setting from AsyncStorage
   useEffect(() => {
@@ -541,6 +532,17 @@ export default function ActiveRouteMap() {
           colors={['#000', 'transparent']}
           style={styles.headerGradient}
         />
+        <TouchableOpacity 
+          style={styles.infoButton} 
+          onPress={() => router.push('/routes/routes')}
+        >
+          <ThemedIcons 
+            library='MaterialIcons' 
+            name="info"
+            size={20} 
+            color="white" 
+          />
+        </TouchableOpacity>
         <ThemedText type="title" style={{color: '#fff'}}>
           {(distance / 1000).toFixed(2)} km • {Math.floor(elapsed / 60)}m {elapsed % 60}s
         </ThemedText>
@@ -578,17 +580,62 @@ export default function ActiveRouteMap() {
           </View>
         )}
         
-        <TouchableOpacity 
-          style={styles.sideButton} 
-          onPress={() => router.push('/routes/routes')}
+        <OptionsPopup
+        style={styles.sideButton}
+          options={[
+          <TouchableOpacity 
+            key="standard" 
+            style={styles.mapTypeOption}
+            onPress={() => handleMapTypeSelect(MAP_TYPES.STANDARD)}
+          >
+            <Image source={require('@/assets/images/map-standard.png')} style={styles.mapTypeImage} />
+            <ThemedText>Standard</ThemedText>
+            {mapType === MAP_TYPES.STANDARD && (
+              <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+            )}
+          </TouchableOpacity>,
+          <TouchableOpacity 
+            key="terrain" 
+            style={styles.mapTypeOption}
+            onPress={() => handleMapTypeSelect(MAP_TYPES.TERRAIN)}
+          >
+            <Image source={require('@/assets/images/map-terrain.png')} style={styles.mapTypeImage} />
+            <ThemedText>Terrain</ThemedText>
+            {mapType === MAP_TYPES.TERRAIN && (
+              <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+            )}
+          </TouchableOpacity>,
+          <TouchableOpacity 
+            key="satellite" 
+            style={styles.mapTypeOption}
+            onPress={() => handleMapTypeSelect(MAP_TYPES.SATELLITE)}
+          >
+            <Image source={require('@/assets/images/map-satellite.png')} style={styles.mapTypeImage} />
+            <ThemedText>Satellite</ThemedText>
+            {mapType === MAP_TYPES.SATELLITE && (
+              <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+            )}
+          </TouchableOpacity>,
+          <TouchableOpacity 
+            key="hybrid" 
+            style={styles.mapTypeOption}
+            onPress={() => handleMapTypeSelect(MAP_TYPES.HYBRID)}
+          >
+            <Image source={require('@/assets/images/map-hybrid.png')} style={styles.mapTypeImage} />
+            <ThemedText>Hybrid</ThemedText>
+            {mapType === MAP_TYPES.HYBRID && (
+              <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
+            )}
+          </TouchableOpacity>,
+        ]}
         >
           <ThemedIcons 
             library='MaterialIcons' 
-            name="info"
+            name="map"
             size={20} 
             color="white" 
           />
-        </TouchableOpacity>
+        </OptionsPopup>
         
         <TouchableOpacity 
           style={[styles.sideButton, route3dEnabled && {backgroundColor: secondaryColor}]} 
@@ -618,198 +665,25 @@ export default function ActiveRouteMap() {
           />
         </TouchableOpacity>
 
-        <OptionsPopup
-        style={styles.sideButton}
-          options={[
-            <OptionsPopup
-              key="mapType"
-              style={styles.settingsOption}
-              options={[
-                <TouchableOpacity 
-                  key="standard" 
-                  style={styles.mapTypeOption}
-                  onPress={() => handleMapTypeSelect(MAP_TYPES.STANDARD)}
-                >
-                  <Image source={require('@/assets/images/map-standard.png')} style={styles.mapTypeImage} />
-                  <ThemedText>Standard</ThemedText>
-                  {mapType === MAP_TYPES.STANDARD && (
-                    <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
-                  )}
-                </TouchableOpacity>,
-                <TouchableOpacity 
-                  key="terrain" 
-                  style={styles.mapTypeOption}
-                  onPress={() => handleMapTypeSelect(MAP_TYPES.TERRAIN)}
-                >
-                  <Image source={require('@/assets/images/map-terrain.png')} style={styles.mapTypeImage} />
-                  <ThemedText>Terrain</ThemedText>
-                  {mapType === MAP_TYPES.TERRAIN && (
-                    <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
-                  )}
-                </TouchableOpacity>,
-                <TouchableOpacity 
-                  key="satellite" 
-                  style={styles.mapTypeOption}
-                  onPress={() => handleMapTypeSelect(MAP_TYPES.SATELLITE)}
-                >
-                  <Image source={require('@/assets/images/map-satellite.png')} style={styles.mapTypeImage} />
-                  <ThemedText>Satellite</ThemedText>
-                  {mapType === MAP_TYPES.SATELLITE && (
-                    <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
-                  )}
-                </TouchableOpacity>,
-                <TouchableOpacity 
-                  key="hybrid" 
-                  style={styles.mapTypeOption}
-                  onPress={() => handleMapTypeSelect(MAP_TYPES.HYBRID)}
-                >
-                  <Image source={require('@/assets/images/map-hybrid.png')} style={styles.mapTypeImage} />
-                  <ThemedText>Hybrid</ThemedText>
-                  {mapType === MAP_TYPES.HYBRID && (
-                    <ThemedIcons library='MaterialIcons' name='check-circle' size={20} color='#007AFF' />
-                  )}
-                </TouchableOpacity>,
-              ]}
-            >
-              <ThemedText>Map Type</ThemedText>
-              <ThemedText style={styles.mapTypeValue}>{getMapTypeDisplayName(mapType)}</ThemedText>
-            </OptionsPopup>,
-            <View key="alarmToggle" style={styles.settingsOption}>
-              <ThemedText>Toggle Alarm near Stop</ThemedText>
-              <Switch 
-                value={alarmNearStop}
-                onValueChange={handleAlarmToggle}
-              />
-            </View>
-          ]}
+        <TouchableOpacity 
+          style={[styles.sideButton, alarmNearStop && {backgroundColor: secondaryColor}]} 
+          onPress={() => handleAlarmToggle(!alarmNearStop)}
         >
           <ThemedIcons 
             library='MaterialIcons' 
-            name="settings"
+            name={alarmNearStop ? "notifications-active" : "notifications-off"} 
             size={20} 
             color="white" 
           />
-        </OptionsPopup>
+        </TouchableOpacity>
       </View>
     </View>
   )
 
-  // Default map functions
-  const handleCategorySelect = (category: string) => {
-    switch (category) {
-      case 'accomodations':
-        setIsAccomodations(true);
-        setIsModalVisible(true);
-        break;
-      case 'food':
-        setIsFood(true);
-        setIsModalVisible(true);
-        break;
-      case 'facilities':
-        setIsFacilities(true);
-        setIsModalVisible(true);
-        break;
-      case 'attractions':
-        setIsAttractions(true);
-        setIsModalVisible(true);
-        break;
-      case 'services':
-        setIsServices(true);
-        setIsModalVisible(true);
-        break;
-      default:
-        setIsAllCategoryVisible(true);
-        setIsModalVisible(true);
-        break;
-    }
-  };
-
-  const searchAmenities = async (amenity?: string, tourism?: string, aeroway?: string) => {
-    if (!latitude || !longitude) {
-      console.error('Location not available');
-      return;
-    }
-
-    setIsModalVisible(false);
-    setIsAllCategoryVisible(false);
-    setIsAccomodations(false);
-    setIsFood(false);
-    setIsFacilities(false);
-    setIsAttractions(false);
-    setIsServices(false);
-    setShowResults(true);
-    setIsLoading(true);
-    setSearchResults([]);
-    setBottomSheetKey(prev => prev + 1);
-
-    try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/amenities/nearest`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amenity, tourism, aeroway, latitude, longitude }),
-      });
-
-      if (response.ok) {
-        const results = await response.json();
-        setSearchResults(results);
-      } else {
-        console.error('Failed to fetch amenities');
-        setSearchResults([]);
-      }
-    } catch (error) {
-      console.error('Error searching amenities:', error);
-      setSearchResults([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-    setIsAllCategoryVisible(false);
-    setIsAccomodations(false);
-    setIsFood(false);
-    setIsFacilities(false);
-    setIsAttractions(false);
-    setIsServices(false);
-    setShowResults(false);
-    setSearchResults([]);
-  };
-
-
-  const renderDefaultMap = () => (
-    <View style={styles.defaultMapContent}>
-      <LinearGradient
-        colors={['#000', 'transparent']}
-        style={styles.headerGradient}
-      />
-      <View style={styles.searchContent}>
-        <TouchableOpacity onPress={() => handleCategorySelect('all')}>
-          <ThemedView color='primary' shadow style={styles.searchButton}>
-            <ThemedText style={{opacity: .5}}>Search</ThemedText>
-          </ThemedView>
-        </TouchableOpacity>
-      </View>
-
-      <RoundedButton
-        size={60}
-        iconLibrary="MaterialDesignIcons"
-        iconName="compass"
-        iconColor="#fff"
-        onPress={() => router.push('/routes/routes-create')}
-        style={{position: 'absolute', bottom: 20, right: 20}}
-      />
-    </View>
-  );
 
   return (
     <View style={{flex: 1}}>
-      {session?.activeRoute ? (
-        renderActiveRoute()
-      ):(
-        renderDefaultMap()
-      )}
-      
+      {renderActiveRoute()}
       <EndRouteModal
         visible={showEndRouteModal}
         onClose={() => setShowEndRouteModal(false)}
@@ -845,7 +719,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1001,
-    pointerEvents: 'none',
+    pointerEvents: 'box-none',
     padding: 20,
     paddingTop: 40
   },
@@ -895,37 +769,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  etaContainer:{
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    gap: 15,
-    paddingHorizontal: 20,
-    paddingVertical: 10
-  },
-  etaChild:{
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5
-  },
-  searchContent:{
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    right: 20,
-    zIndex: 1002
-  },
-  detailsButton:{
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    width: 120,
-    borderRadius: 50,
-    backgroundColor: 'rgba(0,0,0,.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 7,
-    zIndex: 10000000
-  },
   directionArrowContainer: {
     position: 'absolute',
     bottom: 120, // Position above the stop button (70px button + 30px margin + 20px gap)
@@ -938,31 +781,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  defaultMapContent: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    top: 0,
-    zIndex: 1000
-  },
-  searchButton: {
-    width: '100%',
-    padding: 10,
-    borderRadius: 14,
-    height: 48,
-  },
-  settingsOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  mapTypeValue: {
-    fontSize: 14,
-    opacity: 0.7,
-    marginLeft: 'auto',
-    marginRight: 8,
-  },
   mapTypeOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -973,5 +791,14 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 10,
+  },
+  infoButton:{
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: 35,
+    right: 20,
+    zIndex: 1000
   },
 });
