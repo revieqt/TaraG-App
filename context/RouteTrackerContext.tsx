@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSession } from './SessionContext';
 import haversineDistance from '@/utils/haversineDistance';
 import { usePathname } from 'expo-router';
+import { registerForPushNotificationsAsync, sendStopAlarmNotification } from '@/utils/notificationConfig';
 
 interface RouteTrackerContextType {
   currentLocation: Location.LocationObjectCoords | null;
@@ -27,20 +28,30 @@ export const RouteTrackerProvider = ({ children }: { children: React.ReactNode }
   const [showStopAlarm, setShowStopAlarm] = useState<boolean>(false);
   const [lastAlarmStop, setLastAlarmStop] = useState<string>('');
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
+  const [notificationPermission, setNotificationPermission] = useState<boolean>(false);
 
-  // Load alarm setting from AsyncStorage
+  // Load alarm setting and request notification permissions
   useEffect(() => {
-    const loadAlarmSetting = async () => {
+    const initializeSettings = async () => {
       try {
+        // Load alarm setting
         const saved = await AsyncStorage.getItem('alarmNearStop');
         if (saved !== null) {
           setAlarmNearStop(JSON.parse(saved));
         }
+
+        // Request notification permissions
+        const hasPermission = await registerForPushNotificationsAsync();
+        setNotificationPermission(hasPermission);
+        
+        if (!hasPermission) {
+          console.warn('Notification permission not granted');
+        }
       } catch (error) {
-        console.error('Error loading alarm setting:', error);
+        console.error('Error initializing settings:', error);
       }
     };
-    loadAlarmSetting();
+    initializeSettings();
   }, []);
 
   // Save alarm setting to AsyncStorage
@@ -165,14 +176,18 @@ export const RouteTrackerProvider = ({ children }: { children: React.ReactNode }
     }
   };
 
+  // Send push notification for background alerts
+  const sendPushNotification = async (stopName: string, distance: number, routeMode: string) => {
+    if (!notificationPermission) return;
+    
+    const success = await sendStopAlarmNotification(stopName, distance, routeMode);
+    if (!success) {
+      console.error('Failed to send push notification');
+    }
+  };
+
   const checkForNearbyStops = () => {
     if (!session?.activeRoute || !currentLocation) return;
-
-    // Don't trigger alarm if user is already on the maps screen
-    if (pathname === '/(tabs)/maps') {
-      console.log('🚫 Alarm suppressed - user is on maps screen');
-      return;
-    }
 
     const stops = session.activeRoute.location;
     if (stops.length === 0) return;
@@ -198,12 +213,18 @@ export const RouteTrackerProvider = ({ children }: { children: React.ReactNode }
           // Set this as the next stop for the alarm
           setNextStop(stop);
           setDistanceToNextStop(distance);
-          
-          // Trigger alarm
-          setShowStopAlarm(true);
           setLastAlarmStop(stop.locationName);
           
-          console.log(`🚨 ALARM: Within ${distance.toFixed(0)}m of ${stop.locationName} (threshold: ${threshold}m) - Stop ${i + 1}/${stops.length}`);
+          // If user is NOT on maps screen, show modal; if on maps screen, send push notification
+          if (pathname !== '/(tabs)/maps') {
+            setShowStopAlarm(true);
+            console.log(`🚨 MODAL: Within ${distance.toFixed(0)}m of ${stop.locationName} (threshold: ${threshold}m) - Screen: ${pathname}`);
+          } else {
+            // Send push notification when on maps screen (they can already see their location)
+            sendPushNotification(stop.locationName, distance, session.activeRoute.mode);
+            console.log(`📱 PUSH: Within ${distance.toFixed(0)}m of ${stop.locationName} (threshold: ${threshold}m) - On maps screen`);
+          }
+          
           break; // Only trigger for the first stop found within radius
         }
       }
