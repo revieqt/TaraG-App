@@ -16,6 +16,7 @@ import React, { useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { renderProUpgrade } from '@/app/account/proUpgrade';
 import { renderMapTypeSettings } from '@/app/account/settings-mapType';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AccountScreen() {
   const { session, clearSession } = useSession();
@@ -58,6 +59,34 @@ export default function AccountScreen() {
     } finally {
       setIsFetchingAlerts(false);
     }
+  };
+
+  const handleClearCache = async () => {
+    Alert.alert(
+      "Clear Cache",
+      "By clearing cache, you will lose all your saved data and will log you out. This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear();
+              Alert.alert("Success", "All cache has been cleared.");
+              await clearSession();
+              router.replace('/auth/login');
+            } catch (error) {
+              console.error("Error clearing AsyncStorage:", error);
+              Alert.alert("Error", "Failed to clear cache.");
+            }
+          },
+        },
+      ]
+    );
   };
   
   return (
@@ -190,6 +219,17 @@ export default function AccountScreen() {
                   size={15} 
                 />
                 <ThemedText>Manually Fetch Global Alerts</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={handleClearCache} 
+                style={styles.optionsChild}
+              >
+                <ThemedIcons 
+                  library='MaterialIcons' 
+                  name='layers-clear' 
+                  size={15} 
+                />
+                <ThemedText>Clear Cache</ThemedText>
               </TouchableOpacity>
             </>
           )}

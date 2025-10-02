@@ -53,24 +53,22 @@ export default function VisibilitySettings() {
                     onValueChange={(value) => handleVisibilityChange('publicSettings.isProfilePublic', value)}
                 />
 
-                {user?.publicSettings?.isProfilePublic && (
-                    <>
+                <View style={user?.publicSettings?.isProfilePublic ? {gap: 10} : {opacity: 0.5, pointerEvents: 'none', gap: 10}}>
                     <Switch
-                        key="personal"
-                        label="Show Personal Info"
-                        description={user?.publicSettings?.isPersonalInfoPublic ? 'Public' : 'Hidden'}
-                        value={user?.publicSettings?.isPersonalInfoPublic || false}
-                        onValueChange={(value) => handleVisibilityChange('publicSettings.isPersonalInfoPublic', value)}
-                        />
-                        <Switch
-                        key="travel"
-                        label="Show Travel Info"
-                        description={user?.publicSettings?.isTravelInfoPublic ? 'Public' : 'Hidden'}
-                        value={user?.publicSettings?.isTravelInfoPublic || false}
-                        onValueChange={(value) => handleVisibilityChange('publicSettings.isTravelInfoPublic', value)}
-                        />
-                    </>
-                )}
+                    key="personal"
+                    label="Show Personal Info"
+                    description={user?.publicSettings?.isPersonalInfoPublic ? 'Public' : 'Hidden'}
+                    value={user?.publicSettings?.isPersonalInfoPublic || false}
+                    onValueChange={(value) => handleVisibilityChange('publicSettings.isPersonalInfoPublic', value)}
+                    />
+                    <Switch
+                    key="travel"
+                    label="Show Travel Info"
+                    description={user?.publicSettings?.isTravelInfoPublic ? 'Public' : 'Hidden'}
+                    value={user?.publicSettings?.isTravelInfoPublic || false}
+                    onValueChange={(value) => handleVisibilityChange('publicSettings.isTravelInfoPublic', value)}
+                    />
+                </View>
             </View>
         </ThemedView>
     );

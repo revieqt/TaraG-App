@@ -31,10 +31,14 @@ export default function TaraBuddySection() {
             <Button
               title="Start Matching"
               onPress={async () => {
-                try {
-                  await createTaraBuddyProfile();
-                } catch (err: any) {
-                  Alert.alert("Error", err.message || "Failed to start matching");
+                if (!session?.user?.publicSettings?.isProfilePublic) {
+                  Alert.alert("Error", "Please make your profile public to start matching");
+                }else{
+                  try {
+                    await createTaraBuddyProfile();
+                  } catch (err: any) {
+                    Alert.alert("Error", err.message || "Failed to start matching");
+                  }
                 }
               }}
             />
