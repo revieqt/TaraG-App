@@ -6,17 +6,21 @@ import { ThemedText } from "./ThemedText";
 
 type SwitchProps = {
   label?: string;
+  description?: string;
   value: boolean;
   onValueChange: (value: boolean) => void;
 };
 
-const Switch: React.FC<SwitchProps> = ({ label, value, onValueChange }) => {
+const Switch: React.FC<SwitchProps> = ({ label, description, value, onValueChange }) => {
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
   const accentColor = useThemeColor({}, 'accent');
   return (
     <View style={styles.container}>
-      {label && <ThemedText>{label}</ThemedText>}
+      <View>
+        {label && <ThemedText>{label}</ThemedText>}
+        {description && <ThemedText style={{opacity: 0.5, fontSize: 11}}>{description}</ThemedText>}
+      </View>
       <RNSwitch
         value={value}
         onValueChange={onValueChange}

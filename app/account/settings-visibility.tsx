@@ -47,9 +47,10 @@ export default function VisibilitySettings() {
 
                 <Switch
                     key="private"
-                    label="Make Profile Private"
-                    value={!user?.publicSettings?.isProfilePublic}
-                    onValueChange={(value) => handleVisibilityChange('publicSettings.isProfilePublic', !value)}
+                    label="Public Visibility"
+                    description={user?.publicSettings?.isProfilePublic ? 'Public' : 'Private'}
+                    value={user?.publicSettings?.isProfilePublic || false}
+                    onValueChange={(value) => handleVisibilityChange('publicSettings.isProfilePublic', value)}
                 />
 
                 {user?.publicSettings?.isProfilePublic && (
@@ -57,12 +58,14 @@ export default function VisibilitySettings() {
                     <Switch
                         key="personal"
                         label="Show Personal Info"
+                        description={user?.publicSettings?.isPersonalInfoPublic ? 'Public' : 'Hidden'}
                         value={user?.publicSettings?.isPersonalInfoPublic || false}
                         onValueChange={(value) => handleVisibilityChange('publicSettings.isPersonalInfoPublic', value)}
                         />
                         <Switch
                         key="travel"
                         label="Show Travel Info"
+                        description={user?.publicSettings?.isTravelInfoPublic ? 'Public' : 'Hidden'}
                         value={user?.publicSettings?.isTravelInfoPublic || false}
                         onValueChange={(value) => handleVisibilityChange('publicSettings.isTravelInfoPublic', value)}
                         />
