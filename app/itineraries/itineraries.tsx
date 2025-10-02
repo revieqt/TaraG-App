@@ -119,7 +119,7 @@ export default function ItinerariesScreen() {
               <ThemedText>View History</ThemedText>
             </TouchableOpacity>
           ]}> 
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#222" />
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} />
           </OptionsPopup>
         }
       />

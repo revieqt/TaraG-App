@@ -16,12 +16,18 @@ import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
-
+import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import Carousel from '@/components/Carousel';
+import EmptyMessage from '@/components/EmptyMessage';
 
 export default function ProfileScreen() {
   const { userId } = useLocalSearchParams();
   const { session, updateSession } = useSession();
+  const router = useRouter();
   const sessionUser = session?.user;
+  const backgroundColor = useThemeColor({}, 'background');
   
   let user = sessionUser;
   let isCurrentUser = true;
@@ -115,168 +121,176 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView style={{flex:1}}>
-      <ScrollView style={{flex:1}}>
-        <ThemedView color='primary'>
-          <View style={styles.header}>
-            <BackButton/>
-          </View>
-          <GradientHeader/>
-          
-          {user && (
-            <OptionsPopup
-              style={styles.profileImage}
-              options={[
-                <TouchableOpacity
-                  key="viewImage"
-                  onPress={() => setViewImageVisible(true)}
-                  style={styles.optionButton}
-                >
-                  <ThemedIcons library="MaterialIcons" name="visibility" size={20} />
-                  <ThemedText>View Image</ThemedText>
-                </TouchableOpacity>,
-                <TouchableOpacity
-                  key="updateImage"
-                  onPress={handleUpdateProfileImage}
-                  style={styles.optionButton}
-                >
-                  <ThemedIcons library="MaterialIcons" name="edit" size={20} />
-                  <ThemedText>{uploadingImage ? "Uploading..." : "Update Profile Image"}</ThemedText>
-                </TouchableOpacity>
-              ]}
-            >
-              <Image
-                source={{ uri: session?.user?.profileImage || 'https://ui-avatars.com/api/?name=User' }}
-                style={{flex: 1}}
+      {user ? (
+        <>
+          <ScrollView style={{flex:1}}>
+            <View style={styles.header}>
+              <BackButton type='floating'/>
+              <OptionsPopup
+                style={styles.profileImageOption}
+                options={[
+                  <TouchableOpacity
+                    key="viewImage"
+                    onPress={() => setViewImageVisible(true)}
+                    style={styles.optionButton}
+                  >
+                    <ThemedIcons library="MaterialIcons" name="visibility" size={20} />
+                    <ThemedText>View Image</ThemedText>
+                  </TouchableOpacity>,
+                  <TouchableOpacity
+                    key="updateImage"
+                    onPress={handleUpdateProfileImage}
+                    style={styles.optionButton}
+                  >
+                    <ThemedIcons library="MaterialIcons" name="edit" size={20} />
+                    <ThemedText>{uploadingImage ? "Uploading..." : "Update Profile Image"}</ThemedText>
+                  </TouchableOpacity>
+                ]}
+              >
+                <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22}/>
+              </OptionsPopup>
+              <Carousel
+                images={[
+                  user?.profileImage || '',
+                ]}
+                navigationArrows
+                showDotIndicator={false}
               />
-            </OptionsPopup>
-          )}
-          <ViewImageModal
-            visible={viewImageVisible}
-            imageUrl={user?.profileImage || ''}
-            onClose={() => setViewImageVisible(false)}
-          />
-
-          <InputModal
-            visible={editBioVisible}
-            onClose={() => setEditBioVisible(false)}
-            onSubmit={handleBioUpdate}
-            label="Edit Bio"
-            description="Tell others about yourself"
-            type="text"
-            initialValue={user?.bio || ''}
-            placeholder="Enter your bio..."
-          />
-
-          <View style={{marginTop: 120, alignItems: 'center'}}>
-            {user ? (
-              <>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <ThemedText type="subtitle">{user.fname} {user.mname ? user.mname : ''} {user.lname}</ThemedText>
+              <LinearGradient
+                colors={['transparent', '#000']}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.headerContent}
+                pointerEvents="none"
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 20 }}>
+                  <ThemedText type="title" style={{color: '#fff'}}>{user.fname} {user.mname ? user.mname : ''} {user.lname}</ThemedText>
                   <ProBadge/>
                 </View>
+                <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>@{user.username}</ThemedText>
+                <ThemedText style={{opacity: .5, color: '#fff'}}>{userDescription}</ThemedText>
                 
-                <ThemedText type="defaultSemiBold" style={{opacity: .5}}>@{user.username}</ThemedText>
-                <ThemedText style={{opacity: .5, marginBottom: 10}}>{userDescription}</ThemedText>
-              </>
-              ) : (
-                <ThemedText type="error">User not found.</ThemedText>
-              )
-            }
-          </View>
-
-          <View style={styles.bio}>
-            {(user?.bio?.trim() !== "") && (
-              <ThemedText>{user?.bio}</ThemedText>
-            )}
-            { isCurrentUser && (
-              <TouchableOpacity 
-                style={styles.editBio}
-                onPress={() => setEditBioVisible(true)}
-              >
-                <ThemedIcons library="MaterialIcons" name="edit" size={15}/>
-                <ThemedText>Edit Bio</ThemedText>
-              </TouchableOpacity>
-            )}
-          </View>
-        </ThemedView>
-        
-        <HorizontalSections
-          labels={['Travels', 'About']}
-          type="fullTab"
-          containerStyle={{ flex: 1}}
-          sections={[
-          <View key="travels" style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: 1000}}>
-            <View>
+              </LinearGradient>
+              <ThemedView style={styles.headerBottom} />
             </View>
-          </View>,
-          <View key="about" style={{ flex: 1, padding: 20}}>
-            {user ? (
-              <>
-                <ThemedView color="secondary" shadow style={styles.badgeContainer}>
-                  <GradientHeader/>
-                  <View style={{flex: 1, padding: 20}}>
-                    { user?.isProUser ? ( <ProBadge/> ):(<ThemedText>Basic</ThemedText>) }
-                  </View>
-                </ThemedView>
 
-                <ThemedText>Email: {user.email}</ThemedText>
-                <ThemedText>Gender: {user.gender}</ThemedText>
-                <ThemedText>Contact Number: {user.contactNumber}</ThemedText>
-                <ThemedText>Type: {user.type}</ThemedText>
-              </>
+            { !isCurrentUser && !user?.publicSettings?.isProfilePublic ? (
+              <View style={{marginTop: 20}}>
+                <EmptyMessage
+                  iconLibrary='MaterialIcons'
+                  iconName='lock'
+                  title="Profile is private"
+                  description="This profile is private."
+                />
+              </View>
             ) : (
-              <ThemedText type="error">User not found.</ThemedText>
+            <View style={{paddingHorizontal: 20}}>
+              <View style={styles.bio}>
+                {(user?.bio?.trim() !== "") && (
+                  <View style={{flex: 1}}>
+                    <ThemedText>{user?.bio}</ThemedText>
+                  </View>
+                )}
+                { isCurrentUser && (
+                  <TouchableOpacity 
+                    style={{padding: 5}}
+                    onPress={() => setEditBioVisible(true)}
+                  >
+                    <ThemedIcons library="MaterialIcons" name="edit" size={15}/>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
             )}
-          </View>]}
-        />
-      </ScrollView>
+          
+        </ScrollView>
+
+        { isCurrentUser && !user?.publicSettings?.isProfilePublic && (
+          <ThemedView color="primary" shadow style={styles.noteContainer}>
+            <ThemedText style={{opacity: .7, fontSize: 11}}>Only you can see your profile.</ThemedText>
+            <TouchableOpacity onPress={() => router.push('/account/settings-visibility')}>
+              <ThemedText style={{opacity: .7, textDecorationLine: 'underline', fontSize: 11}}>Change Visibility</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        )}
+        </>
+      ):(
+        <ThemedText type="error">User not found.</ThemedText>
+      )}
+
+      <InputModal
+        visible={editBioVisible}
+        onClose={() => setEditBioVisible(false)}
+        onSubmit={handleBioUpdate}
+        label="Edit Bio"
+        description="Tell others about yourself"
+        type="text"
+        initialValue={user?.bio || ''}
+        placeholder="Enter your bio..."
+      />
+
+      <ViewImageModal
+        visible={viewImageVisible}
+        imageUrl={user?.profileImage || ''}
+        onClose={() => setViewImageVisible(false)}
+      />
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   header:{
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    zIndex: 100
+    width: '100%',
+    height: 500,
+    backgroundColor: 'red',
   },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 100,
-    borderWidth: 3,
-    borderColor: 'white',
-    alignSelf: 'center',
-    position: 'absolute',
-    marginTop: -20,
-    zIndex: 100,
+  headerContent: {
     overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
+    padding: 16,
+    marginBottom: 20,
+  },
+  profileImageOption: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 3,
+    padding: 5,
+  },
+  headerBottom: {
+    height: 20,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 4,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
   bio:{
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-  },
-  editBio: {
-    flexDirection: 'row',
-    gap: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical:5,
-    paddingHorizontal: 10,
-    borderRadius: 30,
-    backgroundColor: '#ccc4',
-  },
-  badgeContainer: {
-    borderRadius: 10,
-    marginBottom: 20,
-    overflow: 'hidden',
   },
   optionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
-  }
+  },
+  noteContainer: {
+    borderRadius: 10,
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+    padding: 12,
+    zIndex: 100,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 });

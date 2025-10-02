@@ -36,25 +36,12 @@ export default function HomeScreen() {
     region: '',
     country: ''
   };
-  const { alerts, loading: alertsLoading, error: alertsError } = useAlerts(userLocation);
 
   // State for calendar events
   const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
 
 
-  const handleAlertPress = (alert: Alert) => {
-    router.push({
-      pathname: '/account/alert-view',
-      params: {
-        alertId: alert.id,
-        title: alert.title,
-        note: alert.note,
-        severity: alert.severity,
-        target: alert.target.join(', ')
-      }
-    });
-  };
 
   // Function to check if a date falls within an itinerary's date range
   const isDateInItinerary = (date: Date, itinerary: any) => {
@@ -295,51 +282,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  redirectToTara: {
-    paddingHorizontal: 20,
-    paddingVertical: 13,
-    marginBottom: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  headerButtons:{
-    padding: 10,
-    width: 50,
-    height: 50,
-    justifyContent: 'center', 
-    alignItems: 'center',
-    borderRadius: 50,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  alertsSection: {
-    marginVertical: 20,
-  },
-  alertsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  alertCount: {
-    fontSize: 12,
-    opacity: 0.6,
-  },
-  alertsScrollContainer: {
-    paddingLeft: 0,
-    paddingRight: 20,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
     paddingVertical: 40,
-  },
-  distance:{
-    fontSize: 20,
-    textAlign: 'center',
   },
   menuOptionText:{
     fontSize: 12,

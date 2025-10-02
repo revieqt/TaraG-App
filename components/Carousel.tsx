@@ -22,6 +22,7 @@ type CarouselProps = {
   darkenImage?: boolean;
   style?: any;
   navigationArrows?: boolean;
+  showDotIndicator?: boolean;
 };
 
 const Carousel: React.FC<CarouselProps> = ({
@@ -33,6 +34,7 @@ const Carousel: React.FC<CarouselProps> = ({
   darkenImage = false,
   style,
   navigationArrows = false,
+  showDotIndicator = true,
 }) => {
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -115,14 +117,16 @@ const Carousel: React.FC<CarouselProps> = ({
         ))}
       </ScrollView>
 
-      <View style={styles.dotsContainer} pointerEvents="none">
-        {images.map((_, i) => (
-          <View
-            key={i}
-            style={[styles.dot, currentIndex === i && styles.activeDot]}
-          />
-        ))}
-      </View>
+      {showDotIndicator && (
+        <View style={styles.dotsContainer} pointerEvents="none">
+          {images.map((_, i) => (
+            <View
+              key={i}
+              style={[styles.dot, currentIndex === i && styles.activeDot]}
+            />
+          ))}
+        </View>
+      )}
     </View>
   );
 };
