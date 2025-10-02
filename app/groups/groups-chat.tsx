@@ -270,9 +270,6 @@ const styles = StyleSheet.create({
   memberCount: {
     opacity: 0.5,
   },
-  headerButton: {
-    padding: 8,
-  },
   messagesList: {
     flex: 1,
   },

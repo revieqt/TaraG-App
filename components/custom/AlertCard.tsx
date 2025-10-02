@@ -22,16 +22,6 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
       default: return '#888888';
     }
   })();
-
-  const severityText = (() => {
-    switch (alert.severity.toLowerCase()) {
-      case 'high': return 'High';
-      case 'medium': return 'Medium';
-      case 'low': return 'Low';
-      default: return 'Unknown';
-    }
-  })();
-
   return (
     <ThemedView
       style={styles.container}
@@ -116,11 +106,6 @@ const styles = StyleSheet.create({
   locationBoxText: {
     fontSize: 12,
     fontWeight: '500',
-  },
-  locationText: {
-    marginTop: 30,
-    marginBottom: 10,
-    opacity: .5
   },
   gradientOverlay: {
     height: 100,

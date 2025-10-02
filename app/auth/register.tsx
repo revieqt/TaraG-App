@@ -11,7 +11,7 @@ import { useSession } from '@/context/SessionContext';
 import { calculateAge } from '@/utils/calculateAge';
 import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, View } from 'react-native';
 import { openDocument } from '@/utils/documentUtils';
 import GradientHeader from '@/components/GradientHeader';
 
@@ -216,6 +216,3 @@ export default function RegisterScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-});

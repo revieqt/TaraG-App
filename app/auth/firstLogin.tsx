@@ -137,7 +137,7 @@ export default function FirstLoginScreen() {
   ];
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={{flex: 1}}>
       <GradientHeader/>
       <HorizontalSections
         labels={labels}
@@ -150,9 +150,6 @@ export default function FirstLoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   introScreen:{
     flex: 1, 
     justifyContent: 'center', 
@@ -173,26 +170,5 @@ const styles = StyleSheet.create({
     height: 200,
     marginBottom: 60, 
     resizeMode: 'contain'
-  },
-  finishButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  gradientButton: {
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  disabledText: {
-    color: '#666',
   },
 });

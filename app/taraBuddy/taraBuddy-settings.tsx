@@ -1,19 +1,11 @@
 import Button from '@/components/Button';
-import ProBadge from '@/components/custom/ProBadge';
 import GradientHeader from '@/components/GradientHeader';
-import { renderSystemTheme } from '@/app/account/settings-systemTheme';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import WebViewModal from '@/components/WebView';
-import { BACKEND_URL, SUPPORT_FORM_URL, TRAVELLER_PRO_PRICE } from '@/constants/Config';
-import { useSession } from '@/context/SessionContext';
-import { openDocument } from '@/utils/documentUtils';
+import { ThemedView } from '@/components/ThemedView';import { useSession } from '@/context/SessionContext';
 import { router } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { renderProUpgrade } from '@/app/account/proUpgrade';
-import { renderMapTypeSettings } from '@/app/account/settings-mapType';
+import { Alert,  ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import RangeBar from '@/components/RangeBar';
 import { useTaraBuddyApi } from '@/services/taraBuddyApiService';
 
@@ -227,30 +219,10 @@ const toggleZodiac = (sign: string) => {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: 80,
-    padding: 20,
-    borderRadius: 15,
-  },
   container: {
     padding: 20,
     paddingTop: 60,
     zIndex: 1000,
-  },
-  profileButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  profileImage: {
-    width: 50,
-    aspectRatio: 1,
-    borderRadius: 50,
-    marginRight: 16,
   },
   options: {
     gap: 10,
@@ -262,14 +234,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     paddingBottom: 5,
-  },
-  optionsChild: {
-    padding: 10,
-    fontSize: 15,
-    width: '100%',
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
   },
   warning: {
     opacity: .5,

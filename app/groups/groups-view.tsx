@@ -405,7 +405,7 @@ export default function GroupView() {
         source={{ uri: member.profileImage || 'https://ui-avatars.com/api/?name=User' }}
         style={styles.memberImage}
       />
-      <View style={styles.memberInfo}>
+      <View style={{flex: 1}}>
         <ThemedText type="defaultSemiBold">{member.name}</ThemedText>
         <ThemedText style={{ fontSize: 12, opacity: 0.7 }}>@{member.username}</ThemedText>
         {isAdmin(member.userID) ? (<>
@@ -626,11 +626,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#fff',
   },
-  inviteCodeContainer: {
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
   memberItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -646,9 +641,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     overflow: 'hidden',
     marginRight: 15
-  },
-  memberInfo: {
-    flex: 1,
   },
   buttonRow:{
     flexDirection: 'row',

@@ -1,7 +1,7 @@
 import OptionsPopup from "@/components/OptionsPopup";
 import TextField from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
-import { View, StyleSheet, TouchableOpacity, Alert, FlatList, ActivityIndicator } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedIcons from "@/components/ThemedIcons";
 import Button from '@/components/Button';
@@ -389,16 +389,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         opacity: 0.7,
-    },
-    loadingContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-    },
-    emptyContainer: {
-        padding: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 });

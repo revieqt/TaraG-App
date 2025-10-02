@@ -1,6 +1,5 @@
 import RoundedButton from '@/components/RoundedButton';
 import Header from '@/components/Header';
-import OptionsPopup from '@/components/OptionsPopup';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -169,12 +168,6 @@ export default function RoutesScreen() {
 }
 
 const styles = StyleSheet.create({
-  options:{
-    flexDirection: 'row',
-    gap: 10,
-    padding: 5,
-    flex: 1
-  },
   buttonContainer: {
     flexDirection: 'row',
     gap: 10,
@@ -205,11 +198,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-  },
-  segmentInfo: {
-    backgroundColor: '#f5f5f5',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 10,
   },
 });

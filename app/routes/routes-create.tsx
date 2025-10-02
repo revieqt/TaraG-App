@@ -562,12 +562,6 @@ const styles = StyleSheet.create({
     opacity: .9,
     pointerEvents: 'none',
   },
-  waypointHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
   removeButton: {
     position: 'absolute',
     right: 40,
@@ -588,10 +582,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 10,
-  },
-  modeButtonText: {
-    color: '#333',
-    fontSize: 16,
   },
   buttonsContainer: {
     position: 'absolute',

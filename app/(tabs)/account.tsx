@@ -316,9 +316,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 1,
   },
-  closeButton: {
-    backgroundColor: '#ff4444',
-    padding: 12,
-    alignItems: 'center',
-  },
 });

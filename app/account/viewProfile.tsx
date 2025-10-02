@@ -1,8 +1,6 @@
 import BackButton from '@/components/custom/BackButton';
 import ProBadge from '@/components/custom/ProBadge';
 import ViewImageModal from '@/components/custom/ViewImage';
-import GradientHeader from '@/components/GradientHeader';
-import HorizontalSections from '@/components/HorizontalSections';
 import OptionsPopup from '@/components/OptionsPopup';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
@@ -15,10 +13,9 @@ import { BACKEND_URL } from '@/constants/Config';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useThemeColor } from '@/hooks/useThemeColor';
 import Carousel from '@/components/Carousel';
 import EmptyMessage from '@/components/EmptyMessage';
 
@@ -27,7 +24,6 @@ export default function ProfileScreen() {
   const { session, updateSession } = useSession();
   const router = useRouter();
   const sessionUser = session?.user;
-  const backgroundColor = useThemeColor({}, 'background');
   
   let user = sessionUser;
   let isCurrentUser = true;
@@ -169,7 +165,21 @@ export default function ProfileScreen() {
                 </View>
                 <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>@{user.username}</ThemedText>
                 <ThemedText style={{opacity: .5, color: '#fff'}}>{userDescription}</ThemedText>
-                
+                <View style={styles.bio}>
+                  {(user?.bio?.trim() !== "") && (
+                    <View style={{flex: 1}}>
+                      <ThemedText style={{color: '#fff'}}>{user?.bio}</ThemedText>
+                    </View>
+                  )}
+                  { isCurrentUser && (
+                    <TouchableOpacity 
+                      style={{padding: 5}}
+                      onPress={() => setEditBioVisible(true)}
+                    >
+                      <ThemedIcons library="MaterialIcons" name="edit" size={15}/>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </LinearGradient>
               <ThemedView style={styles.headerBottom} />
             </View>
@@ -185,20 +195,15 @@ export default function ProfileScreen() {
               </View>
             ) : (
             <View style={{paddingHorizontal: 20}}>
-              <View style={styles.bio}>
-                {(user?.bio?.trim() !== "") && (
-                  <View style={{flex: 1}}>
-                    <ThemedText>{user?.bio}</ThemedText>
-                  </View>
-                )}
-                { isCurrentUser && (
-                  <TouchableOpacity 
-                    style={{padding: 5}}
-                    onPress={() => setEditBioVisible(true)}
-                  >
-                    <ThemedIcons library="MaterialIcons" name="edit" size={15}/>
-                  </TouchableOpacity>
-                )}
+              <ThemedText style={{marginBottom: 5}}>Likes</ThemedText>
+              <View style={styles.likesContainer}>
+                {user.likes.map((like, index) => (
+                  <ThemedView shadow color='primary' key={index} style={styles.likesBox}>
+                    <ThemedText style={styles.likesBoxText}>
+                      {like.charAt(0).toUpperCase() + like.slice(1).toLowerCase()}
+                    </ThemedText>
+                  </ThemedView>
+                ))}
               </View>
             </View>
             )}
@@ -242,7 +247,6 @@ const styles = StyleSheet.create({
   header:{
     width: '100%',
     height: 500,
-    backgroundColor: 'red',
   },
   headerContent: {
     overflow: 'hidden',
@@ -253,6 +257,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
     padding: 16,
     marginBottom: 20,
+    pointerEvents: 'box-none',
   },
   profileImageOption: {
     position: 'absolute',
@@ -275,6 +280,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
+    marginTop: 5
   },
   optionButton: {
     flexDirection: 'row',
@@ -292,5 +298,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  likesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 8
+  },
+  likesBox: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 16,
+  },
+  likesBoxText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
 });
