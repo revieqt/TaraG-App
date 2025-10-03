@@ -1,10 +1,7 @@
-import { AlertCard } from '@/components/custom/AlertCard';
 import CubeButton from '@/components/RoundedButton';
-import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/context/SessionContext';
-import { Alert, useAlerts } from '@/hooks/useAlerts';
 import { useLocation } from '@/hooks/useLocation';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import WeatherCard from '@/components/WeatherCard';
@@ -28,16 +25,6 @@ export default function HomeScreen() {
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
 
-  // Use alerts hook with user location
-  const userLocation = {
-    suburb,
-    city,
-    state: '',
-    region: '',
-    country: ''
-  };
-
-  // State for calendar events
   const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
   const [eventsLoading, setEventsLoading] = useState(false);
 
@@ -158,13 +145,13 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={{ paddingHorizontal: 20, marginBottom: 20 }}>
+        <View style={{ paddingHorizontal: 16, marginBottom: 20 }}>
           <View style={styles.menu}>
             <View style={styles.menuOptions}>
               <CubeButton
-                size={60}
+                size={55}
                 iconName="route"
-                iconSize={27}
+                iconSize={25}
                 iconColor="#fff"
                 onPress={() => router.push('/routes/routes')}
               />
@@ -173,9 +160,9 @@ export default function HomeScreen() {
 
             <View style={styles.menuOptions}>
               <CubeButton
-                size={60}
+                size={55}
                 iconName="event-note"
-                iconSize={27}
+                iconSize={25}
                 iconColor="#fff"
                 onPress={() => router.push('/itineraries/itineraries')}
               />
@@ -184,10 +171,10 @@ export default function HomeScreen() {
 
             <View style={styles.menuOptions}>
               <CubeButton
-                size={60}
+                size={55}
                 iconLibrary="MaterialDesignIcons"
                 iconName="car-brake-alert"
-                iconSize={27}
+                iconSize={25}
                 iconColor="#fff"
                 onPress={() => router.push('/home/safety')}
               />
@@ -196,10 +183,10 @@ export default function HomeScreen() {
 
             <View style={styles.menuOptions}>
               <CubeButton
-                size={60}
+                size={55}
                 iconLibrary="MaterialDesignIcons"
                 iconName="robot-happy-outline"
-                iconSize={27}
+                iconSize={25}
                 iconColor="#fff"
                 onPress={() => router.push('/home/aiChat')}
               />
@@ -243,8 +230,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -80,
     right: -30,
-    width: 160,
-    height: 250,
+    width: 150,
+    height: 240,
     zIndex: 2,
   },
   gradientOverlay: {
@@ -261,7 +248,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    padding: 20,
+    padding: 16,
     zIndex: 3,
     pointerEvents: 'box-none', // This allows touches to pass through except for the actual content
   },
@@ -278,7 +265,7 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
   },
   menuOptions:{
-    width: '20%',
+    width: '22%',
     justifyContent: 'center',
     alignItems: 'center'
   },

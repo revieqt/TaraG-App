@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
     right: 0,
   },
   dot: {
-    width: 10,
-    height: 10,
+    width: 7,
+    height: 7,
     borderRadius: 5,
     marginHorizontal: 5,
   },

@@ -249,7 +249,7 @@ export default function GroupsSection(){
     );
 
     return (
-    <View style={{padding: 20}}>
+    <View style={{padding: 16}}>
         <View style={styles.options}>
             <View style={{flex: 1}}>
                 <TextField

@@ -98,11 +98,9 @@ function AppContent() {
           <Stack.Screen name="auth/changePassword" />
           <Stack.Screen name="auth/firstLogin" />
           <Stack.Screen name="account/viewProfile" />
-          <Stack.Screen name="account/notifications" />
           <Stack.Screen name="account/info-view" />
           <Stack.Screen name="account/settings-updateInfo" />
           <Stack.Screen name="account/settings-visibility" />
-          <Stack.Screen name="account/settings-mapType" />
           <Stack.Screen name="routes/routes" />
           <Stack.Screen name="routes/routes-create" />
           <Stack.Screen name="itineraries/itineraries" />

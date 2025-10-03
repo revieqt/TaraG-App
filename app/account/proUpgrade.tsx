@@ -8,7 +8,7 @@ import { useSession } from "@/context/SessionContext";
 import { TRAVELLER_PRO_PRICE } from "@/constants/Config";
 import { router } from "expo-router";
 
-export const renderProUpgrade = () => {
+const ProUpgrade = () => {
     const { session } = useSession();
 
     const user = session?.user;
@@ -53,6 +53,11 @@ export const renderProUpgrade = () => {
         </>
     )
 }
+
+export default ProUpgrade;
+
+// Keep named export for backward compatibility
+export const renderProUpgrade = ProUpgrade;
 
 const styles = StyleSheet.create({
     proContainer:{

@@ -286,7 +286,6 @@ export default function ActiveRouteMap() {
       }
     }
 
-    // Get all steps from all segments for instruction tracking
     let allSteps: any[] = [];
     let stepSegmentMap: number[] = [];
     let stepIndexMap: number[] = [];
@@ -402,7 +401,6 @@ export default function ActiveRouteMap() {
       Speech.speak("3D view enabled");
     } else {
       Speech.speak("3D view disabled");
-      // Reset camera states when disabling 3D
       setCameraHeading(0);
       setDeviceOrientation(0);
       setSmoothHeading(0);
@@ -646,7 +644,10 @@ export default function ActiveRouteMap() {
       {renderActiveRoute()}
       <EndRouteModal
         visible={showEndRouteModal}
-        onClose={() => setShowEndRouteModal(false)}
+        onClose={() => {
+          setShowEndRouteModal(false);
+          updateSession({ activeRoute: undefined });
+        }}
         distance={completedDistance}
         timeElapsed={completedTime}
         routeStops={completedRouteStops}

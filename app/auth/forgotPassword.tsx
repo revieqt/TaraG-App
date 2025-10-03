@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { sendPasswordResetViaBackend } from '@/services/authApiService';
 import { useRouter } from 'expo-router';
+import Header from '@/components/Header';
 import React, { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -47,28 +48,13 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <ThemedView style={styles.background}>
-      {/* Floating back arrow */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => {
-          if (router.canGoBack()) {
-            router.back();
-          } else {
-            router.replace('/auth/login');
-          }
-        }}
-      >
-        <ThemedView>
-          <ThemedIcons library='MaterialIcons' name={'arrow-back'} size={20}></ThemedIcons>
-        </ThemedView>
-      </TouchableOpacity>
+    <ThemedView style={{flex: 1}}>
+      <Header label='Forgot Password' />
 
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ThemedText type="title">Forgot Password</ThemedText>
         <ThemedText style={{ marginBottom: 20 }}>Enter your email to reset your password.</ThemedText>
 
         {emailSent && (
@@ -95,35 +81,31 @@ export default function ForgotPasswordScreen() {
           />
         )}
 
-        <Button
-          title={
-            sending
-              ? 'Sending...'
-              : cooldown > 0
-                ? `Resend Email (${cooldown}s)`
-                : emailSent
-                  ? 'Resend Password Reset Email'
-                  : 'Send Password Reset Email'
-          }
-          onPress={handleSendReset}
-          type="primary"
-          buttonStyle={{ width: '100%', marginTop: 16 }}
-          disabled={sending || cooldown > 0}
-        />
+        
       </KeyboardAvoidingView>
+
+      <Button
+        title={
+          sending
+            ? 'Sending...'
+            : cooldown > 0
+              ? `Resend Email (${cooldown}s)`
+              : emailSent
+                ? 'Resend Password Reset Email'
+                : 'Send Password Reset Email'
+        }
+        onPress={handleSendReset}
+        type="primary"
+        buttonStyle={styles.sendButton}
+        disabled={sending || cooldown > 0}
+      />
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
   container: {
-    width: '100%',
+    padding: 16
   },
   backButton: {
     position: 'absolute',
@@ -149,5 +131,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 16,
     backgroundColor: '#fff',
+  },
+  sendButton: {
+    position: 'absolute',
+    bottom: 20,
+    left: 16,
+    right: 16,
   },
 });

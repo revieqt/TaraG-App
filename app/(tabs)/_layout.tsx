@@ -13,6 +13,7 @@ function TabBarLabel({ children, color }: { children: React.ReactNode; color: st
         color,
         marginTop: 2,
         textAlign: 'center',
+        opacity: .7,
       }}
     >
       {children}
@@ -61,7 +62,7 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              size={22}
+              size={20}
               name={focused ? 'home' : 'home-outline'}
               color={color}
             />
@@ -74,7 +75,7 @@ export default function TabLayout() {
           title: 'Maps',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              size={22}
+              size={20}
               name={focused ? 'map' : 'map-outline'}
               color={color}
             />
@@ -87,7 +88,7 @@ export default function TabLayout() {
           title: 'Explore',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              size={22}
+              size={20}
               name={focused ? 'compass' : 'compass-outline'}
               color={color}
             />
@@ -100,7 +101,7 @@ export default function TabLayout() {
           title: 'Account',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              size={22}
+              size={20}
               name={focused ? 'person' : 'person-outline'}
               color={color}
             />

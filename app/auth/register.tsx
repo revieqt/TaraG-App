@@ -106,7 +106,7 @@ export default function RegisterScreen() {
       <ThemedView>
         <ScrollView
           ref={scrollRef}
-          style={{ width: '100%', padding: 20, zIndex: 2 }}
+          style={{ width: '100%', padding: 16, zIndex: 2 }}
           contentContainerStyle={{ paddingBottom: 30 }}
           keyboardShouldPersistTaps="handled"
         >
@@ -192,9 +192,9 @@ export default function RegisterScreen() {
             onChangeText={setConfirmPassword}
           />
           <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginVertical: 7}}>
-            <ThemedText style={{opacity: .5}}>By creating an account, you agree to our </ThemedText>
+            <ThemedText style={{opacity: .5, textAlign: 'center'}}>By creating an account, you agree to our </ThemedText>
             <TouchableOpacity onPress={() => openDocument('terms-mobileApp')}>
-              <ThemedText type='link'>Terms and Conditions</ThemedText>
+              <ThemedText type='link' style={{textAlign: 'center'}}>Terms and Conditions</ThemedText>
             </TouchableOpacity>
           </View>
 

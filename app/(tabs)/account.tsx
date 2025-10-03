@@ -31,6 +31,18 @@ export default function AccountScreen() {
 
   const fullName = [user?.fname, user?.mname, user?.lname].filter(Boolean).join(' ');
 
+  const getDefaultProfileImage = () => {
+    if (session?.user?.profileImage) {
+      return { uri: session.user.profileImage };
+    }
+    
+    // Use gender-based default images
+    const isFemale = user?.gender?.toLowerCase() === 'female';
+    return isFemale 
+      ? require('@/assets/images/defaultProfile-female.png')
+      : require('@/assets/images/defaultProfile-male.png');
+  };
+
   const handleLogout = async () => {
     try {
       await clearSession();
@@ -108,7 +120,7 @@ export default function AccountScreen() {
             }
           >
             <Image
-              source={{ uri: session?.user?.profileImage || 'https://ui-avatars.com/api/?name=User' }}
+              source={getDefaultProfileImage()}
               style={styles.profileImage}
             />
             <View style={{ justifyContent: 'center' }}>
@@ -276,7 +288,7 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   profileButton: {
     flexDirection: 'row',
@@ -296,7 +308,7 @@ const styles = StyleSheet.create({
   optionsTitle: {
     marginTop: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: '#ccc4',
     paddingBottom: 5,
   },
   optionsChild: {

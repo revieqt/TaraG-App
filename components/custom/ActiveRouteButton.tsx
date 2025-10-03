@@ -1,4 +1,3 @@
-import { useThemeColor } from '@/hooks/useThemeColor';
 import { router } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { useTracking } from '@/context/TrackingContext';
@@ -94,10 +93,10 @@ const ActiveRouteButton: React.FC = () => {
               <ThemedIcons 
                 library='MaterialIcons' 
                 name={getRouteIcon(session?.activeRoute?.mode || 'route')} 
-                size={25} 
+                size={20} 
                 color="white" 
               />
-              <ThemedText style={{color: '#fff', fontSize: 12}}>
+              <ThemedText style={{color: '#fff', fontSize: 10}}>
                 {formatDistance(distance)} km
               </ThemedText>
             </Animated.View>
@@ -123,8 +122,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',

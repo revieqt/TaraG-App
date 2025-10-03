@@ -29,7 +29,6 @@ export default function ExploreScreen() {
     }
   };
 
-  // Custom scroll handler to detect scroll direction
   const handleScroll = (event: any) => {
     const currentScrollY = event.nativeEvent.contentOffset.y;
     const isScrollingUp = currentScrollY < lastScrollY.current;
@@ -69,17 +68,12 @@ export default function ExploreScreen() {
   };
 
   const stickyHeight = headerHeight + tabHeight;
-  
-  // Create a separate animated value for header visibility
   const headerVisible = useRef(new Animated.Value(1)).current;
   const headerTranslateY = useRef(new Animated.Value(0)).current;
-  
-  // Use the headerVisible value for opacity
   const headerOpacity = headerVisible;
 
   return (
     <ThemedView style={{flex:1}}>
-      {/* Sticky Header */}
       <Animated.View 
         style={[
           styles.stickyHeader,
@@ -95,8 +89,6 @@ export default function ExploreScreen() {
 
         <ThemedView color='primary' style={styles.tabRow}>
           {[
-            // 'Feed', 
-            
             'Your Groups',
             'TaraBuddy', 
           ].map((label, idx) => (
@@ -140,16 +132,7 @@ export default function ExploreScreen() {
           </ScrollView>
         </View>
         <View style={[styles.sectionContainer, { display: activeTab === 1 ? 'flex' : 'none' }]}>
-          {/* <ScrollView 
-            ref={activeTab === 0 ? scrollViewRef : null}
-            showsVerticalScrollIndicator={false}
-            style={{width: '100%', height: '100%'}}
-            contentContainerStyle={{ paddingTop: stickyHeight }}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-          > */}
-            <TaraBuddySection/>
-          {/* </ScrollView> */}
+          <TaraBuddySection/>
         </View>
         
       </View>
@@ -196,14 +179,14 @@ const styles = StyleSheet.create({
     height: 44,
   },
   tabText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
   },
   tabUnderline: {
-    height: 3,
+    height: 2,
     width: '80%',
     backgroundColor: 'transparent',
-    borderRadius: 10,
+    borderRadius: 20,
   },
   sectionContainer: {
     flex: 1,

@@ -106,15 +106,15 @@ export default function FirstLoginScreen() {
         Stay informed with weather updates, route safety assessments, and quick access to emergency contacts.
       </ThemedText>
     </View>,
-    <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 30 }} key="get-to-know-you">
+    <View style={styles.getToKnowYouScreen} key="get-to-know-you">
       <ThemedText type="title" style={{marginBottom: 10}}>
         Get to Know You
       </ThemedText>
       <ThemedText style={{  marginBottom: 20, opacity: 0.9 }}>
         Select at least 3 interests to personalize your experience
       </ThemedText>
-      <ScrollView style={{ maxHeight: 400, width: '100%' }} showsVerticalScrollIndicator={false}>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingVertical: 20 }}>
+      <ScrollView style={{ flex: 1}} showsVerticalScrollIndicator={false}>
+        <View style={{ flex: 1,flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingVertical: 20 }}>
           {interests.map((interest) => (
             <ToggleButton
               key={interest}
@@ -131,7 +131,7 @@ export default function FirstLoginScreen() {
         onPress={handleFinish}
         type="primary"
         disabled={selectedInterests.length < 3}
-        buttonStyle={{ marginTop: 30 }}
+        buttonStyle={styles.getStartedButton}
       />
     </View>
   ];
@@ -154,7 +154,13 @@ const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center', 
-    paddingHorizontal: 30
+    paddingHorizontal: 16
+  },
+  getToKnowYouScreen: {
+    flex: 1, 
+    paddingTop: 60,
+    paddingHorizontal: 16,
+    zIndex: 1000
   },
   screenTitle: {
     textAlign: 'center',
@@ -170,5 +176,11 @@ const styles = StyleSheet.create({
     height: 200,
     marginBottom: 60, 
     resizeMode: 'contain'
+  },
+  getStartedButton: {
+    position: 'absolute',
+    bottom: 60,
+    left: 16,
+    right: 16,
   },
 });
