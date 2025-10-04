@@ -2,9 +2,7 @@ import OptionsPopup from "@/components/OptionsPopup";
 import TextField from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import ThemedIcons from "@/components/ThemedIcons";
-import Button from '@/components/Button';
 import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
 import React, { useState, useEffect, useCallback } from "react";
@@ -14,16 +12,11 @@ import { useSession } from "@/context/SessionContext";
 import { groupsApiService, Group } from "@/services/groupsApiService";
 
 export default function GroupsSection(){
-    const primaryColor = useThemeColor({}, 'primary');
-    const secondaryColor = useThemeColor({}, 'secondary');
     const { session } = useSession();
     
     // State management
     const [searchText, setSearchText] = useState("");
-    const [groupName, setGroupName] = useState("");
-    const [inviteCode, setInviteCode] = useState("");
     const [userGroups, setUserGroups] = useState<Group[]>([]);
-    const [loading, setLoading] = useState(false);
     const [groupsLoading, setGroupsLoading] = useState(true);
     const [lastFetchTime, setLastFetchTime] = useState<number>(0);
     const [forceRefresh, setForceRefresh] = useState(false);
@@ -72,108 +65,6 @@ export default function GroupsSection(){
             Alert.alert('Error', 'Failed to load groups');
         } finally {
             setGroupsLoading(false);
-        }
-    };
-
-    const handleCreateGroup = async () => {
-        if (!groupName.trim()) {
-            Alert.alert('Error', 'Please enter a group name');
-            return;
-        }
-
-        if (!session?.accessToken || !session?.user) {
-            Alert.alert('Error', 'Please log in to create a group');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            
-            // Combine name parts
-            const fullName = [
-                session.user.fname,
-                session.user.mname,
-                session.user.lname
-            ].filter(Boolean).join(' ');
-
-            const createGroupData = {
-                groupName: groupName.trim(),
-                userID: session.user.id,
-                username: session.user.username,
-                name: fullName,
-                profileImage: session.user.profileImage || '',
-            };
-
-            const result = await groupsApiService.createGroup(session.accessToken, createGroupData);
-            
-            Alert.alert(
-                'Group Created!', 
-                `Group "${groupName}" has been created successfully!\n\nInvite Code: ${result.inviteCode}\n\nShare this code with friends to invite them to your group.`,
-                [
-                    {
-                        text: 'Copy Code',
-                        onPress: () => {
-                            // You can implement clipboard functionality here if needed
-                            console.log('Invite code:', result.inviteCode);
-                        }
-                    },
-                    { text: 'OK' }
-                ]
-            );
-            
-            setGroupName('');
-            setForceRefresh(true); // Force refresh to get updated groups list
-        } catch (error) {
-            console.error('Error creating group:', error);
-            Alert.alert('Error', error instanceof Error ? error.message : 'Failed to create group');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleJoinGroup = async () => {
-        if (!inviteCode.trim()) {
-            Alert.alert('Error', 'Please enter an invite code');
-            return;
-        }
-
-        if (!session?.accessToken || !session?.user) {
-            Alert.alert('Error', 'Please log in to join a group');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            
-            // Combine name parts
-            const fullName = [
-                session.user.fname,
-                session.user.mname,
-                session.user.lname
-            ].filter(Boolean).join(' ');
-
-            const joinGroupData = {
-                inviteCode: inviteCode.trim().toUpperCase(),
-                userID: session.user.id,
-                username: session.user.username,
-                name: fullName,
-                profileImage: session.user.profileImage || '',
-            };
-
-            await groupsApiService.joinGroup(session.accessToken, joinGroupData);
-            
-            Alert.alert(
-                'Join Request Sent!', 
-                'Your request to join the group has been sent. You will be notified when an admin approves your request.'
-            );
-            
-            setInviteCode('');
-            setForceRefresh(true); // Force refresh to get updated groups list
-        } catch (error) {
-            console.error('Error joining group:', error);
-            Alert.alert('Error', error instanceof Error ? error.message : 'Failed to join group');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -250,78 +141,17 @@ export default function GroupsSection(){
 
     return (
     <View style={{padding: 16}}>
-        <View style={styles.options}>
-            <View style={{flex: 1}}>
-                <TextField
-                placeholder="Search groups..."
-                value={searchText}
-                onChangeText={setSearchText}
-                onFocus={() => {}}
-                onBlur={() => {}}
-                isFocused={false}
-                autoCapitalize="none"
-                />
-            </View>
-
-            <OptionsPopup
-            key="joinGroup"
-            style={[styles.addButton, {backgroundColor: primaryColor}]}
-            options={[
-                <View key="header">
-                <ThemedText type='subtitle'>Join A Group</ThemedText>
-                <ThemedText>Input a valid invite code</ThemedText>
-                
-                </View>,
-                <View style={{flex: 1}} key="form">
-                <TextField
-                    placeholder="Enter Invite Code"
-                    value={inviteCode}
-                    onChangeText={setInviteCode}
-                    onFocus={() => {}}
-                    onBlur={() => {}}
-                    isFocused={false}
-                    autoCapitalize="characters"
-                />
-                <Button
-                    title={loading ? 'Joining...' : 'Join'}
-                    type='primary'
-                    onPress={handleJoinGroup}
-                    disabled={loading}
-                />
-                </View>
-            ]}>
-                <ThemedIcons library='MaterialIcons' name='group-add' size={20} />
-            </OptionsPopup>
-
-            <OptionsPopup
-            key="createGroup"
-            style={[styles.addButton, {backgroundColor: secondaryColor}]}
-            options={[
-                <View key="header">
-                <ThemedText type='subtitle'>Create a Group</ThemedText>
-                <ThemedText>Create a group name and invite your friends</ThemedText>
-                </View>,
-                <View style={{flex: 1}} key="form">
-                <TextField
-                placeholder="Enter Group Name"
-                value={groupName}
-                onChangeText={setGroupName}
-                onFocus={() => {}}
-                onBlur={() => {}}
-                isFocused={false}
-                autoCapitalize="words"
-                />
-                <Button
-                title={loading ? 'Creating...' : 'Create'}
-                type='primary'
-                onPress={handleCreateGroup}
-                disabled={loading}
-                />
-            </View>
-            ]}>
-                <ThemedIcons library='MaterialIcons' name='add' size={25} color='white'/>
-            </OptionsPopup>
-            </View>
+        <View style={{flex: 1}}>
+            <TextField
+            placeholder="Search groups..."
+            value={searchText}
+            onChangeText={setSearchText}
+            onFocus={() => {}}
+            onBlur={() => {}}
+            isFocused={false}
+            autoCapitalize="none"
+            />
+        </View>
 
             <View style={{flex: 1}}>
                 {groupsLoading ? (
@@ -367,12 +197,6 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    options:{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        marginBottom: 10,
     },
     groupContainer:{
         padding: 20,

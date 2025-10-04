@@ -1,11 +1,18 @@
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import TextField from "@/components/TextField";
+import ThemedIcons from "@/components/ThemedIcons";
+import Button from '@/components/Button';
 // import ToursSection from '@/app/tours/tours';
 import TaraBuddySection from '@/app/taraBuddy/taraBuddy';
 import GroupsSection from '@/app/groups/groups';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, ScrollView, StyleSheet, TouchableOpacity, View, Alert } from 'react-native';
+import OptionsPopup from '@/components/OptionsPopup';
+import { groupsApiService, Group } from "@/services/groupsApiService";
+import { useSession } from "@/context/SessionContext";
+import ToursSection from '../tours/tours';
 
 export default function ExploreScreen() {
   const [activeTab, setActiveTab] = useState(0);
@@ -15,6 +22,17 @@ export default function ExploreScreen() {
   const headerHeight = 80;
   const tabHeight = 40;
   const secondaryColor = useThemeColor({}, 'secondary');
+  const primaryColor = useThemeColor({}, 'primary');
+  const { session } = useSession();
+  
+  const [searchText, setSearchText] = useState("");
+  const [groupName, setGroupName] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+  const [userGroups, setUserGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [groupsLoading, setGroupsLoading] = useState(true);
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  const [forceRefresh, setForceRefresh] = useState(false);
   
 
   useEffect(() => {
@@ -67,6 +85,108 @@ export default function ExploreScreen() {
     lastScrollY.current = currentScrollY;
   };
 
+  const handleCreateGroup = async () => {
+    if (!groupName.trim()) {
+        Alert.alert('Error', 'Please enter a group name');
+        return;
+    }
+
+    if (!session?.accessToken || !session?.user) {
+        Alert.alert('Error', 'Please log in to create a group');
+        return;
+    }
+
+    try {
+        setLoading(true);
+        
+        // Combine name parts
+        const fullName = [
+            session.user.fname,
+            session.user.mname,
+            session.user.lname
+        ].filter(Boolean).join(' ');
+
+        const createGroupData = {
+            groupName: groupName.trim(),
+            userID: session.user.id,
+            username: session.user.username,
+            name: fullName,
+            profileImage: session.user.profileImage || '',
+        };
+
+        const result = await groupsApiService.createGroup(session.accessToken, createGroupData);
+        
+        Alert.alert(
+            'Group Created!', 
+            `Group "${groupName}" has been created successfully!\n\nInvite Code: ${result.inviteCode}\n\nShare this code with friends to invite them to your group.`,
+            [
+                {
+                    text: 'Copy Code',
+                    onPress: () => {
+                        // You can implement clipboard functionality here if needed
+                        console.log('Invite code:', result.inviteCode);
+                    }
+                },
+                { text: 'OK' }
+            ]
+        );
+        
+        setGroupName('');
+        setForceRefresh(true); // Force refresh to get updated groups list
+    } catch (error) {
+        console.error('Error creating group:', error);
+        Alert.alert('Error', error instanceof Error ? error.message : 'Failed to create group');
+    } finally {
+        setLoading(false);
+    }
+};
+
+const handleJoinGroup = async () => {
+    if (!inviteCode.trim()) {
+        Alert.alert('Error', 'Please enter an invite code');
+        return;
+    }
+
+    if (!session?.accessToken || !session?.user) {
+        Alert.alert('Error', 'Please log in to join a group');
+        return;
+    }
+
+    try {
+        setLoading(true);
+        
+        // Combine name parts
+        const fullName = [
+            session.user.fname,
+            session.user.mname,
+            session.user.lname
+        ].filter(Boolean).join(' ');
+
+        const joinGroupData = {
+            inviteCode: inviteCode.trim().toUpperCase(),
+            userID: session.user.id,
+            username: session.user.username,
+            name: fullName,
+            profileImage: session.user.profileImage || '',
+        };
+
+        await groupsApiService.joinGroup(session.accessToken, joinGroupData);
+        
+        Alert.alert(
+            'Join Request Sent!', 
+            'Your request to join the group has been sent. You will be notified when an admin approves your request.'
+        );
+        
+        setInviteCode('');
+        setForceRefresh(true); // Force refresh to get updated groups list
+    } catch (error) {
+        console.error('Error joining group:', error);
+        Alert.alert('Error', error instanceof Error ? error.message : 'Failed to join group');
+    } finally {
+        setLoading(false);
+    }
+};
+
   const stickyHeight = headerHeight + tabHeight;
   const headerVisible = useRef(new Animated.Value(1)).current;
   const headerTranslateY = useRef(new Animated.Value(0)).current;
@@ -89,7 +209,8 @@ export default function ExploreScreen() {
 
         <ThemedView color='primary' style={styles.tabRow}>
           {[
-            'Your Groups',
+            'Tours',
+            'Rooms',
             'TaraBuddy', 
           ].map((label, idx) => (
             <TouchableOpacity
@@ -119,7 +240,20 @@ export default function ExploreScreen() {
 
       {/* Content */}
       <View style={{flex: 1}}>
-        <View style={[styles.sectionContainer, { display: activeTab === 0 ? 'flex' : 'none' }]}>
+      <View style={[styles.sectionContainer, { display: activeTab === 0 ? 'flex' : 'none' }]}>
+          <ScrollView 
+            ref={activeTab === 0 ? scrollViewRef : null}
+            showsVerticalScrollIndicator={false}
+            style={{width: '100%', height: '100%'}}
+            contentContainerStyle={{ paddingTop: stickyHeight }}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+          >
+            <ToursSection/>
+          </ScrollView>
+        </View>
+        {/* Your Groups */}
+        <View style={[styles.sectionContainer, { display: activeTab === 1 ? 'flex' : 'none' }]}>
           <ScrollView 
             ref={activeTab === 1 ? scrollViewRef : null}
             showsVerticalScrollIndicator={false}
@@ -130,8 +264,66 @@ export default function ExploreScreen() {
           >
             <GroupsSection/>
           </ScrollView>
+          <OptionsPopup
+          key="joinGroup"
+          style={[styles.addButton, {backgroundColor: primaryColor, bottom: 85}]}
+          options={[
+              <View key="header">
+              <ThemedText type='subtitle'>Join A Group</ThemedText>
+              <ThemedText>Input a valid invite code</ThemedText>
+              
+              </View>,
+              <View style={{flex: 1}} key="form">
+              <TextField
+                  placeholder="Enter Invite Code"
+                  value={inviteCode}
+                  onChangeText={setInviteCode}
+                  onFocus={() => {}}
+                  onBlur={() => {}}
+                  isFocused={false}
+                  autoCapitalize="characters"
+              />
+              <Button
+                  title={loading ? 'Joining...' : 'Join'}
+                  type='primary'
+                  onPress={handleJoinGroup}
+                  disabled={loading}
+              />
+              </View>
+          ]}>
+              <ThemedIcons library='MaterialIcons' name='group-add' size={25} />
+          </OptionsPopup>
+
+          <OptionsPopup
+            key="createGroup"
+            style={[styles.addButton, {backgroundColor: secondaryColor, bottom: 16}]}
+            options={[
+                <View key="header">
+                <ThemedText type='subtitle'>Create a Group</ThemedText>
+                <ThemedText>Create a group name and invite your friends</ThemedText>
+                </View>,
+                <View style={{flex: 1}} key="form">
+                <TextField
+                placeholder="Enter Group Name"
+                value={groupName}
+                onChangeText={setGroupName}
+                onFocus={() => {}}
+                onBlur={() => {}}
+                isFocused={false}
+                autoCapitalize="words"
+                />
+                <Button
+                title={loading ? 'Creating...' : 'Create'}
+                type='primary'
+                onPress={handleCreateGroup}
+                disabled={loading}
+                />
+            </View>
+            ]}>
+                <ThemedIcons library='MaterialIcons' name='add' size={30} color='white'/>
+            </OptionsPopup>
         </View>
-        <View style={[styles.sectionContainer, { display: activeTab === 1 ? 'flex' : 'none' }]}>
+        <View style={[styles.sectionContainer, { display: activeTab === 2 ? 'flex' : 'none' }]}>
           <TaraBuddySection/>
         </View>
         
@@ -193,4 +385,21 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  addButton: {
+    width: 57,
+    aspectRatio: 1,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    right: 16,
+    shadowColor: 'rgba(0,0,0,.3)',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+},
 });
