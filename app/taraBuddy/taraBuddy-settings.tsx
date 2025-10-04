@@ -173,7 +173,7 @@ const toggleZodiac = (sign: string) => {
                     color={zodiacArr.includes(sign) ? 'secondary' : 'primary'}
                     style={styles.buttonOption}
                   >
-                    <ThemedIcons library='MaterialDesignIcons' name={iconName} size={20} />
+                    <ThemedIcons library='MaterialDesignIcons' name={iconName} size={15} />
                     <ThemedText>{sign}</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
@@ -246,11 +246,11 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   buttonOption: {
-    paddingVertical: 8,
+    paddingVertical: 7,
     paddingHorizontal: 12,
     borderRadius: 100,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 5,
   },
 });

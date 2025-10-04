@@ -446,10 +446,7 @@ export default function ActiveRouteMap() {
               
               // Stop tracking and clean up
               await stopTracking();
-              await AsyncStorage.removeItem('trackingData');
               
-              // Update session after state reset
-              await updateSession({ activeRoute: undefined });
               console.log('Route ended successfully');
             } catch (error) {
               console.error('Error ending route:', error);

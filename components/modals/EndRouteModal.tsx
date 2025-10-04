@@ -12,6 +12,8 @@ import { ThemedText } from '../ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTheme } from '@/hooks/useTheme';
 import { useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSession } from '@/context/SessionContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -39,7 +41,7 @@ export default function EndRouteModal({
   const textColor = useThemeColor({}, 'text');
   const { theme: selectedTheme } = useTheme();
   const deviceColorScheme = useColorScheme();
-  
+  const { updateSession } = useSession();  
   // Get overlay color based on theme
   const getOverlayColor = () => {
     if (selectedTheme === 'light') {
@@ -134,6 +136,8 @@ export default function EndRouteModal({
       slideAnimation.setValue(300);
       iconAnimation.setValue(0);
       rotationAnimation.setValue(0);
+      AsyncStorage.removeItem('trackingData');
+      updateSession({ activeRoute: undefined });
     });
   };
 
