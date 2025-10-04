@@ -149,7 +149,7 @@ export default function HomeScreen() {
           <View style={styles.menu}>
             <View style={styles.menuOptions}>
               <CubeButton
-                size={55}
+                size={57}
                 iconName="route"
                 iconSize={25}
                 iconColor="#fff"
@@ -160,7 +160,7 @@ export default function HomeScreen() {
 
             <View style={styles.menuOptions}>
               <CubeButton
-                size={55}
+                size={57}
                 iconName="event-note"
                 iconSize={25}
                 iconColor="#fff"
@@ -171,7 +171,7 @@ export default function HomeScreen() {
 
             <View style={styles.menuOptions}>
               <CubeButton
-                size={55}
+                size={57}
                 iconLibrary="MaterialDesignIcons"
                 iconName="car-brake-alert"
                 iconSize={25}
@@ -183,7 +183,7 @@ export default function HomeScreen() {
 
             <View style={styles.menuOptions}>
               <CubeButton
-                size={55}
+                size={57}
                 iconLibrary="MaterialDesignIcons"
                 iconName="robot-happy-outline"
                 iconSize={25}
@@ -222,7 +222,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   mapHeaderContainer: {
-    height: 300,
+    height: 280,
     overflow: 'hidden',
     backgroundColor: 'blue',
   },
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-between',
-    paddingVertical: 25,
+    paddingVertical: 20,
   },
   menuOptions:{
     width: '22%',

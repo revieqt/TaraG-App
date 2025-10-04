@@ -165,23 +165,9 @@ export default function ProfileScreen() {
                 </View>
                 <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>@{user.username}</ThemedText>
                 <ThemedText style={{opacity: .5, color: '#fff'}}>{userDescription}</ThemedText>
-                <View style={styles.bio}>
-                  {(user?.bio?.trim() !== "") && (
-                    <View style={{flex: 1}}>
-                      <ThemedText style={{color: '#fff'}}>{user?.bio}</ThemedText>
-                    </View>
-                  )}
-                  { isCurrentUser && (
-                    <TouchableOpacity 
-                      style={{padding: 5}}
-                      onPress={() => setEditBioVisible(true)}
-                    >
-                      <ThemedIcons library="MaterialIcons" name="edit" size={15}/>
-                    </TouchableOpacity>
-                  )}
-                </View>
+                
+                <ThemedView style={styles.headerBottom} />
               </LinearGradient>
-              <ThemedView style={styles.headerBottom} />
             </View>
 
             { !isCurrentUser && !user?.publicSettings?.isProfilePublic ? (
@@ -194,7 +180,22 @@ export default function ProfileScreen() {
                 />
               </View>
             ) : (
-            <View style={{paddingHorizontal: 20}}>
+            <View style={{paddingHorizontal: 16}}>
+              <View style={styles.bio}>
+                {(user?.bio?.trim() !== "") && (
+                  <View style={{flex: 1}}>
+                    <ThemedText>{user?.bio}</ThemedText>
+                  </View>
+                )}
+                { isCurrentUser && (
+                  <TouchableOpacity 
+                    style={{padding: 5}}
+                    onPress={() => setEditBioVisible(true)}
+                  >
+                    <ThemedIcons library="MaterialIcons" name="edit" size={15}/>
+                  </TouchableOpacity>
+                )}
+              </View>
               <ThemedText style={{marginBottom: 5}}>Likes</ThemedText>
               <View style={styles.likesContainer}>
                 {user.likes.map((like, index) => (
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 2,
     padding: 16,
-    marginBottom: 20,
+    paddingBottom: 40,
     pointerEvents: 'box-none',
   },
   profileImageOption: {

@@ -30,7 +30,7 @@ export default function ActiveRouteMap() {
   const { latitude, longitude } = useLocation();
   const { mapType, setMapType } = useMapType();
   const [speechEnabled, setSpeechEnabled] = useState(false);
-  const [route3dEnabled, setRoute3dEnabled] = useState(true);
+  const [route3dEnabled, setRoute3dEnabled] = useState(false);
   const [currentInstruction, setCurrentInstruction] = useState<string>('');
   const [nextStop, setNextStop] = useState<string>('');
   const [distanceToNextStep, setDistanceToNextStep] = useState<number>(0);
@@ -43,7 +43,7 @@ export default function ActiveRouteMap() {
   
   // 3D View and Orientation states
   const [deviceOrientation, setDeviceOrientation] = useState(0);
-  const [is3DView, setIs3DView] = useState(true);
+  const [is3DView, setIs3DView] = useState(false);
   const [cameraHeading, setCameraHeading] = useState(0);
   const [cameraPitch, setCameraPitch] = useState(0);
   const [targetHeading, setTargetHeading] = useState(0);
