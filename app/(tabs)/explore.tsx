@@ -4,7 +4,6 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import TextField from "@/components/TextField";
 import ThemedIcons from "@/components/ThemedIcons";
 import Button from '@/components/Button';
-// import ToursSection from '@/app/tours/tours';
 import TaraBuddySection from '@/app/taraBuddy/taraBuddy';
 import GroupsSection from '@/app/groups/groups';
 import React, { useEffect, useRef, useState } from 'react';
@@ -19,19 +18,14 @@ export default function ExploreScreen() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const lastScrollY = useRef(0);
   const scrollViewRef = useRef<ScrollView>(null);
-  const headerHeight = 80;
-  const tabHeight = 40;
+  const tabHeight = 60;
   const secondaryColor = useThemeColor({}, 'secondary');
   const primaryColor = useThemeColor({}, 'primary');
   const { session } = useSession();
   
-  const [searchText, setSearchText] = useState("");
   const [groupName, setGroupName] = useState("");
   const [inviteCode, setInviteCode] = useState("");
-  const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
-  const [groupsLoading, setGroupsLoading] = useState(true);
-  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
   const [forceRefresh, setForceRefresh] = useState(false);
   
 
@@ -187,7 +181,7 @@ const handleJoinGroup = async () => {
     }
 };
 
-  const stickyHeight = headerHeight + tabHeight;
+  const stickyHeight = tabHeight;
   const headerVisible = useRef(new Animated.Value(1)).current;
   const headerTranslateY = useRef(new Animated.Value(0)).current;
   const headerOpacity = headerVisible;
@@ -203,10 +197,6 @@ const handleJoinGroup = async () => {
           }
         ]}
       >
-        <ThemedView style={styles.header} color='primary'>
-          <ThemedText type='subtitle'>Explore</ThemedText>
-        </ThemedView>
-
         <ThemedView color='primary' style={styles.tabRow}>
           {[
             'Tours',
@@ -333,13 +323,6 @@ const handleJoinGroup = async () => {
 }
 
 const styles = StyleSheet.create({
-  header:{
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 20,
-    alignItems: 'center',
-  },
   stickyHeader: {
     position: 'absolute',
     top: 0,
@@ -352,7 +335,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',   
     justifyContent: 'space-between',
     alignItems: 'stretch',
-    height: 48,
+    height: 60,
+    paddingTop: 16,
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
     borderBottomWidth: 1,
   },

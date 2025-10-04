@@ -253,7 +253,6 @@ export default function AccountScreen() {
           onPress={handleLogout}
           type='primary'
           buttonStyle={styles.logoutButton}
-          textStyle={styles.logoutText}
         />
       </ScrollView>
 
@@ -321,11 +320,6 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     width: '100%',
-    marginVertical: 30,
-  },
-  logoutText: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    letterSpacing: 1,
+    marginVertical: 20,
   },
 });
