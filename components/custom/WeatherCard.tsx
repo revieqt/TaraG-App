@@ -7,6 +7,7 @@ import { useLocation } from '@/hooks/useLocation';
 import { useWeather } from '@/hooks/useWeather';
 import { getWeatherImage } from '@/utils/weatherUtils';
 import { BACKEND_URL } from '@/constants/Config';
+import LoadingContainerAnimation from '../LoadingContainerAnimation';
 
 interface WeatherCardProps {
   current?: boolean;
@@ -104,10 +105,8 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
 
   if (shouldShowLoading) {
     return (
-      <ThemedView shadow color='primary' style={styles.locationContent}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" />
-        </View>
+      <ThemedView shadow color='primary' style={[styles.locationContent, { height: 220 }]}>
+        <LoadingContainerAnimation />
       </ThemedView>
     );
   }

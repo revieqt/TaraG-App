@@ -10,6 +10,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import EmptyMessage from '@/components/EmptyMessage';
 import { useSession } from "@/context/SessionContext";
 import { groupsApiService, Group } from "@/services/groupsApiService";
+import LoadingContainerAnimation from "@/components/LoadingContainerAnimation";
 
 export default function GroupsSection(){
     const { session } = useSession();
@@ -155,11 +156,9 @@ export default function GroupsSection(){
 
             <View style={{flex: 1}}>
                 {groupsLoading ? (
-                    <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
-                    title='Loading'
-                    description="Please wait..."
-                    loading
-                    />
+                    <ThemedView color='primary' shadow style={{ width: '100%', height: 92, borderRadius: 10, overflow: 'hidden' }}>
+                        <LoadingContainerAnimation/>
+                    </ThemedView>
                 ) : filteredGroups.length > 0 ? (
                     <View>
                         {filteredGroups.map((item) => (

@@ -4,7 +4,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/context/SessionContext';
 import { useLocation } from '@/hooks/useLocation';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import WeatherCard from '@/components/WeatherCard';
+import WeatherCard from '@/components/custom/WeatherCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import HomeMap from '@/components/maps/HomeMap';
 import { router } from 'expo-router';
@@ -20,7 +20,6 @@ import ActiveRouteButton from '@/components/custom/ActiveRouteButton';
 export default function HomeScreen() {
   const { session } = useSession();
   const user = session?.user;
-  const { suburb, city, loading, error, latitude, longitude } = useLocation();
   const backgroundColor = useThemeColor({}, 'background');
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
@@ -194,20 +193,10 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          
-          
-          {loading ? (
-             <View style={styles.loadingContainer}>
-               <ActivityIndicator size="large"/>
-             </View>
-           ) : (
-            <>
-              <WeatherCard current />
-              <WeeklyCalendar
-                events={calendarEvents}
-              />
-            </>
-          )}
+          <WeatherCard current />
+          <WeeklyCalendar
+            events={calendarEvents}
+          />
         </View>
       </ScrollView>
       
@@ -262,7 +251,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-between',
-    paddingVertical: 20,
+    paddingVertical: 25,
   },
   menuOptions:{
     width: '22%',

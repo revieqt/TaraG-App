@@ -9,6 +9,7 @@ import { useSession } from '@/context/SessionContext';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
+import LoadingContainerAnimation from '@/components/LoadingContainerAnimation';
 
 export default function ItinerariesScreen() {
   const { session } = useSession();
@@ -126,7 +127,9 @@ export default function ItinerariesScreen() {
       
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
         {loading && (
-          <ActivityIndicator size="large" style={{ marginTop: 20 }} />
+          <ThemedView color='primary' shadow style={{ width: '100%', height: 102, borderRadius: 10, overflow: 'hidden' }}>
+            <LoadingContainerAnimation/>
+          </ThemedView>
         )}
         
         {error && (
