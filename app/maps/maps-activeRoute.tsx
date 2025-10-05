@@ -397,10 +397,7 @@ export default function ActiveRouteMap() {
     setIs3DView(new3DState);
     setRoute3dEnabled(new3DState);
     
-    if (new3DState) {
-      Speech.speak("3D view enabled");
-    } else {
-      Speech.speak("3D view disabled");
+    if (!new3DState){
       setCameraHeading(0);
       setDeviceOrientation(0);
       setSmoothHeading(0);
@@ -516,11 +513,12 @@ export default function ActiveRouteMap() {
         
           <View style={styles.directionArrowContainer}>
             {showDirectionArrow ? (<>
-              <View style={[
-                styles.directionArrow,
-                {
-                  transform: [
-                    { rotate: `${nextRouteDirection - (is3DView ? smoothHeading : 0)}deg` }
+              {route3dEnabled && (
+                <View style={[
+                  styles.directionArrow,
+                  {
+                    transform: [
+                      { rotate: `${nextRouteDirection - (is3DView ? smoothHeading : 0)}deg` }
                   ]
                 }
               ]}>
@@ -531,6 +529,7 @@ export default function ActiveRouteMap() {
                   color={accentColor} 
                 />
               </View>
+              )}
             </>) : (<>
               <ActivityIndicator size="large" color={accentColor} />
             </>)}

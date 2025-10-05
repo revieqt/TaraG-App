@@ -1,8 +1,9 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import ThemedIcons from '@/components/ThemedIcons';
 import { ThemedText } from './ThemedText';
+import Button from '@/components/Button';
 
 interface EmptyMessageProps {
   title: string;
@@ -10,6 +11,8 @@ interface EmptyMessageProps {
   iconLibrary?:  'MaterialIcons' | 'MaterialCommunityIcons' | 'MaterialDesignIcons';
   loading?: boolean;
   iconName?: string;
+  buttonLabel?: string;
+  buttonAction?: () => void;
 }
 
 const EmptyMessage: React.FC<EmptyMessageProps> = ({
@@ -18,6 +21,8 @@ const EmptyMessage: React.FC<EmptyMessageProps> = ({
   loading = false,
   iconLibrary = 'MaterialIcons',
   iconName,
+  buttonLabel,
+  buttonAction
 }) => {
   const color = useThemeColor({}, 'text');
 
@@ -30,13 +35,19 @@ const EmptyMessage: React.FC<EmptyMessageProps> = ({
         <ThemedIcons
             library={iconLibrary}
             name={iconName}
-            size={40}
+            size={30}
             color={color}
         />
       </>
       )}
       <ThemedText style={{marginTop: 20, fontSize: 13}} type='defaultSemiBold'>{title}</ThemedText>
-      <ThemedText style={{opacity:.7, textAlign:'center', fontSize: 11}}>{description}</ThemedText>
+      <ThemedText style={{opacity:.7, textAlign:'center', fontSize: 11, marginBottom: 10}}>{description}</ThemedText>
+      {buttonLabel && buttonAction && (
+        <Button
+          title={buttonLabel}
+          onPress={buttonAction}
+        />
+      )}
     </View>
   );
 };

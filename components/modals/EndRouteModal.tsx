@@ -14,8 +14,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSession } from '@/context/SessionContext';
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+import { saveRouteToHistory } from '@/utils/routeHistory';
 
 interface EndRouteModalProps {
   visible: boolean;
@@ -41,7 +40,7 @@ export default function EndRouteModal({
   const textColor = useThemeColor({}, 'text');
   const { theme: selectedTheme } = useTheme();
   const deviceColorScheme = useColorScheme();
-  const { updateSession } = useSession();  
+  const { session, updateSession } = useSession();  
   // Get overlay color based on theme
   const getOverlayColor = () => {
     if (selectedTheme === 'light') {
@@ -117,7 +116,17 @@ export default function EndRouteModal({
     }
   }, [visible]);
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    // Save route to history before closing
+    if (session?.activeRoute) {
+      try {
+        await saveRouteToHistory(session.activeRoute, timeElapsed, distance);
+        console.log('Route saved to history successfully');
+      } catch (error) {
+        console.error('Failed to save route to history:', error);
+      }
+    }
+
     Animated.parallel([
       Animated.timing(modalAnimation, {
         toValue: 0,
