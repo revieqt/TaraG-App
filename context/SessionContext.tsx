@@ -21,6 +21,11 @@ export type User = {
   groups: string[];
   isFirstLogin: boolean;
   likes: string[];
+  lastKnownLocation: {
+    latitude: number | null;
+    longitude: number | null;
+    updatedAt: Date | null;
+  };
   safetyState: {
     isInAnEmergency: boolean;
     emergencyType: string;
@@ -112,6 +117,9 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
           if (parsed.user) {
             parsed.user.bdate = new Date(parsed.user.bdate);
             parsed.user.createdOn = new Date(parsed.user.createdOn);
+            if (parsed.user.lastKnownLocation?.updatedAt) {
+              parsed.user.lastKnownLocation.updatedAt = new Date(parsed.user.lastKnownLocation.updatedAt);
+            }
           }
 
           if (parsed.activeRoute) {

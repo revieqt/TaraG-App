@@ -15,11 +15,22 @@ import { useEffect } from 'react';
 import 'react-native-get-random-values';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'react-native';
+import { useLocationUpdater } from '@/hooks/useLocationUpdater';
 
 SplashScreen.preventAutoHideAsync();
 
 function SessionInitializer() {
   const { session } = useSession();
+
+  // const { updateUserLocation, isLocationAvailable } = useLocationUpdater();
+  
+  //   // Update location when user opens the app (if logged in)
+  //   useEffect(() => {
+  //     if (session?.user && session?.accessToken && isLocationAvailable) {
+  //       // Trigger location update when app opens
+  //       updateUserLocation(true); // Force update on app open
+  //     }
+  //   }, [session?.user, session?.accessToken, isLocationAvailable, updateUserLocation]);
 
   // useEffect(() => {
   //   if (session?.user?.id) {
@@ -37,6 +48,7 @@ function SessionInitializer() {
 }
 
 export default function RootLayout() {
+  
   const [loaded] = useFonts({
     Poppins: require('../assets/fonts/Poppins-Regular.ttf'),
     PoppinsSemiBold: require('../assets/fonts/Poppins-SemiBold.ttf'),
@@ -58,6 +70,8 @@ export default function RootLayout() {
     return null;
   }
 
+  
+
   return (
     <ThemeProvider>
       <SessionProvider>
@@ -77,8 +91,6 @@ export default function RootLayout() {
 
 function AppContent() {
   const backgroundColor = useThemeColor({}, 'primary');
-  const { session, loading } = useSession();
-  const initialRouteName = !loading && session?.user && session?.accessToken ? "(tabs)" : "index";
 
   return (
     <View style={{ flex: 1 }}>
@@ -87,7 +99,7 @@ function AppContent() {
         <StatusBar style="light" backgroundColor={backgroundColor} />
         <Stack 
           screenOptions={{ headerShown: false }}
-          initialRouteName={initialRouteName}
+          initialRouteName={"index"}
         >
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="auth/login" />

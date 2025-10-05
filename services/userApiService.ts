@@ -123,3 +123,27 @@ export async function updateUserBooleanField(
     throw new Error(data.error || 'Failed to update user field');
   }
 }
+
+// Update last known location via backend API
+export async function updateLastKnownLocation(
+  latitude: number,
+  longitude: number,
+  accessToken: string
+): Promise<void> {
+  const response = await fetch(`${BACKEND_URL}/user/update-last-known-location`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      latitude,
+      longitude,
+    }),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to update last known location');
+  }
+}

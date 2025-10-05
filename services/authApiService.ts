@@ -28,6 +28,8 @@ export interface RegisterData {
   username: string;
   status: string;
   type: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface AuthError {

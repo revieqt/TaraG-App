@@ -78,9 +78,9 @@ export default function RoutesScreen() {
         label="Routes"
       />
       
-      <View style={{padding: 20}}>
+      <View style={{padding: 16}}>
         {(session?.activeRoute && (
-          <ThemedView color='primary' shadow style={{padding: 20, borderRadius: 10}}>
+          <ThemedView color='primary' shadow style={{padding: 16, borderRadius: 10}}>
             <LocationDisplay 
               content={session.activeRoute.location.map((loc, index) => (
                 <View key={index}>

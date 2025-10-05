@@ -1,5 +1,5 @@
 import RouteMap from '@/components/maps/RouteMap';
-import { StyleSheet,  View, TouchableOpacity, Alert, Image } from 'react-native';
+import { StyleSheet,  View, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
 import { useSession } from '@/context/SessionContext';
 import { useTracking } from '@/context/TrackingContext';
 import { useRouteTracker } from '@/context/RouteTrackerContext';
@@ -514,26 +514,27 @@ export default function ActiveRouteMap() {
           style={styles.bottomGradient}
         />
         
-        {/* Direction Arrow above stop button */}
-        {showDirectionArrow && (
           <View style={styles.directionArrowContainer}>
-            <View style={[
-              styles.directionArrow,
-              {
-                transform: [
-                  { rotate: `${nextRouteDirection - (is3DView ? smoothHeading : 0)}deg` }
-                ]
-              }
-            ]}>
-              <ThemedIcons 
-                library="MaterialIcons" 
-                name="navigation" 
-                size={50} 
-                color={accentColor} 
-              />
-            </View>
+            {showDirectionArrow ? (<>
+              <View style={[
+                styles.directionArrow,
+                {
+                  transform: [
+                    { rotate: `${nextRouteDirection - (is3DView ? smoothHeading : 0)}deg` }
+                  ]
+                }
+              ]}>
+                <ThemedIcons 
+                  library="MaterialIcons" 
+                  name="navigation" 
+                  size={50} 
+                  color={accentColor} 
+                />
+              </View>
+            </>) : (<>
+              <ActivityIndicator size="large" color={accentColor} />
+            </>)}
           </View>
-        )}
         
         <OptionsPopup
         style={styles.sideButton}

@@ -9,6 +9,7 @@ import { router } from "expo-router";
 import { Foundation } from "@expo/vector-icons";
 import { useSession } from "@/context/SessionContext";
 import { useTaraBuddyApi } from "@/services/taraBuddyApiService";
+import {LinearGradient} from "expo-linear-gradient";
 
 export default function TaraBuddySection() {
   const primaryColor = useThemeColor({}, "primary");
@@ -45,25 +46,52 @@ export default function TaraBuddySection() {
           </ThemedView>
         </View>
       ) : (
-        <View style={styles.bottomOptionContainer}>
-          <TouchableOpacity onPress={() => router.push("/account/viewProfile")}>
-            <ThemedView color="primary" shadow style={styles.settings}>
-              <ThemedIcons library="MaterialIcons" name="person" size={20} />
+        <>
+          <View style={styles.cardContainer}>
+            <ThemedView color="primary" shadow style={[styles.card]}>
+              <LinearGradient
+                colors={['transparent', '#000']}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={styles.cardContent}
+              > 
+                <ThemedText type="title" style={{color: '#fff'}}>Name here</ThemedText>
+                <ThemedText style={{color: '#fff'}}>Description here</ThemedText>
+                <TouchableOpacity style={styles.moreButton}>
+                  <ThemedText style={{color: '#fff'}}>More</ThemedText>
+                  <ThemedIcons library="MaterialDesignIcons" name="arrow-down-drop-circle-outline" size={20} color='#fff' />
+                </TouchableOpacity>
+              </LinearGradient>
             </ThemedView>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.bottomOption, { backgroundColor: "#B85C5C" }]}>
-            <ThemedIcons library="MaterialIcons" name="close" size={40} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.bottomOption, { backgroundColor: "#4CAF50" }]}>
-            <Foundation name="like" size={40} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push("/taraBuddy/taraBuddy-settings")}>
-            <ThemedView color="primary" shadow style={styles.settings}>
-              <ThemedIcons library="MaterialIcons" name="settings" size={20} />
-            </ThemedView>
-          </TouchableOpacity>
-        </View>
+          </View>
+
+          <View style={styles.bottomOptionContainer}>
+            <TouchableOpacity onPress={() => router.push("/account/viewProfile")}>
+              <ThemedView color="primary" shadow style={styles.settings}>
+                <ThemedIcons library="MaterialIcons" name="person" size={20} />
+              </ThemedView>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.bottomOption, { backgroundColor: "#B85C5C" }]}>
+              <ThemedIcons library="MaterialIcons" name="close" size={40} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.bottomOption, { backgroundColor: "#4CAF50" }]}>
+              <Foundation name="like" size={40} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push("/taraBuddy/taraBuddy-settings")}>
+              <ThemedView color="primary" shadow style={styles.settings}>
+                <ThemedIcons library="MaterialIcons" name="settings" size={20} />
+              </ThemedView>
+            </TouchableOpacity>
+          </View>
+        </>
+        
       )}
+      <LinearGradient
+        colors={['transparent', primaryColor]}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.backgroundGradient}
+      />
     </View>
   );
 }
@@ -75,11 +103,18 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 3,
-    padding: 20,
+    paddingBottom: 10,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 15,
+    gap: 10,
+  },
+  backgroundGradient: {
+    position: "absolute",
+    height: 150,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   bottomOption: {
     alignItems: "center",
@@ -117,21 +152,38 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     flex: 1,
-    margin: 20,
-    zIndex: 0,
+    margin: 16,
     marginBottom: 40,
     gap: 20,
-    marginTop: 135,
+    marginTop: 75,
+    zIndex: 1,
   },
   card: {
-    padding: 20,
     borderRadius: 15,
     zIndex: 2,
     width: "100%",
     height: "100%",
+    overflow: "hidden",
   },
   welcomeCard: {
     alignItems: "center",
     justifyContent: "center",
   },
+  cardContent:{
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+    paddingBottom: 45,
+  },
+  moreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    position: "absolute",
+    bottom: 35,
+    right: 16,
+    opacity: .5,
+  }
 });
