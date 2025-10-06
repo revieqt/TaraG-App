@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, Text } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import {ThemedIcons} from '@/components/ThemedIcons';
 
 function TabBarLabel({ children, color }: { children: React.ReactNode; color: string }) {
   return (
@@ -11,7 +12,6 @@ function TabBarLabel({ children, color }: { children: React.ReactNode; color: st
         fontFamily: 'Poppins',
         fontSize: 11,
         color,
-        marginTop: 2,
         textAlign: 'center',
         opacity: .7,
       }}
@@ -36,7 +36,6 @@ export default function TabLayout() {
           ios: {
             position: 'absolute',
             paddingHorizontal: 24,
-            paddingBottom: 12,
             paddingTop: 5,
             height: 70,
             backgroundColor: primaryColor,
@@ -46,7 +45,6 @@ export default function TabLayout() {
           },
           default: {
             paddingHorizontal: 10,
-            paddingBottom: 12,
             paddingTop: 5,
             height: 70,
             backgroundColor: primaryColor,
@@ -61,9 +59,10 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={20}
+            <ThemedIcons
+              library="MaterialDesignIcons"
               name={focused ? 'home' : 'home-outline'}
+              size={22}
               color={color}
             />
           ),
@@ -74,9 +73,10 @@ export default function TabLayout() {
         options={{
           title: 'Maps',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={20}
+            <ThemedIcons
+              library="MaterialDesignIcons"
               name={focused ? 'map' : 'map-outline'}
+              size={20}
               color={color}
             />
           ),
@@ -87,9 +87,10 @@ export default function TabLayout() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={20}
+            <ThemedIcons
+              library="MaterialDesignIcons"
               name={focused ? 'compass' : 'compass-outline'}
+              size={20}
               color={color}
             />
           ),
@@ -100,9 +101,10 @@ export default function TabLayout() {
         options={{
           title: 'Account',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              size={20}
-              name={focused ? 'person' : 'person-outline'}
+            <ThemedIcons
+              library="MaterialDesignIcons"
+              name={focused ? 'account' : 'account-outline'}
+              size={22}
               color={color}
             />
           ),
