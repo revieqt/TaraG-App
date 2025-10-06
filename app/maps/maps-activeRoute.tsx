@@ -1,5 +1,5 @@
 import RouteMap from '@/components/maps/RouteMap';
-import { StyleSheet,  View, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet,  View, TouchableOpacity, Alert, Image, ActivityIndicator, Animated } from 'react-native';
 import { useSession } from '@/context/SessionContext';
 import { useTracking } from '@/context/TrackingContext';
 import { useRouteTracker } from '@/context/RouteTrackerContext';
@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import {useDistanceTracker} from '@/hooks/useDistanceTracker';
 import { useRouteTimer } from "@/hooks/useTimer";
 import * as Speech from 'expo-speech';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from '@/hooks/useLocation';
 import haversineDistance from '@/utils/haversineDistance';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -40,6 +40,12 @@ export default function ActiveRouteMap() {
   const [lastSpokenStop, setLastSpokenStop] = useState<string>('');
   const [isNearStop, setIsNearStop] = useState<boolean>(false);
   const [currentNearbyStop, setCurrentNearbyStop] = useState<string>('');
+  const [firstStepInstruction, setFirstStepInstruction] = useState<string>('');
+  const [nextStopLocation, setNextStopLocation] = useState<string>('');
+  
+  // Animation refs for smooth user marker movement
+  const animatedLatitude = useRef(new Animated.Value(latitude || 0));
+  const animatedLongitude = useRef(new Animated.Value(longitude || 0));
   
   // 3D View and Orientation states
   const [deviceOrientation, setDeviceOrientation] = useState(0);
@@ -94,6 +100,24 @@ export default function ActiveRouteMap() {
     return (bearing + 360) % 360;
   };
 
+  // Initialize first step and next stop when route starts
+  useEffect(() => {
+    if (session?.activeRoute?.routeData && session?.activeRoute?.location) {
+      const routeData = session.activeRoute.routeData;
+      const locations = session.activeRoute.location;
+      
+      // Get first step instruction
+      if (routeData.segments.length > 0 && routeData.segments[0].steps && routeData.segments[0].steps.length > 0) {
+        setFirstStepInstruction(routeData.segments[0].steps[0].instruction);
+      }
+      
+      // Set next stop (index 1 of locations)
+      if (locations.length > 1) {
+        setNextStopLocation(locations[1].locationName);
+      }
+    }
+  }, [session?.activeRoute?.routeID]);
+
   // Reset navigation state when route changes
   useEffect(() => {
     if (session?.activeRoute) {
@@ -112,8 +136,28 @@ export default function ActiveRouteMap() {
       setCurrentNearbyStop('');
       setShowDirectionArrow(false);
       setNextRouteDirection(0);
+      setFirstStepInstruction('');
+      setNextStopLocation('');
     }
   }, [session?.activeRoute?.routeID]);
+
+  // Smooth animation for user marker position
+  useEffect(() => {
+    if (latitude && longitude) {
+      Animated.parallel([
+        Animated.timing(animatedLatitude.current, {
+          toValue: latitude,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedLongitude.current, {
+          toValue: longitude,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [latitude, longitude]);
 
   // Device orientation listener for both normal and 3D view
   useEffect(() => {
@@ -338,8 +382,8 @@ export default function ActiveRouteMap() {
         setShowDirectionArrow(true);
       }
       
-      // Check if current step is completed (within 30m)
-      if (minStepDistance < 30) {
+      // Check if current step is completed (within 10m for turn-by-turn)
+      if (minStepDistance < 10) {
         const segIndex = stepSegmentMap[targetStepIndex];
         const stepIndex = stepIndexMap[targetStepIndex];
         
@@ -498,11 +542,24 @@ export default function ActiveRouteMap() {
         <ThemedText type="title" style={{color: '#fff'}}>
           {(distance / 1000).toFixed(2)} km • {Math.floor(elapsed / 60)}m {elapsed % 60}s
         </ThemedText>
+        
+        {/* Display first step when route starts, then current instruction */}
         <ThemedText type="subtitle" style={{color: '#fff'}}>
-          {currentInstruction || 'Continue straight'}
+          {currentInstruction || firstStepInstruction || 'Continue straight'}
         </ThemedText>
+        
+        {/* Show distance to next step when available */}
+        {distanceToNextStep > 0 && (
+          <ThemedText style={{color: '#fff', fontSize: 12, opacity: 0.8}}>
+            {distanceToNextStep < 1000 
+              ? `${Math.round(distanceToNextStep)}m` 
+              : `${(distanceToNextStep / 1000).toFixed(1)}km`}
+          </ThemedText>
+        )}
+        
+        {/* Next Stop display */}
         <ThemedText style={{color: '#fff', marginTop: 5}}>
-          Next Stop: {nextStop || 'Destination'}
+          Next Stop: {nextStop || nextStopLocation || 'Destination'}
         </ThemedText>
       </View>
       <View style={styles.buttonContainer}>

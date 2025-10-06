@@ -5,9 +5,9 @@ import { ThemedText } from '@/components/ThemedText';
 import {ThemedIcons} from '@/components/ThemedIcons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import SOSSection from './sos';
-import RiskMapSection from './riskMap';
-import TipsSection from './tips';
+import DisasterMapSection from './disasterMap';
 import ReportSection from './report';
+import EarthquakeMap from '@/components/maps/EarthquakeMap';
 
 export default function SafetyScreen() {
   const iconColor = useThemeColor({}, 'icon');
@@ -17,9 +17,8 @@ export default function SafetyScreen() {
   return (
     <>
       <ThemedView style={{flex:1}}>
-        {selectedTab === 'sos' && <SOSSection />}
-        {selectedTab === 'riskMap' && <RiskMapSection />}
-        {selectedTab === 'tips' && <TipsSection />}
+        {selectedTab === 'sos' && <EarthquakeMap />}
+        {selectedTab === 'riskMap' && <DisasterMapSection />}
         {selectedTab === 'report' && <ReportSection />}
       </ThemedView>
       <ThemedView color='primary' style={styles.tabBar}>
@@ -43,17 +42,6 @@ export default function SafetyScreen() {
           />
           <ThemedText style={[styles.tabButtonText, {color: selectedTab === 'riskMap' ? secondaryColor : iconColor}]}>
             Risk Map
-          </ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabButton} onPress={() => setSelectedTab('tips')}>
-          <ThemedIcons 
-            library="MaterialDesignIcons" 
-            name={selectedTab === 'tips' ? 'lightbulb' : 'lightbulb-outline'} 
-            size={20}
-            color={selectedTab === 'tips' ? secondaryColor : iconColor}
-          />
-          <ThemedText style={[styles.tabButtonText, {color: selectedTab === 'tips' ? secondaryColor : iconColor}]}>
-            Tips
           </ThemedText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.tabButton} onPress={() => setSelectedTab('report')}>

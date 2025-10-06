@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, StyleSheet, Animated } from 'react-native';
 import MapView, { Polyline, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+const AnimatedMarker = Animated.createAnimatedComponent(Marker);
 import { useSession } from '@/context/SessionContext';
 import { useLocation } from '@/hooks/useLocation';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -35,6 +36,10 @@ export default function RouteMap({
     latitudeDelta: 0.01,
     longitudeDelta: 0.01,
   });
+
+  // Animated user location for smooth movement
+  const animatedLatitude = useRef(new Animated.Value(latitude || 10.3157));
+  const animatedLongitude = useRef(new Animated.Value(longitude || 123.8854));
 
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
@@ -89,6 +94,25 @@ export default function RouteMap({
       });
     }
   }, [activeRoute, latitude, longitude, focusOnUserLocation]);
+
+  // Animate user location for smooth movement
+  useEffect(() => {
+    if (latitude && longitude) {
+      // Animate both coordinates simultaneously for smooth movement
+      Animated.parallel([
+        Animated.timing(animatedLatitude.current, {
+          toValue: latitude,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedLongitude.current, {
+          toValue: longitude,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [latitude, longitude]);
 
   // Convert route coordinates to map format
   const routeCoordinates = activeRoute?.routeData?.geometry?.coordinates?.map(([lon, lat]) => ({
@@ -177,10 +201,13 @@ export default function RouteMap({
           );
         })}
 
-        {/* Current Location Marker (if not showing user location) */}
+        {/* Current Location Marker (if not showing user location) - Animated */}
         {!showUserLocation && latitude && longitude && (
-          <Marker
-            coordinate={{ latitude, longitude }}
+          <AnimatedMarker
+            coordinate={{
+              latitude: animatedLatitude.current,
+              longitude: animatedLongitude.current,
+            }}
             title="Your Location"
             description="Current position"
           >
@@ -192,7 +219,7 @@ export default function RouteMap({
                 color="white"
               />
             </View>
-          </Marker>
+          </AnimatedMarker>
         )}
       </MapView>
     </View>
