@@ -116,13 +116,7 @@ export default function HomeScreen() {
       <ScrollView>
         <View>
           <View style={styles.mapHeaderContainer}>
-            
-            <TouchableOpacity 
-              style={{flex: 1}} 
-              onPress={() => router.push('/(tabs)/maps')}
-            >
-              <HomeMap/>
-            </TouchableOpacity>
+            <HomeMap/>
           </View>
 
           <View style={styles.headerContent}>

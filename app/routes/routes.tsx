@@ -177,12 +177,22 @@ export default function RoutesScreen() {
     <ThemedView style={{ flex: 1 }}>
       <Header 
         label="Routes"
+        rightButton={
+          <OptionsPopup options={[
+            <TouchableOpacity onPress={handleClearAllHistory} style={{flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8}}>
+              <ThemedIcons library="MaterialIcons" name="delete" size={20}/>
+              <ThemedText>Clear History</ThemedText>
+            </TouchableOpacity>
+          ]}> 
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} />
+          </OptionsPopup>
+        }
       />
 
       <View style={{zIndex: 100, flex: 1}}>
-        <ScrollView style={{zIndex: 100}}>
+        <ScrollView style={{zIndex: 100, padding: 16, gap: 16}}>
           {!session?.activeRoute ? (
-            <ThemedView color='primary' style={styles.emptyActiveRoute}>
+            <ThemedView color='primary' shadow style={styles.emptyActiveRoute}>
               <EmptyMessage
                 iconLibrary="MaterialDesignIcons"
                 iconName="map-search"
@@ -194,7 +204,7 @@ export default function RoutesScreen() {
             </ThemedView>
             
           ) : (
-            <ThemedView color='primary' style={{padding: 16}}>
+            <ThemedView color='primary' shadow style={styles.activeRoute}>
               <LocationDisplay 
                 content={session.activeRoute.location.map((loc, index) => (
                   <View key={index}>
@@ -259,26 +269,10 @@ export default function RoutesScreen() {
               </View>
             </ThemedView>
           )}
-
-          <View style={styles.historyTitle}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-              <ThemedIcons library="MaterialIcons" name="history" size={22}/>
-              <ThemedText type="defaultSemiBold">Past Routes</ThemedText>
-            </View>
-            <OptionsPopup options={[
-              <TouchableOpacity onPress={handleClearAllHistory} style={{flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8}}>
-                <ThemedIcons library="MaterialIcons" name="delete" size={20}/>
-                <ThemedText>Clear History</ThemedText>
-              </TouchableOpacity>
-            ]}> 
-              <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} />
-            </OptionsPopup>
-          </View>
-
           {/* Route History Display */}
           {routeHistory.length > 0 ? (
             routeHistory.map((historyItem) => (
-              <ThemedView key={historyItem.id} color='primary' style={styles.historyItem}>
+              <ThemedView key={historyItem.id} color='primary' shadow style={styles.historyItem}>
                 <View style={styles.historyContent}>
                   <View>
                     <ThemedText type="defaultSemiBold" style={{marginBottom: 4}}>
@@ -328,14 +322,10 @@ export default function RoutesScreen() {
               </ThemedView>
             ))
           ) : (
-            <View style={{marginTop: 15}}>
-              <EmptyMessage
-                iconLibrary="MaterialIcons"
-                iconName="history"
-                title="No Route History"
-                description="Complete a route to see your history here."
-              />
-            </View>
+            <EmptyMessage
+              title="No Route History"
+              description="Complete a route to see your history here."
+            />
           )}
         </ScrollView>
       </View>
@@ -350,9 +340,6 @@ export default function RoutesScreen() {
           style={{position: 'absolute', bottom: 20, right: 20}}
         />
       )}
-      
-
-      
       
       <EndRouteModal
         visible={showEndRouteModal}
@@ -370,6 +357,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: 200,
+    borderRadius: 10,
+    marginBottom: 16,
+  },
+  activeRoute: {
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -411,7 +405,6 @@ const styles = StyleSheet.create({
     opacity: .7
   },
   historyItem: {
-    marginHorizontal: 16,
     padding: 12,
     borderRadius: 10,
     marginBottom: 16,
