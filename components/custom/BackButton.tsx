@@ -6,9 +6,10 @@ import { ThemedIcons } from '../ThemedIcons';
 interface BackButtonProps {
   style?: StyleProp<ViewStyle>;
   type?: 'default' | 'floating';
+  color?: string;
 }
 
-export const BackButton: React.FC<BackButtonProps> = ({ style, type = 'default' }) => {
+export const BackButton: React.FC<BackButtonProps> = ({ style, type = 'default', color }) => {
   const handlePress = () => {
     try {
       router.back();
@@ -36,7 +37,7 @@ export const BackButton: React.FC<BackButtonProps> = ({ style, type = 'default' 
       style={[{ padding: 8, backgroundColor: 'transparent' }, style]}
       activeOpacity={0.7}
     >
-      <ThemedIcons library="MaterialIcons" name="arrow-back" size={24} />
+      <ThemedIcons library="MaterialIcons" name="arrow-back" size={24} color={color} />
     </TouchableOpacity>
   );
 };

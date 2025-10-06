@@ -84,10 +84,9 @@ const styles = StyleSheet.create({
   itemRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 8,
   },
   pinColumn: {
-    width: 40,
+    width: 30,
     flexDirection: "row",
     alignItems: "flex-start",
     position: "relative",

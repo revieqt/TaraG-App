@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import ThemedIcons from '@/components/ThemedIcons';
 import { ThemedText } from './ThemedText';
@@ -13,6 +13,8 @@ interface EmptyMessageProps {
   iconName?: string;
   buttonLabel?: string;
   buttonAction?: () => void;
+  isWhite?: boolean;
+  isSolid?: boolean;
 }
 
 const EmptyMessage: React.FC<EmptyMessageProps> = ({
@@ -22,12 +24,14 @@ const EmptyMessage: React.FC<EmptyMessageProps> = ({
   iconLibrary = 'MaterialIcons',
   iconName,
   buttonLabel,
-  buttonAction
+  buttonAction,
+  isWhite = false,
+  isSolid = false
 }) => {
-  const color = useThemeColor({}, 'text');
+  const color = isWhite ? '#FFFFFF' : useThemeColor({}, 'text');
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {opacity: isSolid ? 1 : .5}]}>
       {loading ? (
         <ActivityIndicator size={40} color={color}/>
       ) : (
@@ -40,13 +44,14 @@ const EmptyMessage: React.FC<EmptyMessageProps> = ({
         />
       </>
       )}
-      <ThemedText style={{marginTop: 20, fontSize: 13}} type='defaultSemiBold'>{title}</ThemedText>
-      <ThemedText style={{opacity:.7, textAlign:'center', fontSize: 11, marginBottom: 10}}>{description}</ThemedText>
+      <ThemedText style={{marginTop: 20, fontSize: 13, color: isWhite ? '#FFFFFF' : undefined}} type='defaultSemiBold'>{title}</ThemedText>
+      <ThemedText style={{opacity:.7, textAlign:'center', fontSize: 11, marginBottom: 10, color: isWhite ? '#FFFFFF' : undefined}}>{description}</ThemedText>
       {buttonLabel && buttonAction && (
-        <Button
-          title={buttonLabel}
-          onPress={buttonAction}
-        />
+        <TouchableOpacity onPress={buttonAction} style={{
+          backgroundColor: isWhite ? 'rgba(255, 255, 255, .3)'
+          : undefined, paddingVertical: 7, paddingHorizontal: 15, borderRadius: 20}}>
+          <ThemedText style={{color: isWhite ? '#FFFFFF' : undefined}}>{buttonLabel}</ThemedText>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -57,7 +62,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    opacity: .5,
   }
 });
 
