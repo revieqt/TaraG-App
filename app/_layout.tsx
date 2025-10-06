@@ -120,12 +120,12 @@ function AppContent() {
           <Stack.Screen name="itineraries/itineraries-update" />
           <Stack.Screen name="itineraries/itineraries-view" />
           <Stack.Screen name="itineraries/itineraries-history" />
-          <Stack.Screen name="home/safety" />
           <Stack.Screen name="home/aiChat" />
           <Stack.Screen name="taraBuddy/taraBuddy-settings" />
           <Stack.Screen name="tours/tours-view" />
           <Stack.Screen name="groups/groups-view" />
           <Stack.Screen name="groups/groups-linkItinerary" />
+          <Stack.Screen name="safety/safety" />
           <Stack.Screen name="payment" />
           <Stack.Screen name="+not-found" />
         </Stack>

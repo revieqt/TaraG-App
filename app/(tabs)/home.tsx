@@ -169,7 +169,7 @@ export default function HomeScreen() {
                 iconName="car-brake-alert"
                 iconSize={25}
                 iconColor="#fff"
-                onPress={() => router.push('/home/safety')}
+                onPress={() => router.push('/safety/safety')}
               />
               <ThemedText style={styles.menuOptionText}>Safety</ThemedText>
             </View>

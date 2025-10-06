@@ -1,18 +1,12 @@
 import RoundedButton from '@/components/RoundedButton';
-import Header from '@/components/Header';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import LocationDisplay from '@/components/LocationDisplay';
 import { router } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useSession } from '@/context/SessionContext';
-import EndRouteModal from '@/components/modals/EndRouteModal';
-import { useDistanceTracker } from '@/hooks/useDistanceTracker';
-import { useRouteTimer } from '@/hooks/useTimer';
 import EmptyMessage from '@/components/EmptyMessage';
-import GradientHeader from '@/components/GradientHeader';
 import OptionsPopup from '@/components/OptionsPopup';
 import { 
   getRouteHistory, 
@@ -30,25 +24,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 export default function RoutesScreen() {
   const { session, updateSession } = useSession();
-  const distance = useDistanceTracker();
-  const elapsed = useRouteTimer(session?.activeRoute !== undefined);
-  const [showEndRouteModal, setShowEndRouteModal] = useState(false);
-  const [completedRouteStops, setCompletedRouteStops] = useState<{ latitude: number; longitude: number; locationName: string }[]>([]);
-  const [completedDistance, setCompletedDistance] = useState(0);
-  const [completedTime, setCompletedTime] = useState(0);
   const [routeHistory, setRouteHistory] = useState<RouteHistoryItem[]>([]);
 
   // Load route history on component mount
   useEffect(() => {
     loadRouteHistory();
   }, []);
-
-  // Refresh route history when modal is closed
-  useEffect(() => {
-    if (!showEndRouteModal) {
-      loadRouteHistory();
-    }
-  }, [showEndRouteModal]);
 
   const loadRouteHistory = async () => {
     try {
@@ -137,59 +118,8 @@ export default function RoutesScreen() {
     router.push('/routes/routes-create');
   };
 
-  const handleEndRoute = async () => {
-    Alert.alert(
-      "End Route",
-      "Are you sure you want to end the current route?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "End Route", 
-          style: "destructive",
-          onPress: async () => {
-            try {
-              // Capture route data before clearing active route
-              if (session?.activeRoute?.location) {
-                setCompletedRouteStops(session.activeRoute.location);
-              }
-              
-              // Capture current distance and time
-              setCompletedDistance(distance);
-              setCompletedTime(elapsed);
-              
-              // Show end route modal
-              setShowEndRouteModal(true);
-              
-              await updateSession({ activeRoute: undefined });
-              console.log('Route ended successfully');
-            } catch (error) {
-              console.error('Error ending route:', error);
-            }
-          }
-        }
-      ]
-    );
-  };
-
-  const handleGoToMaps = () => {
-    router.push('/(tabs)/maps');
-  };
-
   return (
     <ThemedView style={{ flex: 1 }}>
-      {/* <Header 
-        label="Routes"
-        rightButton={
-          <OptionsPopup options={[
-            <TouchableOpacity onPress={handleClearAllHistory} style={{flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8}}>
-              <ThemedIcons library="MaterialIcons" name="delete" size={20}/>
-              <ThemedText>Clear History</ThemedText>
-            </TouchableOpacity>
-          ]}> 
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} />
-          </OptionsPopup>
-        }
-      /> */}
       <ScrollView>
         <ThemedView color='secondary'>
           <OptionsPopup 
@@ -265,21 +195,7 @@ export default function RoutesScreen() {
                     </View>
                   </View>
                 )}
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity 
-                    style={[styles.button, {borderColor: '#fff', borderWidth: 1}]} 
-                    onPress={handleGoToMaps}
-                  >
-                    <ThemedIcons library="MaterialIcons" name="map" size={20} color="#fff"/>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={[styles.button, {backgroundColor: '#dc3545',}]} 
-                    onPress={handleEndRoute}
-                  >
-                    <ThemedIcons library="MaterialIcons" name="stop" size={20} color="#fff"/>
-                  </TouchableOpacity>
-                </View>
+              
               </View>
             )}
           </View>
@@ -364,14 +280,6 @@ export default function RoutesScreen() {
           style={{position: 'absolute', bottom: 20, right: 20}}
         />
       )}
-      
-      <EndRouteModal
-        visible={showEndRouteModal}
-        onClose={() => setShowEndRouteModal(false)}
-        distance={completedDistance}
-        timeElapsed={completedTime}
-        routeStops={completedRouteStops}
-      />
     </ThemedView>
   );
 }
@@ -392,24 +300,6 @@ const styles = StyleSheet.create({
     height: 16,
     borderTopLeftRadius: 100,
     borderTopRightRadius: 100,
-  },
-  emptyActiveRoute: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 16,
-  },
-  activeRoute: {
-    padding: 16,
-    borderRadius: 10,
-    marginBottom: 16,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
   },
   button: {
     alignItems: 'center',
