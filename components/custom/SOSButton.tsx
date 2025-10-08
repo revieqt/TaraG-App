@@ -7,7 +7,9 @@ import {
   Easing,
   StyleProp,
   ViewStyle,
+  Dimensions
 } from 'react-native';
+import ThemedIcons from '../ThemedIcons';
 
 interface SOSButtonProps {
   onPress?: () => void;
@@ -82,7 +84,7 @@ const SOSButton: React.FC<SOSButtonProps> = ({
           onPress={onPress}
           activeOpacity={0.8}
         >
-          {children}
+          <ThemedIcons library='MaterialDesignIcons' name="exclamation" size={70} color={isActive ? 'white' : '#ccc'}/>
         </TouchableOpacity>
       </View>
     </View>
@@ -91,8 +93,8 @@ const SOSButton: React.FC<SOSButtonProps> = ({
 
 export default SOSButton;
 
-const BUTTON_SIZE = 100;
-const RING_SIZE = 120;
+const BUTTON_SIZE = 150;
+const RING_SIZE = 170;
 
 const styles = StyleSheet.create({
   container: {
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
     width: RING_SIZE,
     height: RING_SIZE,
     borderRadius: RING_SIZE / 2,
-    borderWidth: 5,
+    borderWidth: 8,
   },
   button: {
     width: BUTTON_SIZE,
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
-    borderWidth: 5,
+    borderWidth: 8,
     borderColor: '#ccc',
   },
 });

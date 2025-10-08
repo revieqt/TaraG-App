@@ -6,8 +6,7 @@ import {ThemedIcons} from '@/components/ThemedIcons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import SOSSection from './sos';
 import DisasterMapSection from './disasterMap';
-import ReportSection from './report';
-import EarthquakeMap from '@/components/maps/EarthquakeMap';
+import NearbyHelpSection from './nearbyHelp';
 
 export default function SafetyScreen() {
   const iconColor = useThemeColor({}, 'icon');
@@ -17,9 +16,9 @@ export default function SafetyScreen() {
   return (
     <>
       <ThemedView style={{flex:1}}>
-        {selectedTab === 'sos' && <EarthquakeMap />}
-        {selectedTab === 'riskMap' && <DisasterMapSection />}
-        {selectedTab === 'report' && <ReportSection />}
+        {selectedTab === 'sos' && <SOSSection />}
+        {selectedTab === 'disasterMap' && <DisasterMapSection />}
+        {selectedTab === 'nearbyHelp' && <NearbyHelpSection />}
       </ThemedView>
       <ThemedView color='primary' style={styles.tabBar}>
         <TouchableOpacity style={styles.tabButton} onPress={() => setSelectedTab('sos')}>
@@ -33,28 +32,29 @@ export default function SafetyScreen() {
             SOS
           </ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.tabButton} onPress={() => setSelectedTab('riskMap')}>
-        <ThemedIcons 
-            library="MaterialDesignIcons" 
-            name={selectedTab === 'riskMap' ? 'map-check' : 'map-check-outline'}
-            size={20}
-            color={selectedTab === 'riskMap' ? secondaryColor : iconColor}
-          />
-          <ThemedText style={[styles.tabButtonText, {color: selectedTab === 'riskMap' ? secondaryColor : iconColor}]}>
-            Risk Map
-          </ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.tabButton} onPress={() => setSelectedTab('report')}>
+        <TouchableOpacity style={styles.tabButton} onPress={() => setSelectedTab('nearbyHelp')}>
           <ThemedIcons 
             library="MaterialDesignIcons" 
-            name={selectedTab === 'report' ? 'file-alert' : 'file-alert-outline'} 
+            name={selectedTab === 'nearbyHelp' ? 'alarm-light' : 'alarm-light-outline'} 
             size={20}
-            color={selectedTab === 'report' ? secondaryColor : iconColor}
+            color={selectedTab === 'nearbyHelp' ? secondaryColor : iconColor}
           />
-          <ThemedText style={[styles.tabButtonText, {color: selectedTab === 'report' ? secondaryColor : iconColor}]}>
-            Report
+          <ThemedText style={[styles.tabButtonText, {color: selectedTab === 'nearbyHelp' ? secondaryColor : iconColor}]}>
+            Nearby Help
           </ThemedText>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.tabButton} onPress={() => setSelectedTab('disasterMap')}>
+        <ThemedIcons 
+            library="MaterialDesignIcons" 
+            name={selectedTab === 'disasterMap' ? 'map-check' : 'map-check-outline'}
+            size={20}
+            color={selectedTab === 'disasterMap' ? secondaryColor : iconColor}
+          />
+          <ThemedText style={[styles.tabButtonText, {color: selectedTab === 'disasterMap' ? secondaryColor : iconColor}]}>
+            Disaster Map
+          </ThemedText>
+        </TouchableOpacity>
+        
       </ThemedView>
     </>
   );

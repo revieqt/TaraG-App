@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { useLocation, type LocationData } from '@/hooks/useLocation';
+import { useSession } from '@/context/SessionContext';
 import { getAlerts, clearAlertsCache } from '@/services/alertsApiService';
 
 export type AlertSeverity = 'low' | 'medium' | 'high';
@@ -22,6 +23,7 @@ export interface AlertItem {
   startOn: Date; // JS Date after conversion from Firestore timestamp
   endOn: Date;   // JS Date after conversion from Firestore timestamp
   locations: string[]; // affected locations
+  target: 'traveler' | 'tourGuide' | 'everyone';
   createdOn?: Date;
   source?: 'global' | 'local';
   state: 'unread' | 'read';
@@ -63,6 +65,7 @@ function buildLocationData(
 
 export function AlertsProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const { session } = useSession();
 
   const [globalAlerts, setGlobalAlerts] = useState<AlertItem[]>([]);
   const [localAlerts, setLocalAlerts] = useState<AlertItem[]>([]);
@@ -114,11 +117,13 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
 
         // getAlerts handles: 6-hour cache window, Firestore timestamp conversion,
         // backend fetch, and fallback to cached data on errors.
-        const fetched = await getAlerts(locData);
+        const userType = session?.user?.type || 'traveler';
+        const fetched = await getAlerts(locData, userType);
         if (!isMountedRef.current) return;
 
         const normalized = (fetched ?? []).map((a) => ({
           ...a,
+          target: a.target || 'everyone' as const,
           source: 'global' as const,
           state: 'unread' as const,
         }));
@@ -126,7 +131,6 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         setLastFetchedAt(new Date());
         setError(null);
       } catch (e: any) {
-        if (!isMountedRef.current) return;
         setError(e?.message || 'Failed to fetch alerts');
       } finally {
         if (isMountedRef.current) setLoading(false);
@@ -142,6 +146,7 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
       location.state,
       location.region,
       location.country,
+      session?.user?.type,
     ]
   );
 

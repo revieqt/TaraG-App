@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';

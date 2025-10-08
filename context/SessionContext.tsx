@@ -75,8 +75,8 @@ export type RouteData = {
 export type ActiveRoute = {
   routeID: string;
   userID: string;
-  location: { latitude: number; longitude: number; locationName: string }[];
-  mode: string;
+  location: { latitude: number; longitude: number; locationName: string }[];//start point, waypoints, and endpoint
+  mode: string;//transport mode
   status: string;
   createdOn: Date;
   routeData?: RouteData; // ✅ ORS data

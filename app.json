@@ -4,7 +4,6 @@
     "slug": "TaraG",
     "owner": "revieqt",
     "version": "1.0.0",
-    "runtimeVersion": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tarag",
@@ -46,6 +45,7 @@
       }
     },
     "plugins": [
+      "expo-dev-client",
       "expo-router",
       [
         "expo-splash-screen",

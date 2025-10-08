@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
 import { router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -98,10 +98,11 @@ export default function DisasterMapSection(){
         </View>
 
         <TouchableOpacity 
-          onPress={() => router.push('/safety/weatherMap')}
+          onPress={() => router.push('/safety/disasterMap-weather')}
           activeOpacity={0.7}
         >
           <ThemedView color='primary' shadow style={styles.cardContainer}>
+            <Image source={require('@/assets/images/disasterMap-weather.jpg')} style={styles.cardImage} />
             <View style={styles.cardContent}>
               <View>
                 <ThemedText type="subtitle">Weather Map</ThemedText>
@@ -318,6 +319,11 @@ const styles = StyleSheet.create({
   cardContainer:{
     borderRadius: 12,
     marginBottom: 10,
+    overflow: 'hidden',
+  },
+  cardImage:{
+    width: '100%',
+    height: 150,
   },
   cardContent:{
     padding: 12,

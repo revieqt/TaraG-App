@@ -14,7 +14,9 @@ import { useSession } from '@/context/SessionContext';
 import { saveItinerary } from '@/services/itinerariesApiService';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import CubeButton from '@/components/RoundedButton'
+import Switch from '@/components/Switch';
 
 const ITINERARY_TYPES = [
   { label: 'Solo', value: 'Solo' },
@@ -58,8 +60,11 @@ export default function CreateItineraryScreen() {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [locations, setLocations] = useState<LocationItem[]>([]);
   const [dailyLocations, setDailyLocations] = useState<DailyLocation[]>([]);
-  const [showAddLocation, setShowAddLocation] = useState<{[key: string]: boolean}>({});
-  const [pendingLocation, setPendingLocation] = useState<{[key: string]: Partial<LocationItem>}>({});
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [currentDayIdx, setCurrentDayIdx] = useState<number | null>(null);
+  const [modalLocationName, setModalLocationName] = useState('');
+  const [modalNote, setModalNote] = useState('');
+  const [modalLocationData, setModalLocationData] = useState<Partial<LocationItem>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -155,44 +160,42 @@ export default function CreateItineraryScreen() {
     })();
   };
 
-  // Add location UI logic
-  function renderAddLocationUI(dayIdx: number | null) {
-    const key = dayIdx !== null ? String(dayIdx) : 'main';
-    return (
-      <View style={styles.addLocationContainer}>
-        <LocationAutocomplete
-          value={pendingLocation[key]?.locationName || ''}
-          onSelect={loc => setPendingLocation(prev => ({ ...prev, [key]: { ...prev[key], ...loc } }))}
-          placeholder="Location Name"
-        />
-        <TextField
-          placeholder="Note (optional)"
-          value={pendingLocation[key]?.note || ''}
-          onChangeText={text => setPendingLocation(prev => ({ ...prev, [key]: { ...prev[key], note: text } }))}
-        />
-        <Button
-          title="Add"
-          onPress={() => {
-            const loc = pendingLocation[key];
-            if (loc && loc.locationName && loc.latitude && loc.longitude) {
-              if (planDaily && dayIdx !== null) {
-                addLocationToDay(dayIdx, { ...loc, note: loc.note || '' } as LocationItem);
-              } else {
-                addLocation({ ...loc, note: loc.note || '' } as LocationItem);
-              }
-              setShowAddLocation(prev => ({ ...prev, [key]: false }));
-              setPendingLocation(prev => ({ ...prev, [key]: {} }));
-            }
-          }}
-          buttonStyle={{ marginTop: 6 }}
-        />
-      </View>
-    );
-  }
+  // Modal functions
+  const openLocationModal = (dayIdx: number | null) => {
+    setCurrentDayIdx(dayIdx);
+    setModalLocationName('');
+    setModalNote('');
+    setModalLocationData({});
+    setShowLocationModal(true);
+  };
+
+  const closeLocationModal = () => {
+    setShowLocationModal(false);
+    setCurrentDayIdx(null);
+    setModalLocationName('');
+    setModalNote('');
+    setModalLocationData({});
+  };
+
+  const handleAddLocationFromModal = () => {
+    if (modalLocationData && modalLocationData.locationName && modalLocationData.latitude && modalLocationData.longitude) {
+      const locationToAdd = { 
+        ...modalLocationData, 
+        note: modalNote || '' 
+      } as LocationItem;
+
+      if (planDaily && currentDayIdx !== null) {
+        addLocationToDay(currentDayIdx, locationToAdd);
+      } else {
+        addLocation(locationToAdd);
+      }
+      closeLocationModal();
+    }
+  };
 
   return (
     <ThemedView color='primary' style={{ flex: 1 }}>
-      <Header label="Create Itinerary" />
+      <Header/>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -200,14 +203,14 @@ export default function CreateItineraryScreen() {
       >
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <TextField placeholder="Title" value={title} onChangeText={setTitle} 
-            style={{ fontFamily: 'PoppinsBold', fontSize: 35, borderColor: 'transparent', marginBottom: 0, height: 60}}
+            style={{ fontFamily: 'PoppinsBold', fontSize: 27, borderColor: 'transparent', marginBottom: 0, height: 60}}
           />
           <TextField placeholder="Add a Description" value={description} onChangeText={setDescription} 
             style={{ borderColor: 'transparent', minHeight: 60, height: descriptionHeight, textAlignVertical: 'top'}}
             multiline
             onContentSizeChange={e => setDescriptionHeight(e.nativeEvent.contentSize.height)}
           />
-          <View style={{paddingHorizontal: 20, marginBottom: 10}}>
+          <View style={{paddingHorizontal: 16, marginBottom: 10}}>
             <DropDownField
               placeholder="Type"
               value={type}
@@ -233,87 +236,81 @@ export default function CreateItineraryScreen() {
             </View>
             
             {/* Only show planDaily toggle if more than 1 day */}
-            {numDays > 1 && (
-              <View style={styles.rowBetween}>
-                <ThemedText>Plan Daily?</ThemedText>
-                <ToggleButton
+            {/* <ToggleButton
                   value="planDaily"
                   label={planDaily ? 'Yes' : 'No'}
                   initialSelected={planDaily}
                   onToggle={(_, selected) => {
                     setPlanDaily(selected);
                     setDailyLocations([]);
-                  }}
-                />
-              </View>
+                  }} */}
+            {numDays > 1 && (
+              <Switch
+                key="planDaily"
+                label="Plan Daily?"
+                description={planDaily ? 'Yes' : 'No'}
+                value={planDaily}
+                onValueChange={(value) => {
+                  setPlanDaily(value);
+                  setDailyLocations([]);
+                }}
+              />
             )}
-            {planDaily ? (
-              <View style={{ marginTop: 10 }}>
-                <ThemedText type='subtitle' style={styles.sectionTitle}>Daily Plans</ThemedText>
-                {autoDailyLocations.map((day, dayIdx) => (
-                  <View key={dayIdx} style={styles.dayBlock}>
-                    <ThemedText style={{fontSize: 16, fontWeight: 'bold'}}>Day {dayIdx + 1}</ThemedText>
-                    <ThemedText style={{opacity: 0.5, marginBottom: 10}}>({day.date?.toDateString()})</ThemedText>
-                    <LocationDisplay
-                      content={day.locations.map((loc, locIdx) => (
-                        <View key={locIdx} style={styles.locationRow}>
-                          <View style={{ flex: 1 }}>
-                            <ThemedText>{loc.locationName}</ThemedText>
-                            {loc.note ? (
-                              <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
-                            ) : null}
+
+            <ThemedView shadow color='primary' style={styles.locationContainer}>
+              {planDaily ? (
+                <>
+                  {autoDailyLocations.map((day, dayIdx) => (
+                    <View key={dayIdx} style={styles.dayBlock}>
+                      <ThemedText type='defaultSemiBold'>Day {dayIdx + 1}</ThemedText>
+                      <ThemedText style={{opacity: 0.5, marginBottom: 10}}>({day.date?.toDateString()})</ThemedText>
+                      <LocationDisplay
+                        content={day.locations.map((loc, locIdx) => (
+                          <View key={locIdx} style={styles.locationRow}>
+                            <View style={{ flex: 1 }}>
+                              <ThemedText>{loc.locationName}</ThemedText>
+                              {loc.note ? (
+                                <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
+                              ) : null}
+                            </View>
+                            <TouchableOpacity onPress={() => removeLocation(dayIdx, locIdx)}>
+                              <ThemedIcons library='MaterialIcons' name='close' size={20} color='red'/>
+                            </TouchableOpacity>
                           </View>
-                          <TouchableOpacity onPress={() => removeLocation(dayIdx, locIdx)}>
-                            <ThemedIcons library='MaterialIcons' name='close' size={20} color='red'/>
-                          </TouchableOpacity>
-                        </View>
-                      ))}
-                    />
-                    {showAddLocation[String(dayIdx)] ? (
-                      renderAddLocationUI(dayIdx)
-                    ) : (
-                      <TouchableOpacity style={styles.addLocationButton} onPress={() => setShowAddLocation(prev => ({ ...prev, [String(dayIdx)]: true }))}>
-                        <ThemedIcons library='MaterialIcons' name='add-circle-outline' size={20} color='#008000'/>
-                        <ThemedText style={styles.addLocationText}>Add Location</ThemedText>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                ))}
-              </View>
-            ) : (
-              <View style={{ marginTop: 10 }}>
-                <ThemedText type="subtitle" style={styles.sectionTitle}>Locations</ThemedText>
-                <LocationDisplay
-                  content={locations.map((loc, idx) => (
-                    <View key={idx} style={styles.locationRow}>
-                      <View style={{ flex: 1 }}>
-                        <ThemedText>{loc.locationName}</ThemedText>
-                        {loc.note ? (
-                          <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
-                        ) : null}
-                      </View>
-                      <TouchableOpacity onPress={() => removeLocation(null, idx)}>
-                        <ThemedIcons library='MaterialIcons' name='close' size={20} color='red'/>
+                        ))}
+                      />
+                      <TouchableOpacity style={styles.addLocationButton} onPress={() => openLocationModal(dayIdx)}>
+                        <ThemedIcons library='MaterialIcons' name='add' size={20}/>
+                        <ThemedText>Add Location</ThemedText>
                       </TouchableOpacity>
                     </View>
                   ))}
-                />
-                {showAddLocation['main'] ? (
-                  renderAddLocationUI(null)
-                ) : (
-                  <TouchableOpacity style={styles.addLocationButton} onPress={() => setShowAddLocation(prev => ({ ...prev, main: true }))}>
-                    <ThemedIcons library='MaterialIcons' name='add-circle-outline' size={20} color='#008000'/>
-                    <ThemedText style={styles.addLocationText}>Add Location</ThemedText>
+                </>
+              ) : (
+                <>
+                  <LocationDisplay
+                    content={locations.map((loc, idx) => (
+                      <View key={idx} style={styles.locationRow}>
+                        <View style={{ flex: 1 }}>
+                          <ThemedText>{loc.locationName}</ThemedText>
+                          {loc.note ? (
+                            <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
+                          ) : null}
+                        </View>
+                        <TouchableOpacity onPress={() => removeLocation(null, idx)}>
+                          <ThemedIcons library='MaterialIcons' name='close' size={20} color='red'/>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  />
+                  <TouchableOpacity style={styles.addLocationButton} onPress={() => openLocationModal(null)}>
+                    <ThemedIcons library='MaterialIcons' name='add' size={20}/>
+                    <ThemedText>Add Location</ThemedText>
                   </TouchableOpacity>
-                )}
-              </View>
-            )}
-            <Button
-              title="Create Itinerary"
-              onPress={handleSubmit}
-              buttonStyle={{ marginTop: 20 }}
-              disabled={!title.trim() || !startDate || !endDate}
-            />
+                </>
+              )}
+            </ThemedView>
+            
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -324,6 +321,63 @@ export default function CreateItineraryScreen() {
         errorMessage={errorMessage}
         redirectTo="/home/itineraries/itineraries"
       />
+      <CubeButton
+        size={60}
+        iconName="check"
+        iconColor="#fff"
+        onPress={handleSubmit}
+        style={{
+          ...styles.cubeButton,
+          opacity: !title.trim() || !startDate || !endDate ? 0.5 : 1,
+          pointerEvents: !title.trim() || !startDate || !endDate ? 'none' : 'auto'
+        }}
+      />
+
+      {/* Add Location Modal */}
+      <Modal
+        visible={showLocationModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeLocationModal}
+      >
+        <View style={styles.modalOverlay}>
+          <ThemedView style={styles.modalContent}>
+            <LocationAutocomplete
+              value={modalLocationName}
+              onSelect={(loc) => {
+                setModalLocationName(loc.locationName || '');
+                setModalLocationData(loc);
+              }}
+              placeholder="Search for a location"
+            />
+            
+            <TextField
+              placeholder="Add a note (optional)"
+              value={modalNote}
+              onChangeText={setModalNote}
+              multiline
+            />
+
+            <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-between'}}>
+              <View style={{width: '48%'}}>
+                <Button
+                title="Cancel"
+                onPress={closeLocationModal}
+              />
+              </View>
+              
+              <View style={{width: '48%'}}>
+              <Button
+                title="Add"
+                type='primary'
+                onPress={handleAddLocationFromModal}
+                disabled={!modalLocationData.locationName || !modalLocationData.latitude || !modalLocationData.longitude}
+              />
+              </View>
+            </View>
+          </ThemedView>
+        </View>
+      </Modal>
     </ThemedView>
   );
 }
@@ -343,30 +397,44 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 5,
   },
-  sectionTitle: {
-    marginBottom: 8,
-    marginTop: 10,
-  },
   dayBlock: {
-    marginBottom: 12,
+    borderBottomColor: '#ccc4',
+    borderBottomWidth: 1,
+    padding: 10
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   addLocationButton:{
-    borderColor: 'transparent',
-    borderRadius: 5,
+    backgroundColor: '#ccc5',
+    padding: 10,
+    borderRadius: 10,
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
     gap: 5,
-    marginTop: 10
   },
-  addLocationText:{
-    color: '#008000',
-    fontWeight: 'bold'
+  cubeButton:{
+    position: 'absolute',
+    bottom: 20,
+    right: 20
   },
-  addLocationContainer:{
-    padding: 10
+  locationContainer:{
+    marginTop: 10,
+    borderRadius: 14,
+    overflow: 'hidden'
+  },
+  modalOverlay:{
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  modalContent: {
+    padding: 14,
+    width: '100%',
+    borderRadius: 14
   }
 });

@@ -13,6 +13,7 @@ interface Alert {
   startOn: Date;
   endOn: Date;
   locations: string[];
+  target: 'traveler' | 'tourGuide' | 'everyone';
   createdOn?: Date;
 }
 
@@ -90,12 +91,13 @@ const generateLocationQueries = (location: LocationData): string[] => {
 /**
  * Fetch alerts from the backend
  */
-const fetchAlertsFromBackend = async (locations: string[]): Promise<Alert[]> => {
+const fetchAlertsFromBackend = async (locations: string[], userType?: string): Promise<Alert[]> => {
   try {
     console.log('Fetching alerts for locations:', locations);
     console.log('Backend URL:', `${BACKEND_URL}/alerts`);
     
-    const response = await fetch(`${BACKEND_URL}/alerts/by-location?locations=${encodeURIComponent(locations.join(','))}`);
+    const url = `${BACKEND_URL}/alerts/by-location?locations=${encodeURIComponent(locations.join(','))}${userType ? `&type=${encodeURIComponent(userType)}` : ''}`;
+    const response = await fetch(url);
     
     console.log('Response status:', response.status);
     
@@ -135,7 +137,7 @@ const fetchAlertsFromBackend = async (locations: string[]): Promise<Alert[]> => 
 /**
  * Get alerts from cache or fetch new ones if needed
  */
-export const getAlerts = async (location: LocationData): Promise<Alert[]> => {
+export const getAlerts = async (location: LocationData, userType?: string): Promise<Alert[]> => {
   try {
     // Check if we should fetch new alerts
     const shouldFetch = await shouldFetchAlerts();
@@ -146,7 +148,7 @@ export const getAlerts = async (location: LocationData): Promise<Alert[]> => {
         throw new Error('No valid location data available');
       }
       
-      const alerts = await fetchAlertsFromBackend(locations);
+      const alerts = await fetchAlertsFromBackend(locations, userType);
       
       // Cache the results
       await AsyncStorage.setItem(ALERTS_CACHE_KEY, JSON.stringify({
@@ -186,7 +188,7 @@ export const getAlerts = async (location: LocationData): Promise<Alert[]> => {
 /**
  * Manually fetch alerts bypassing time restrictions (for developer use)
  */
-export const manualFetchAlerts = async (location: LocationData): Promise<Alert[]> => {
+export const manualFetchAlerts = async (location: LocationData, userType?: string): Promise<Alert[]> => {
   try {
     console.log('Manual fetch alerts triggered');
     
@@ -196,7 +198,7 @@ export const manualFetchAlerts = async (location: LocationData): Promise<Alert[]
     }
     
     // Force fetch from backend regardless of time restrictions
-    const alerts = await fetchAlertsFromBackend(locations);
+    const alerts = await fetchAlertsFromBackend(locations, userType);
     
     // Cache the results
     await AsyncStorage.setItem(ALERTS_CACHE_KEY, JSON.stringify({

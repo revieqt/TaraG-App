@@ -18,13 +18,8 @@ const layerLabels: Record<WeatherLayer, string> = {
 };
 
 export default function WeatherMapScreen() {
-  const { defaultLayer } = useLocalSearchParams<{ defaultLayer?: string }>();
-  
-  // Validate and cast the defaultLayer parameter
   const validLayers: WeatherLayer[] = ['clouds', 'temp', 'precipitation', 'wind', 'pressure'];
-  const initialLayer = (defaultLayer && validLayers.includes(defaultLayer as WeatherLayer)) 
-    ? defaultLayer as WeatherLayer 
-    : 'clouds';
+  const initialLayer = 'precipitation'
 
   const [activeLayer, setActiveLayer] = useState<WeatherLayer>(initialLayer);
 
@@ -66,7 +61,7 @@ export default function WeatherMapScreen() {
   }, [activeLayer]);
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView style={{flex: 1}}>
       <View style={styles.header}>
         <BackButton />
         <ThemedText type="title" style={styles.title}>Weather Map</ThemedText>

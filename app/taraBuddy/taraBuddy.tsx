@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     flex: 1,
-    margin: 16,
+    margin: 5,
     marginBottom: 40,
     gap: 20,
     marginTop: 75,

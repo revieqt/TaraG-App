@@ -4,13 +4,13 @@ import { BACKEND_URL } from '@/constants/Config';
 export interface Alert {
   id: string;
   title: string;
-  note: string;
+  description: string;
   severity: 'low' | 'medium' | 'high';
-  createdBy: string;
   startOn: string;
   endOn: string;
-  target: string[];
-  createdOn: string;
+  locations: string[];
+  target: 'traveler' | 'tourGuide' | 'everyone';
+  createdOn?: string;
 }
 
 interface UserLocation {

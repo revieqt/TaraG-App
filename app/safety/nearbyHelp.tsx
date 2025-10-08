@@ -6,7 +6,7 @@ import { StyleSheet, View, TouchableOpacity, Alert, ScrollView } from 'react-nat
 import { useSession } from '@/context/SessionContext';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function ReportSection() {
+export default function NearbyHelpSection() {
   const { session, updateSession } = useSession();
 
   return (

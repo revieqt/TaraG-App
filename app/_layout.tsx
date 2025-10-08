@@ -126,6 +126,7 @@ function AppContent() {
           <Stack.Screen name="groups/groups-view" />
           <Stack.Screen name="groups/groups-linkItinerary" />
           <Stack.Screen name="safety/safety" />
+          <Stack.Screen name="safety/disasterMap-weather" />
           <Stack.Screen name="payment" />
           <Stack.Screen name="+not-found" />
         </Stack>
