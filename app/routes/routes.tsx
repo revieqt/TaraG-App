@@ -156,10 +156,10 @@ export default function RoutesScreen() {
             <View>
               {session?.activeRoute?.location.map((loc, index) => (
                 <View key={index}>
-                  <ThemedText type='defaultSemiBold' style={{color: '#fff'}}>
+                  <ThemedText type='defaultSemiBold'>
                     {loc.locationName}
                   </ThemedText>
-                  <ThemedText style={{opacity: .7, color: '#fff'}}>
+                  <ThemedText style={{opacity: .7}}>
                     {index === 0 ? 'Start' : 
                     index === session.activeRoute!.location.length - 1 ? 'Destination' : 
                     `Waypoint ${index}`}
@@ -173,25 +173,25 @@ export default function RoutesScreen() {
                 <View style={styles.routeSummary}>
                   <View style={styles.routeStats}>
                     <View style={styles.statItem}>
-                      <ThemedIcons library="MaterialIcons" name="schedule" size={20} color="#fff" />
-                        <ThemedText style={{marginTop: 5, color: '#fff'}}>Duration</ThemedText>
-                        <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
+                      <ThemedIcons library="MaterialIcons" name="schedule" size={20}/>
+                        <ThemedText style={{marginTop: 5}}>Duration</ThemedText>
+                        <ThemedText type="defaultSemiBold">
                           {Math.round(session.activeRoute.routeData.duration / 60)} min
                         </ThemedText>
                     </View>
                     
                     <View style={styles.statItem}>
-                      <ThemedIcons library="MaterialIcons" name="straighten" size={20} color="#fff" />
-                        <ThemedText style={{marginTop: 5, color: '#fff'}}>Distance</ThemedText>
-                        <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
+                      <ThemedIcons library="MaterialIcons" name="straighten" size={20}/>
+                        <ThemedText style={{marginTop: 5}}>Distance</ThemedText>
+                        <ThemedText type="defaultSemiBold">
                           {(session.activeRoute.routeData.distance / 1000).toFixed(2)} km
                         </ThemedText>
                     </View>
                     
                     <View style={styles.statItem}>
-                      <ThemedIcons library="MaterialCommunityIcons" name="elevation-rise" size={20} color="#fff" />
-                        <ThemedText style={{marginTop: 5, color: '#fff'}}>Elevation</ThemedText>
-                        <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
+                      <ThemedIcons library="MaterialCommunityIcons" name="elevation-rise" size={20}/>
+                        <ThemedText style={{marginTop: 5}}>Elevation</ThemedText>
+                        <ThemedText type="defaultSemiBold">
                           {session.activeRoute.routeData.geometry.coordinates.some(coord => coord[2] !== undefined) 
                             ? `${Math.round(Math.max(...session.activeRoute.routeData.geometry.coordinates.map(coord => coord[2] || 0)) - Math.min(...session.activeRoute.routeData.geometry.coordinates.map(coord => coord[2] || 0)))}m gain`
                             : 'N/A'
