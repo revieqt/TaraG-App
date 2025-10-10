@@ -21,6 +21,7 @@ import {
 } from '@/utils/routeHistory';
 import BackButton from '@/components/custom/BackButton';
 import { LinearGradient } from 'expo-linear-gradient';
+import FadedHeader from '@/components/custom/FadedHeader';
 
 export default function RoutesScreen() {
   const { session, updateSession } = useSession();
@@ -121,21 +122,27 @@ export default function RoutesScreen() {
   return (
     <ThemedView style={{ flex: 1 }}>
       <ScrollView>
-        <ThemedView color='secondary'>
-          <OptionsPopup 
-          style={{position: 'absolute', top: 25, right: 20, zIndex: 10000}}
-          options={[
-            <TouchableOpacity onPress={handleClearAllHistory} style={{flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8}}>
-              <ThemedIcons library="MaterialIcons" name="delete" size={20}/>
-              <ThemedText>Clear History</ThemedText>
-            </TouchableOpacity>
-          ]}> 
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#FFFFFF"/>
-          </OptionsPopup>
-          <View style={{margin: 16, marginBottom: 40, zIndex: 3}}>
-            <BackButton color="#FFFFFF"/>
-            
-            {!session?.activeRoute ? (
+
+        <FadedHeader 
+         title='Routes' 
+         subtitle='View your route data' 
+         iconName='map'
+        />
+
+        <OptionsPopup 
+        style={styles.optionsPopup}
+        options={[
+          <TouchableOpacity onPress={handleClearAllHistory} style={{flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8}}>
+            <ThemedIcons library="MaterialIcons" name="delete" size={20}/>
+            <ThemedText>Clear History</ThemedText>
+          </TouchableOpacity>
+        ]}> 
+          <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#FFFFFF"/>
+        </OptionsPopup>
+
+        <ThemedView color='primary' shadow style={[styles.historyItem, {marginTop: 30}]}>
+          {!session?.activeRoute ? (
+            <View style={{height: 180, width: '100%'}}>
               <EmptyMessage
                 iconLibrary="MaterialDesignIcons"
                 iconName="map-search"
@@ -144,70 +151,61 @@ export default function RoutesScreen() {
                 buttonLabel="Create a Route"
                 buttonAction={handleAddRoute}
                 isWhite
-                isSolid
               />
-            ) : (
-              <View style={{paddingHorizontal: 16}}>
-                {session.activeRoute.location.map((loc, index) => (
-                  <View key={index}>
-                    <ThemedText type='defaultSemiBold' style={{color: '#fff'}}>
-                      {loc.locationName}
-                    </ThemedText>
-                    <ThemedText style={{opacity: .7, color: '#fff'}}>
-                      {index === 0 ? 'Start' : 
-                      index === session.activeRoute!.location.length - 1 ? 'Destination' : 
-                      `Waypoint ${index}`}
-                    </ThemedText>
-                    
-                  </View>
-                ))}
+            </View>
+            
+          ) : (
+            <View>
+              {session?.activeRoute?.location.map((loc, index) => (
+                <View key={index}>
+                  <ThemedText type='defaultSemiBold' style={{color: '#fff'}}>
+                    {loc.locationName}
+                  </ThemedText>
+                  <ThemedText style={{opacity: .7, color: '#fff'}}>
+                    {index === 0 ? 'Start' : 
+                    index === session.activeRoute!.location.length - 1 ? 'Destination' : 
+                    `Waypoint ${index}`}
+                  </ThemedText>
+                  
+                </View>
+              ))}
 
-                
-                {session.activeRoute.routeData && (
-                  <View style={styles.routeSummary}>
-                    <View style={styles.routeStats}>
-                      <View style={styles.statItem}>
-                        <ThemedIcons library="MaterialIcons" name="schedule" size={20} color="#fff" />
-                          <ThemedText style={{marginTop: 5, color: '#fff'}}>Duration</ThemedText>
-                          <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
-                            {Math.round(session.activeRoute.routeData.duration / 60)} min
-                          </ThemedText>
-                      </View>
-                      
-                      <View style={styles.statItem}>
-                        <ThemedIcons library="MaterialIcons" name="straighten" size={20} color="#fff" />
-                          <ThemedText style={{marginTop: 5, color: '#fff'}}>Distance</ThemedText>
-                          <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
-                            {(session.activeRoute.routeData.distance / 1000).toFixed(2)} km
-                          </ThemedText>
-                      </View>
-                      
-                      <View style={styles.statItem}>
-                        <ThemedIcons library="MaterialCommunityIcons" name="elevation-rise" size={20} color="#fff" />
-                          <ThemedText style={{marginTop: 5, color: '#fff'}}>Elevation</ThemedText>
-                          <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
-                            {session.activeRoute.routeData.geometry.coordinates.some(coord => coord[2] !== undefined) 
-                              ? `${Math.round(Math.max(...session.activeRoute.routeData.geometry.coordinates.map(coord => coord[2] || 0)) - Math.min(...session.activeRoute.routeData.geometry.coordinates.map(coord => coord[2] || 0)))}m gain`
-                              : 'N/A'
-                            }
-                          </ThemedText>
-                      </View>
+              
+              {session?.activeRoute?.routeData && (
+                <View style={styles.routeSummary}>
+                  <View style={styles.routeStats}>
+                    <View style={styles.statItem}>
+                      <ThemedIcons library="MaterialIcons" name="schedule" size={20} color="#fff" />
+                        <ThemedText style={{marginTop: 5, color: '#fff'}}>Duration</ThemedText>
+                        <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
+                          {Math.round(session.activeRoute.routeData.duration / 60)} min
+                        </ThemedText>
+                    </View>
+                    
+                    <View style={styles.statItem}>
+                      <ThemedIcons library="MaterialIcons" name="straighten" size={20} color="#fff" />
+                        <ThemedText style={{marginTop: 5, color: '#fff'}}>Distance</ThemedText>
+                        <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
+                          {(session.activeRoute.routeData.distance / 1000).toFixed(2)} km
+                        </ThemedText>
+                    </View>
+                    
+                    <View style={styles.statItem}>
+                      <ThemedIcons library="MaterialCommunityIcons" name="elevation-rise" size={20} color="#fff" />
+                        <ThemedText style={{marginTop: 5, color: '#fff'}}>Elevation</ThemedText>
+                        <ThemedText type="defaultSemiBold" style={{color: '#fff'}}>
+                          {session.activeRoute.routeData.geometry.coordinates.some(coord => coord[2] !== undefined) 
+                            ? `${Math.round(Math.max(...session.activeRoute.routeData.geometry.coordinates.map(coord => coord[2] || 0)) - Math.min(...session.activeRoute.routeData.geometry.coordinates.map(coord => coord[2] || 0)))}m gain`
+                            : 'N/A'
+                          }
+                        </ThemedText>
                     </View>
                   </View>
-                )}
-              
-              </View>
-            )}
-          </View>
-          <LinearGradient
-            colors={['transparent', 'rgba(0, 255, 222, .5)']}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-            style={styles.headerOverlay}
-            pointerEvents="none"
-          >
-            <ThemedView style={styles.headerBottom} />
-          </LinearGradient>
+                </View>
+              )}
+            
+            </View>
+          )}
         </ThemedView>
         
         {/* Route History Display */}
@@ -285,22 +283,13 @@ export default function RoutesScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerOverlay: {
+  optionsPopup: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 200,
+    top: -40,
+    right: 10,
+    zIndex: 10000,
   },
-  headerBottom: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 16,
-    borderTopLeftRadius: 100,
-    borderTopRightRadius: 100,
-  },
+  
   button: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -316,7 +305,6 @@ const styles = StyleSheet.create({
   routeStats: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
   },
   statItem: {
     marginTop: 5,
@@ -325,9 +313,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   historyItem: {
-    padding: 12,
+    padding: 16,
     borderRadius: 10,
-    marginVertical: 8,
+    marginBottom: 16,
     marginHorizontal: 16
   },
   historyContent: {

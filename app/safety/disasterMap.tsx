@@ -18,7 +18,11 @@ export default function DisasterMapSection(){
   return (
     <ThemedView style={{flex: 1}}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <FadedHeader title='Disaster Maps' subtitle='View hazard maps to understand risk levels' iconName='alert-rhombus'/>
+        <FadedHeader 
+         title='Disaster Maps' 
+         subtitle='View hazard maps to understand risk levels' 
+         iconName='alert-rhombus'
+        />
         
         <View style={{padding: 16, marginTop: 20}}>
           <TouchableOpacity 
@@ -126,7 +130,7 @@ const styles = StyleSheet.create({
   },
   cardContainer:{
     borderRadius: 12,
-    marginBottom: 10,
+    marginBottom: 16,
     overflow: 'hidden',
   },
   cardImage:{
@@ -139,9 +143,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginRight: 12,
-  },
-  header: {
-    marginBottom: 24,
-    gap: 5
   },
 });
