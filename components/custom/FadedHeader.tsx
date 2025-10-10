@@ -38,14 +38,20 @@ const FadedHeader: React.FC<FadedHeaderProps> = ({ color, title, subtitle, iconL
               color="#fff"
             />
           </View>
-          <View style={styles.circle}>
+          <LinearGradient
+            colors={[backgroundColor, backgroundColor, 'transparent']}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 0 }}
+            style={styles.circle}
+          >
+
             <LinearGradient
               colors={[backgroundColor, backgroundColor, 'transparent']}
               start={{ x: 1, y: 0 }}
               end={{ x: 0, y: 0 }}
-              style={{ flex: 1 }}
+              style={styles.innerCirlce}
             />
-          </View>
+          </LinearGradient>
         </>
       )}
       
@@ -73,10 +79,10 @@ const styles = StyleSheet.create({
   iconContainer: {
     position: 'absolute',
     top: 20,
-    right: 0,
+    right: -10,
     justifyContent: 'center',
     alignItems: 'center',
-    opacity: .8,
+    opacity: .9,
     zIndex: 99
   },
   circle: {
@@ -87,7 +93,15 @@ const styles = StyleSheet.create({
     height: 300,
     borderRadius: 1000,
     overflow: 'hidden',
-    opacity: .4
+    opacity: .4,
+    padding: 30,
+  },
+  innerCirlce:{
+    flex: 1,
+    borderRadius: 1000,
+    overflow: 'hidden',
+    opacity: .5,
+    padding: 30,
   }
 });
 

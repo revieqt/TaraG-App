@@ -29,6 +29,7 @@ export type User = {
   safetyState: {
     isInAnEmergency: boolean;
     emergencyType: string;
+    logID?: string;
   };
   publicSettings: {
     isProfilePublic: boolean;

@@ -48,9 +48,8 @@ const EmptyMessage: React.FC<EmptyMessageProps> = ({
       <ThemedText style={{opacity:.7, textAlign:'center', fontSize: 11, marginBottom: 10, color: color}}>{description}</ThemedText>
       {buttonLabel && buttonAction && (
         <TouchableOpacity onPress={buttonAction} style={{
-          backgroundColor: isWhite ? 'rgba(255, 255, 255, .3)'
-          : undefined, paddingVertical: 7, paddingHorizontal: 15, borderRadius: 20}}>
-          <ThemedText style={{color: isWhite ? '#FFFFFF' : undefined}}>{buttonLabel}</ThemedText>
+          backgroundColor: 'rgba(0,0,0, .1)', paddingVertical: 7, paddingHorizontal: 15, borderRadius: 20}}>
+          <ThemedText style={{opacity: .9}}>{buttonLabel}</ThemedText>
         </TouchableOpacity>
       )}
     </View>

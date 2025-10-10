@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import {
   View,
-  TouchableOpacity,
+  Pressable,
   Animated,
   StyleSheet,
   Easing,
@@ -12,16 +12,22 @@ import {
 import ThemedIcons from '../ThemedIcons';
 
 interface SOSButtonProps {
-  onPress?: () => void;
+  onLongPress?: () => void;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
   style?: StyleProp<ViewStyle>;
   state?: 'active' | 'notActive';
+  disabled?: boolean;
   children?: React.ReactNode;
 }
 
 const SOSButton: React.FC<SOSButtonProps> = ({
-  onPress,
+  onLongPress,
+  onPressIn,
+  onPressOut,
   style,
   state = 'notActive',
+  disabled = false,
   children,
 }) => {
   const pulse1 = useRef(new Animated.Value(0)).current;
@@ -76,16 +82,18 @@ const SOSButton: React.FC<SOSButtonProps> = ({
       <View style={styles.wrapper}>
         <Animated.View style={getAnimatedStyle(pulse1)} />
         <Animated.View style={getAnimatedStyle(pulse2)} />
-        <TouchableOpacity
+        <Pressable
           style={[
             styles.button,
             { backgroundColor: isActive ? 'red' : 'white' },
           ]}
-          onPress={onPress}
-          activeOpacity={0.8}
+          onLongPress={onLongPress}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          disabled={disabled}
         >
-          <ThemedIcons library='MaterialDesignIcons' name="exclamation" size={70} color={isActive ? 'white' : '#ccc'}/>
-        </TouchableOpacity>
+          <ThemedIcons library='MaterialDesignIcons' name="exclamation-thick" size={70} color={isActive ? 'white' : '#ccc'}/>
+        </Pressable>
       </View>
     </View>
   );
@@ -114,7 +122,7 @@ const styles = StyleSheet.create({
     width: RING_SIZE,
     height: RING_SIZE,
     borderRadius: RING_SIZE / 2,
-    borderWidth: 8,
+    borderWidth: 10,
   },
   button: {
     width: BUTTON_SIZE,
@@ -123,7 +131,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 4,
-    borderWidth: 8,
-    borderColor: '#ccc',
+    borderWidth: 10,
+    borderColor: '#ccc4',
   },
 });

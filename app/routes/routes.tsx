@@ -149,7 +149,6 @@ export default function RoutesScreen() {
                 description="Start a new route to begin tracking your journey."
                 buttonLabel="Create a Route"
                 buttonAction={handleAddRoute}
-                isWhite
               />
             </View>
             
