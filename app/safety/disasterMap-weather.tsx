@@ -1,27 +1,32 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { WebView } from 'react-native-webview';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { OPENWEATHERMAP_API_KEY } from '@/constants/Config';
 import BackButton from '@/components/custom/BackButton';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import ThemedIcons from '@/components/ThemedIcons';
+import { useRouter } from 'expo-router';
 
 type WeatherLayer = 'clouds' | 'temp' | 'precipitation' | 'wind' | 'pressure';
 
 const layerLabels: Record<WeatherLayer, string> = {
-  clouds: '☁️ Clouds',
-  temp: '🌡️ Temp',
-  precipitation: '🌧️ Rain',
-  wind: '💨 Wind',
-  pressure: '🌀 Pressure',
+  precipitation: 'Precipitation',
+  temp: 'Temperature',
+  wind: 'Wind',
+  clouds: 'Clouds',
+  pressure: 'Pressure',
 };
 
 export default function WeatherMapScreen() {
   const validLayers: WeatherLayer[] = ['clouds', 'temp', 'precipitation', 'wind', 'pressure'];
   const initialLayer = 'precipitation'
-
+  const accentColor = useThemeColor({}, 'accent');
   const [activeLayer, setActiveLayer] = useState<WeatherLayer>(initialLayer);
+  const router = useRouter();
 
   const htmlContent = useMemo(() => {
     const tileLayer = `${activeLayer}_new`;
@@ -62,16 +67,22 @@ export default function WeatherMapScreen() {
 
   return (
     <ThemedView style={{flex: 1}}>
-      <View style={styles.header}>
-        <BackButton />
-        <ThemedText type="title" style={styles.title}>Weather Map</ThemedText>
-        <ThemedText style={styles.subtitle}>
+      <LinearGradient
+        colors={['#000', 'transparent']}
+        style={styles.header}
+      >
+        <TouchableOpacity onPress={() => router.back()} style={{position: 'absolute', top: 30, right: 16, pointerEvents: 'box-none', zIndex: 100000}}>
+          <ThemedIcons
+            library="MaterialIcons"
+            name="close"
+            size={30}
+            color="#fff"
+          />
+        </TouchableOpacity>
+        <ThemedText type="title" style={{color: '#fff'}}>Weather Map</ThemedText>
+        <ThemedText style={{color: '#fff'}}>
           Real-time weather conditions and forecasts
         </ThemedText>
-      </View>
-      
-      <View style={styles.mapContainer}>
-        {/* Segmented Toggle Bar */}
         <View style={styles.toggleContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {Object.keys(layerLabels).map((key) => {
@@ -80,17 +91,22 @@ export default function WeatherMapScreen() {
               return (
                 <TouchableOpacity
                   key={layer}
-                  style={[styles.toggleButton, isActive && styles.activeButton]}
+                  style={[styles.toggleButton, {backgroundColor: isActive ? accentColor : 'rgba(0,0,0,.5)'}]}
                   onPress={() => setActiveLayer(layer)}
                 >
-                  <Text style={[styles.toggleText, isActive && styles.activeText]}>
+                  <ThemedText style={[styles.toggleText, isActive && styles.activeText]}>
                     {layerLabels[layer]}
-                  </Text>
+                  </ThemedText>
                 </TouchableOpacity>
               );
             })}
           </ScrollView>
         </View>
+      </LinearGradient>
+      
+      <View style={styles.mapContainer}>
+        {/* Segmented Toggle Bar */}
+        
 
         {/* WebView Map */}
         <WebView
@@ -113,16 +129,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    padding: 20,
-    paddingTop: 60, // Account for status bar
-  },
-  title: {
-    marginBottom: 8,
-    marginTop: 10,
-  },
-  subtitle: {
-    opacity: 0.7,
-    lineHeight: 20,
+    padding: 16,
+    paddingTop: 30,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
   },
   mapContainer: {
     flex: 1,
@@ -130,27 +143,23 @@ const styles = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: '#1e1e1e',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    gap: 7,
+    marginTop: 10,
   },
   toggleButton: {
-    backgroundColor: '#333',
     borderRadius: 20,
     paddingVertical: 6,
     paddingHorizontal: 14,
-    marginHorizontal: 4,
+    marginRight: 5
   },
   activeButton: {
     backgroundColor: '#007bff',
   },
   toggleText: {
-    color: '#ccc',
-    fontWeight: '500',
+    color: '#fff',
   },
   activeText: {
     color: '#fff',
-    fontWeight: '700',
   },
   loaderContainer: {
     flex: 1,

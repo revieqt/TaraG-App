@@ -582,7 +582,7 @@ export default function ActiveRouteMap() {
                 <ThemedIcons 
                   library="MaterialIcons" 
                   name="navigation" 
-                  size={50} 
+                  size={45} 
                   color={accentColor} 
                 />
               </View>
@@ -785,8 +785,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   directionArrowContainer: {
+    backgroundColor: 'rgba(0,0,0,.5)',
+    borderRadius: 100,
+    padding: 5,
     position: 'absolute',
-    bottom: 120, // Position above the stop button (70px button + 30px margin + 20px gap)
+    bottom: 100, // Position above the stop button (70px button + 30px margin + 20px gap)
     left: '50%',
     marginLeft: -25, // Half of arrow width (50px)
     zIndex: 1002,

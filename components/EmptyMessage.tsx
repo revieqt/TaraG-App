@@ -44,8 +44,8 @@ const EmptyMessage: React.FC<EmptyMessageProps> = ({
         />
       </>
       )}
-      <ThemedText style={{marginTop: 20, fontSize: 13, color: isWhite ? '#FFFFFF' : undefined}} type='defaultSemiBold'>{title}</ThemedText>
-      <ThemedText style={{opacity:.7, textAlign:'center', fontSize: 11, marginBottom: 10, color: isWhite ? '#FFFFFF' : undefined}}>{description}</ThemedText>
+      <ThemedText style={{marginTop: 20, fontSize: 13, color: color}} type='defaultSemiBold'>{title}</ThemedText>
+      <ThemedText style={{opacity:.7, textAlign:'center', fontSize: 11, marginBottom: 10, color: color}}>{description}</ThemedText>
       {buttonLabel && buttonAction && (
         <TouchableOpacity onPress={buttonAction} style={{
           backgroundColor: isWhite ? 'rgba(255, 255, 255, .3)'

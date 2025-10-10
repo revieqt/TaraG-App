@@ -79,17 +79,10 @@ export default function DisasterMapSection(){
     }
   ];
 
-  const handleWeatherMapPress = (layer: WeatherLayer) => {
-    router.push({
-      pathname: '/safety/weatherMap',
-      params: { defaultLayer: layer }
-    });
-  };
-
   return (
     <ThemedView style={{flex: 1}}>
       <GradientHeader/>
-      <ScrollView showsVerticalScrollIndicator={false} style={{padding: 16, zIndex: 100, paddingTop: 40}}>
+      <ScrollView showsVerticalScrollIndicator={false} style={{padding: 16, zIndex: 100, paddingTop: 40, paddingBottom: 80}}>
         <View style={styles.header}>
           <ThemedText type="title">Risk Maps</ThemedText>
           <ThemedText>
@@ -105,8 +98,8 @@ export default function DisasterMapSection(){
             <Image source={require('@/assets/images/disasterMap-weather.jpg')} style={styles.cardImage} />
             <View style={styles.cardContent}>
               <View>
-                <ThemedText type="subtitle">Weather Map</ThemedText>
-                <ThemedText>View real-time weather conditions and forecasts</ThemedText>
+                <ThemedText type="subtitle" style={{fontSize: 15}}>Weather Map</ThemedText>
+                <ThemedText style={{opacity: .7}}>View real-time weather conditions and forecasts</ThemedText>
               </View>
               <ThemedIcons
                 library="MaterialIcons"
@@ -119,14 +112,15 @@ export default function DisasterMapSection(){
         </TouchableOpacity>
 
         <TouchableOpacity 
-          onPress={() => {/* Navigate to earthquake map if needed */}}
+          onPress={() => setMapType('flood')}
           activeOpacity={0.7}
         >
           <ThemedView color='primary' shadow style={styles.cardContainer}>
+            <Image source={require('@/assets/images/disasterMap-weather.jpg')} style={styles.cardImage} />
             <View style={styles.cardContent}>
               <View>
-                <ThemedText type="subtitle">Seismic Activity Map</ThemedText>
-                <ThemedText>View real-time earthquake data in the Philippines</ThemedText>
+                <ThemedText type="subtitle" style={{fontSize: 15}}>Flood Hazard Map</ThemedText>
+                <ThemedText style={{opacity: .7}}>View flood-prone areas and risk levels</ThemedText>
               </View>
               <ThemedIcons
                 library="MaterialIcons"
@@ -138,27 +132,17 @@ export default function DisasterMapSection(){
           </ThemedView>
         </TouchableOpacity>
 
-        <ThemedView color='primary' shadow style={[styles.cardContainer,{padding: 12}]}>
-          <ThemedText type="subtitle">Hazard Maps</ThemedText>
-          <ThemedText>View real-time earthquake data in the Philippines</ThemedText>
-
-          <TouchableOpacity style={styles.cardContent}>
-            <ThemedIcons
-              library="MaterialCommunityIcons"
-              name="water"
-              size={32}
-              color={"#4A90E2"}
-            />
+        <TouchableOpacity 
+          onPress={() => setMapType('landslide')}
+          activeOpacity={0.7}
+        >
+          <ThemedView color='primary' shadow style={styles.cardContainer}>
+            <Image source={require('@/assets/images/disasterMap-weather.jpg')} style={styles.cardImage} />
             <View style={styles.cardContent}>
               <View>
-                <ThemedText type="defaultSemiBold">
-                  Flood
-                </ThemedText>
-                <ThemedText>
-                  View flood-prone areas and risk levels
-                </ThemedText>
+                <ThemedText type="subtitle" style={{fontSize: 15}}>Landslide Hazard Map</ThemedText>
+                <ThemedText style={{opacity: .7}}>View landslide-prone areas and risk levels</ThemedText>
               </View>
-              
               <ThemedIcons
                 library="MaterialIcons"
                 name="arrow-forward-ios"
@@ -166,25 +150,20 @@ export default function DisasterMapSection(){
                 color={iconColor}
               />
             </View>
-          </TouchableOpacity>
+          </ThemedView>
+        </TouchableOpacity>
 
-          <TouchableOpacity style={styles.cardContent}>
-            <ThemedIcons
-              library="MaterialCommunityIcons"
-              name="landslide"
-              size={32}
-              color={"#4A90E2"}
-            />
+        <TouchableOpacity 
+          onPress={() => setMapType('storm_surge')}
+          activeOpacity={0.7}
+        >
+          <ThemedView color='primary' shadow style={styles.cardContainer}>
+            <Image source={require('@/assets/images/disasterMap-weather.jpg')} style={styles.cardImage} />
             <View style={styles.cardContent}>
               <View>
-                <ThemedText type="defaultSemiBold">
-                  Landslide
-                </ThemedText>
-                <ThemedText>
-                  View landslide-prone areas and risk levels
-                </ThemedText>
+                <ThemedText type="subtitle" style={{fontSize: 15}}>Storm Surge Map</ThemedText>
+                <ThemedText style={{opacity: .7}}>View storm surge risk areas</ThemedText>
               </View>
-              
               <ThemedIcons
                 library="MaterialIcons"
                 name="arrow-forward-ios"
@@ -192,34 +171,9 @@ export default function DisasterMapSection(){
                 color={iconColor}
               />
             </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.cardContent}>
-            <ThemedIcons
-              library="MaterialCommunityIcons"
-              name="weather-hurricane"
-              size={32}
-              color={"#4A90E2"}
-            />
-            <View style={styles.cardContent}>
-              <View>
-                <ThemedText type="defaultSemiBold">
-                  Storm Surge
-                </ThemedText>
-                <ThemedText>
-                  View storm surge-prone areas and risk levels
-                </ThemedText>
-              </View>
-              
-              <ThemedIcons
-                library="MaterialIcons"
-                name="arrow-forward-ios"
-                size={16}
-                color={iconColor}
-              />
-            </View>
-          </TouchableOpacity>
-        </ThemedView>
+          </ThemedView>
+        </TouchableOpacity>
+      
 
         {/* <View style={styles.sectionHeader}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>Weather Maps</ThemedText>
