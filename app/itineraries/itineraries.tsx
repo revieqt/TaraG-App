@@ -8,41 +8,99 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import BackButton from '@/components/custom/BackButton';
 import CubeButton from '@/components/RoundedButton';
+import FadedHeader from '@/components/custom/FadedHeader';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function ItinerariesScreen() {
   const [selectedOption, setSelectedOption] = useState('ongoing');
+  const accentColor = useThemeColor({}, 'accent'); 
 
   return (
     <ThemedView style={{ flex: 1 }}>
       <ScrollView>
-        <ThemedView color='secondary'>
-          <View style={styles.headerTop}>
-            <BackButton color="#FFFFFF"/>
-          </View>
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => setSelectedOption('ongoing')} style={[styles.headerButtons, selectedOption !== 'ongoing' && {opacity: .5}]}>
-              <ThemedIcons library="MaterialDesignIcons" name="timer-pause-outline" size={28} color="#fff" />
-              <ThemedText style={{color: '#fff'}}>Ongoing</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setSelectedOption('upcoming')} style={[styles.headerButtons, selectedOption !== 'upcoming' && {opacity: .5}]}>
-              <ThemedIcons library="MaterialDesignIcons" name="timer-play-outline" size={28} color="#fff" />
-              <ThemedText style={{color: '#fff'}}>Upcoming</ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setSelectedOption('history')} style={[styles.headerButtons, selectedOption !== 'history' && {opacity: .5}]}>
-              <ThemedIcons library="MaterialDesignIcons" name="history" size={28} color="#fff" />
-              <ThemedText style={{color: '#fff'}}>History</ThemedText>
-            </TouchableOpacity>
-          </View>
-          <LinearGradient
-            colors={['transparent', 'rgba(0, 255, 222, .5)']}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-            style={styles.headerOverlay}
-            pointerEvents="none"
+        <FadedHeader title='Itineraries' subtitle='Your travel plans' iconName='event-note' iconLibrary='MaterialIcons'/>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false} 
+          style={styles.typeButtonsContainer}
+          contentContainerStyle={{paddingHorizontal: 16, gap: 12}}
+        >
+          <TouchableOpacity 
+            onPress={() => {
+              setSelectedOption('ongoing');
+            }}
           >
-            <ThemedView style={styles.headerBottom} />
-          </LinearGradient>
-        </ThemedView>
+            <ThemedView 
+              color='primary' 
+              shadow 
+              style={[
+                styles.typeButton, 
+                selectedOption === 'ongoing' && {backgroundColor: accentColor}
+              ]}
+            >
+              <ThemedIcons 
+                library='MaterialDesignIcons' 
+                name='timer-pause-outline' 
+                size={20}
+                color={selectedOption === 'ongoing' ? 'white' : undefined}
+              />
+              <ThemedText style={selectedOption === 'ongoing' ? {color: 'white'} : undefined}>
+                Ongoing
+              </ThemedText>
+            </ThemedView>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            onPress={() => {
+              setSelectedOption('upcoming');
+            }}
+          >
+            <ThemedView 
+              color='primary' 
+              shadow 
+              style={[
+                styles.typeButton, 
+                selectedOption === 'upcoming' && {backgroundColor: accentColor}
+              ]}
+            >
+              <ThemedIcons 
+                library='MaterialDesignIcons' 
+                name='timer-play-outline' 
+                size={20}
+                color={selectedOption === 'upcoming' ? 'white' : undefined}
+              />
+              <ThemedText style={selectedOption === 'upcoming' ? {color: 'white'} : undefined}>
+                Upcoming
+              </ThemedText>
+            </ThemedView>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            onPress={() => {
+              setSelectedOption('history');
+            }}
+          >
+            <ThemedView 
+              color='primary' 
+              shadow 
+              style={[
+                styles.typeButton, 
+                selectedOption === 'history' && {backgroundColor: accentColor}
+              ]}
+            >
+              <ThemedIcons 
+                library='MaterialDesignIcons' 
+                name='history' 
+                size={20}
+                color={selectedOption === 'history' ? 'white' : undefined}
+              />
+              <ThemedText style={selectedOption === 'history' ? {color: 'white'} : undefined}>
+                History
+              </ThemedText>
+            </ThemedView>
+          </TouchableOpacity>
+        </ScrollView>
+        
       </ScrollView>
 
       <CubeButton
@@ -57,6 +115,18 @@ export default function ItinerariesScreen() {
 }
 
 const styles = StyleSheet.create({
+  typeButtonsContainer: {
+    paddingVertical: 16,
+  },
+  typeButton: {
+    paddingVertical: 7,
+    paddingHorizontal: 15,
+    flexDirection: 'row',
+    gap: 7,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25,
+  },
   headerTop: {
     padding: 16,
     flexDirection: 'row',
@@ -67,34 +137,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 4
-  },
-  header: {
-    marginTop: 75,
-    margin: 40,
-    zIndex: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  },
-  headerOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 200,
-  },
-  headerBottom: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: 16,
-    borderTopLeftRadius: 100,
-    borderTopRightRadius: 100,
-  },
-  headerButtons: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 5
   },
 });

@@ -5,14 +5,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedIcons } from '@/components/ThemedIcons';
 
+type IconLibrary = 'MaterialIcons' | 'MaterialCommunityIcons' | 'MaterialDesignIcons';
+
 interface FadedHeaderProps {
   color?: string;
   title?: string;
   subtitle?: string;
+  iconLibrary?: IconLibrary;
   iconName?: string;
 }
 
-const FadedHeader: React.FC<FadedHeaderProps> = ({ color, title, subtitle, iconName }) => {
+const FadedHeader: React.FC<FadedHeaderProps> = ({ color, title, subtitle, iconLibrary, iconName }) => {
   const secondaryColor = useThemeColor({}, 'secondary');
   const backgroundColor = useThemeColor({}, 'background');
   return (
@@ -22,19 +25,19 @@ const FadedHeader: React.FC<FadedHeaderProps> = ({ color, title, subtitle, iconN
         style={styles.gradientOverlay}
       >
         {title && <ThemedText type='subtitle'>{title}</ThemedText>}
-        {subtitle && <ThemedText>{subtitle}</ThemedText>}
+        {subtitle && <ThemedText style={{opacity: .7}}>{subtitle}</ThemedText>}
       </LinearGradient>
       {iconName && (
         <>
           <View style={styles.iconContainer}>
+          
             <ThemedIcons
-              library="MaterialDesignIcons"
+              library={iconLibrary || 'MaterialDesignIcons'}
               name={iconName}
-              size={150}
+              size={120}
               color="#fff"
             />
           </View>
-
           <View style={styles.circle}>
             <LinearGradient
               colors={[backgroundColor, backgroundColor, 'transparent']}
@@ -69,7 +72,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     position: 'absolute',
-    top: 0,
+    top: 20,
     right: 0,
     justifyContent: 'center',
     alignItems: 'center',

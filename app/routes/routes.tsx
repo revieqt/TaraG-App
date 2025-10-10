@@ -19,8 +19,6 @@ import {
   formatMode,
   RouteHistoryItem 
 } from '@/utils/routeHistory';
-import BackButton from '@/components/custom/BackButton';
-import { LinearGradient } from 'expo-linear-gradient';
 import FadedHeader from '@/components/custom/FadedHeader';
 
 export default function RoutesScreen() {
@@ -126,7 +124,8 @@ export default function RoutesScreen() {
         <FadedHeader 
          title='Routes' 
          subtitle='View your route data' 
-         iconName='map'
+         iconName='route'
+         iconLibrary='MaterialIcons'
         />
 
         <OptionsPopup 
