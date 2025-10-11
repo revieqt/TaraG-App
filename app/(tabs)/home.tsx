@@ -121,51 +121,75 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.gridContainer}>
-            <ThemedView color='primary' shadow style={[styles.gridChildContainer, styles.leftGridContainer]}>
-              <ThemedText style={{opacity: .5, fontSize: 12}}>Meet new friends with</ThemedText>
-              <ThemedText type='defaultSemiBold' style={{opacity: .85}}>TaraBuddy</ThemedText>
-              <LinearGradient
-                colors={['rgba(0, 255, 222,.4)', 'transparent']}
-                start={{ x: 1, y: 0 }}
-                end={{ x: 0, y: 0 }}
-                style={styles.gridCircle}
-                pointerEvents="none"
-              />
-              <Image source={require('@/assets/images/slide3-img.png')} style={styles.taraBuddyImage} />
-              <View style={styles.bottomArrow}>
-                <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={15}/>
-              </View>
-            </ThemedView>
-            <View style={[styles.gridChildContainer, {gap: '4%'}]}>
-              <ThemedView color='primary' shadow style={styles.rightGridContainer}>
-                <ThemedText style={{opacity: .5, fontSize: 12}}>Seamless group</ThemedText>
-                <ThemedText type='defaultSemiBold' style={{opacity: .85, fontSize: 15}}>Rooms</ThemedText>
+            <TouchableOpacity 
+              onPress={() => router.push({
+                pathname: '/(tabs)/explore',
+                params: { tab: '2' }
+              })}
+              activeOpacity={0.8}
+            >
+              <ThemedView color='primary' shadow style={[styles.gridChildContainer, styles.leftGridContainer]}>
+                <ThemedText style={{opacity: .5, fontSize: 12}}>Meet new friends with</ThemedText>
+                <ThemedText type='defaultSemiBold' style={{opacity: .85}}>TaraBuddy</ThemedText>
                 <LinearGradient
                   colors={['rgba(0, 255, 222,.4)', 'transparent']}
                   start={{ x: 1, y: 0 }}
                   end={{ x: 0, y: 0 }}
-                  style={styles.rightGridCircle}
+                  style={styles.gridCircle}
                   pointerEvents="none"
                 />
-                <Image source={require('@/assets/images/slide4-img.png')} style={styles.rightGridImage} />
+                <Image source={require('@/assets/images/slide3-img.png')} style={styles.taraBuddyImage} />
                 <View style={styles.bottomArrow}>
-                  <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={10}/>
+                  <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={15}/>
                 </View>
               </ThemedView>
+            </TouchableOpacity>
+            <View style={[styles.gridChildContainer, {gap: '4%'}]}>
               <ThemedView color='primary' shadow style={styles.rightGridContainer}>
-                <ThemedText style={{opacity: .5, fontSize: 12}}>Join Organized</ThemedText>
-                <ThemedText type='defaultSemiBold' style={{opacity: .85, fontSize: 15}}>Tours</ThemedText>
-                <LinearGradient
-                  colors={['rgba(0, 255, 222,.4)', 'transparent']}
-                  start={{ x: 1, y: 0 }}
-                  end={{ x: 0, y: 0 }}
-                  style={styles.rightGridCircle}
-                  pointerEvents="none"
-                />
-                <Image source={require('@/assets/images/slide2-img.png')} style={styles.rightGridImage} />
-                <View style={styles.bottomArrow}>
-                  <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={10}/>
-                </View>
+                <TouchableOpacity 
+                onPress={() => router.push({
+                  pathname: '/(tabs)/explore',
+                  params: { tab: '1' }
+                })}
+                activeOpacity={0.8} style={{flex:1, padding: 12}}
+                >
+                  <ThemedText style={{opacity: .5, fontSize: 12}}>Seamless group</ThemedText>
+                  <ThemedText type='defaultSemiBold' style={{opacity: .85, fontSize: 15}}>Rooms</ThemedText>
+                  <LinearGradient
+                    colors={['rgba(0, 255, 222,.45)', 'transparent']}
+                    start={{ x: 1, y: 0 }}
+                    end={{ x: 0, y: 0 }}
+                    style={styles.rightGridCircle}
+                    pointerEvents="none"
+                  />
+                  <Image source={require('@/assets/images/slide4-img.png')} style={styles.rightGridImage} />
+                  <View style={styles.bottomArrow}>
+                    <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={10}/>
+                  </View>
+                </TouchableOpacity>
+              </ThemedView>
+              <ThemedView color='primary' shadow style={styles.rightGridContainer}>
+              <TouchableOpacity 
+                onPress={() => router.push({
+                  pathname: '/(tabs)/explore',
+                  params: { tab: '0' }
+                })}
+                activeOpacity={0.8} style={{flex: 1, padding: 12}}
+              >
+                  <ThemedText style={{opacity: .5, fontSize: 12}}>Join Organized</ThemedText>
+                  <ThemedText type='defaultSemiBold' style={{opacity: .85, fontSize: 15}}>Tours</ThemedText>
+                  <LinearGradient
+                    colors={['rgba(0, 255, 222,.45)', 'transparent']}
+                    start={{ x: 1, y: 0 }}
+                    end={{ x: 0, y: 0 }}
+                    style={styles.rightGridCircle}
+                    pointerEvents="none"
+                  />
+                  <Image source={require('@/assets/images/slide2-img.png')} style={styles.rightGridImage} />
+                  <View style={styles.bottomArrow}>
+                    <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={10}/>
+                  </View>
+                </TouchableOpacity>
               </ThemedView>
             </View>
           </View>
@@ -296,7 +320,6 @@ const styles = StyleSheet.create({
   rightGridContainer:{
     height: '48%',
     width: '100%',
-    padding: 12,
     borderRadius: 12,
     overflow: 'hidden',
   },
@@ -318,12 +341,12 @@ const styles = StyleSheet.create({
     right: '-50%',
   },
   rightGridCircle:{
-    height: '160%',
+    height: '170%',
     aspectRatio: 1,
     borderRadius: 1000,
     position: 'absolute',
-    bottom: '-50%',
-    right: '-25%',
+    bottom: '-60%',
+    right: '-20%',
   },
   taraBuddyImage:{
     width: '120%',

@@ -12,9 +12,12 @@ import OptionsPopup from '@/components/OptionsPopup';
 import { groupsApiService, Group } from "@/services/groupsApiService";
 import { useSession } from "@/context/SessionContext";
 import ToursSection from '../tours/tours';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function ExploreScreen() {
-  const [activeTab, setActiveTab] = useState(0);
+  const params = useLocalSearchParams();
+  const initialTab = params.tab ? parseInt(params.tab as string) : 0;
+  const [activeTab, setActiveTab] = useState(initialTab);
   const scrollY = useRef(new Animated.Value(0)).current;
   const lastScrollY = useRef(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -32,6 +35,16 @@ export default function ExploreScreen() {
   useEffect(() => {
     lastScrollY.current = 0;
   }, []);
+
+  // Handle tab parameter from navigation
+  useEffect(() => {
+    if (params.tab) {
+      const tabIndex = parseInt(params.tab as string);
+      if (tabIndex >= 0 && tabIndex <= 2) {
+        setActiveTab(tabIndex);
+      }
+    }
+  }, [params.tab]);
 
   const handleTabPress = (idx: number) => {
     if (idx === activeTab) {
