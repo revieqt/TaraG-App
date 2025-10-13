@@ -373,7 +373,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 8,
     right: 8,
-    top: 8,
     zIndex: 1000,
     width: 60,
     alignItems: 'flex-end',

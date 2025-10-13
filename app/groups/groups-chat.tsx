@@ -6,10 +6,11 @@ import {
   View, 
   TextInput, 
   FlatList, 
-  KeyboardAvoidingView, 
   Platform,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  Keyboard,
+  Dimensions
 } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -17,6 +18,7 @@ import ThemedIcons from '@/components/ThemedIcons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Group } from '@/services/groupsApiService';
 import { useSession } from '@/context/SessionContext';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface Message {
   id: string;
@@ -29,25 +31,37 @@ interface Message {
 }
 
 interface GroupChatProps {
-  visible: boolean;
-  onClose: () => void;
   groupData: Group | null;
 }
 
-export default function GroupChat({ 
-  visible, 
-  onClose,
+export default function GroupChat({
   groupData
 }: GroupChatProps) {
   const { session } = useSession();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
   const accentColor = useThemeColor({}, 'accent');
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
+
+  // Keyboard listeners
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      keyboardDidShowListener?.remove();
+      keyboardDidHideListener?.remove();
+    };
+  }, []);
 
   // Mock data for demonstration
   useEffect(() => {
@@ -165,113 +179,84 @@ export default function GroupChat({
 
   if (!groupData) return null;
 
+  // Check approved members (same logic as groups-view.tsx)
+  const approvedMembers = groupData.members.filter(m => m.isApproved);
+  const isOnlyMember = approvedMembers.length === 1;
+
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-      statusBarTranslucent
-    >
-    <ThemedView style={{flex: 1}}>
-        {/* Header */}
-        <ThemedView color='primary' style={styles.header}>
-        <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={onClose} style={styles.backButton}>
-            <ThemedIcons library="MaterialIcons" name="arrow-back" size={24} color={textColor} />
-            </TouchableOpacity>
-            <View>
-            <ThemedText type="subtitle">
-                {groupData.name}
-            </ThemedText>
-            <ThemedText style={styles.memberCount}>
-                {groupData.members.filter(m => m.isApproved).length} members
-            </ThemedText>
+    <ThemedView style={[styles.container, { paddingBottom: keyboardHeight }]}>
+          {/* Messages List */}
+          {isOnlyMember ? (
+            <View style={styles.emptyStateContainer}>
+              <View style={{opacity: 0.5}}>
+                <ThemedIcons library="MaterialIcons" name="person" size={48} color={textColor} />
+              </View>
+              <ThemedText style={[styles.emptyStateText, {color: textColor}]}>
+                You are the only one in the group
+              </ThemedText>
+              <ThemedText style={[styles.emptyStateSubtext, {color: textColor}]}>
+                Invite others to start chatting!
+              </ThemedText>
             </View>
-        </View>
-        </ThemedView>
-
-        {/* Messages List */}
-        <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={renderMessage}
-        contentContainerStyle={styles.messagesContainer}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-        style={styles.messagesList}
-        showsVerticalScrollIndicator={false}
-        />
-
-        {/* Message Input */}
-        <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        style={[styles.inputContainer, { backgroundColor: primaryColor}]}
-        >
-        <TextInput
-            style={[
-            styles.input,
-            { 
-                backgroundColor: backgroundColor,
-                color: textColor,
-            }
-            ]}
-            placeholder="Type a message..."
-            placeholderTextColor={textColor}
-            
-            value={message}
-            onChangeText={setMessage}
-            multiline
-            maxLength={500}
-        />
-        <TouchableOpacity 
-            style={[
-            styles.sendButton,
-            { 
-                backgroundColor: message.trim() ? accentColor : backgroundColor,
-                opacity: message.trim() ? 1 : 0.7
-            }
-            ]}
-            onPress={handleSend}
-            disabled={!message.trim()}
-        >
-            <ThemedIcons 
-            library="MaterialIcons" 
-            name="send" 
-            size={20} 
-            color={message.trim() ? '#fff' : textColor} 
+          ) : (
+            <FlatList
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            renderItem={renderMessage}
+            contentContainerStyle={styles.messagesContainer}
+            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+            style={styles.messagesList}
+            showsVerticalScrollIndicator={false}
             />
-        </TouchableOpacity>
-        </KeyboardAvoidingView>
-    </ThemedView>
-    </Modal>
+          )}
+
+          {/* Message Input */}
+          <LinearGradient
+            colors={['transparent',primaryColor,primaryColor]}
+            style={[styles.inputContainer, { bottom: keyboardHeight }]}
+          >
+            <TextInput
+              style={[
+              styles.input,
+              { 
+                  backgroundColor: backgroundColor,
+                  color: textColor,
+              }
+              ]}
+              placeholder="Type a message..."
+              placeholderTextColor={textColor}
+              
+              value={message}
+              onChangeText={setMessage}
+              multiline
+              maxLength={500}
+            />
+            <TouchableOpacity 
+              style={styles.sendButton}
+              onPress={handleSend}
+              disabled={!message.trim()}
+            >
+              <ThemedIcons 
+              library="MaterialIcons" 
+              name="send" 
+              size={30} 
+              color={message.trim() ? accentColor : '#ccc9'} 
+              />
+          </TouchableOpacity>
+        </LinearGradient>
+      </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 30,
-    padding: 10,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  container: {
     flex: 1,
-  },
-  backButton: {
-    marginRight: 16,
-    padding: 4,
-  },
-  memberCount: {
-    opacity: 0.5,
   },
   messagesList: {
     flex: 1,
+    marginBottom: 40
   },
   messagesContainer: {
     flexGrow: 1,
@@ -317,9 +302,14 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   inputContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     padding: 16,
+    paddingTop: 40,
     paddingBottom: Platform.OS === 'ios' ? 24 : 16,
   },
   input: {
@@ -330,15 +320,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 12,
-    fontSize: 16,
-    marginRight: 12,
+    fontSize: 14,
+    marginRight: 14,
     textAlignVertical: 'top',
+    fontFamily: 'Poppins',
+    borderWidth: 1,
+    borderColor: '#ccc4'
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  emptyStateText: {
+    fontSize: 18,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyStateSubtext: {
+    fontSize: 14,
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });

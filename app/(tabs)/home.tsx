@@ -194,8 +194,6 @@ export default function HomeScreen() {
             </View>
           </View>
           <WeatherCard current />
-
-          
           <MonthlyCalendar/>
         </View>
       </ScrollView>
@@ -235,9 +233,9 @@ const styles = StyleSheet.create({
   taraImage: {
     position: 'absolute',
     bottom: -80,
-    right: -30,
+    right: -25,
     width: 150,
-    height: 240,
+    height: 230,
     zIndex: 3,
   },
   gradientOverlay: {

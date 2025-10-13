@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
   welcomeCard: {
     alignItems: "center",
     justifyContent: "center",
+    padding: 16
   },
   cardContent:{
     position: "absolute",

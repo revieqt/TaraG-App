@@ -65,7 +65,7 @@ export default function LoadingContainerAnimation({
       {...rest}
     >
       {/* subtle background */}
-      <View style={[StyleSheet.absoluteFill, { backgroundColor }]} pointerEvents="none" />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: '#ccc1' }]} pointerEvents="none" />
 
       {/* full-screen wiping gradient */}
       <Animated.View
@@ -81,7 +81,7 @@ export default function LoadingContainerAnimation({
       >
         <LinearGradient
           style={StyleSheet.absoluteFill}
-          colors={["rgba(255,255,255,0)", color1, "rgba(255,255,255,0)"]}
+          colors={["#ccc4", '#ccc5', "#ccc4"]}
           start={[0, 0.5]}
           end={[1, 0.5]}
         />

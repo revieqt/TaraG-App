@@ -39,6 +39,13 @@ export default function BottomSheet({
   const translateY = useRef(new Animated.Value(snapValues[defaultIndex])).current;
   const lastSnap = useRef(snapValues[defaultIndex]);
 
+  // Create animated height based on translateY position
+  const animatedHeight = translateY.interpolate({
+    inputRange: snapValues.slice(0, -1).reverse(), // Exclude hidden state and reverse for ascending order
+    outputRange: snapPoints.slice().reverse().map(point => effectiveScreenHeight * point - 60), // Reverse output to match
+    extrapolate: 'clamp',
+  });
+
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (event) => {
       setKeyboardHeight(event.endCoordinates.height);
@@ -117,7 +124,7 @@ export default function BottomSheet({
       </View>
 
       {/* Scrollable content */}
-      <View style={styles.scrollContainer}>
+      <Animated.View style={[styles.scrollContainer, { height: animatedHeight }]}>
         <ScrollView
           contentContainerStyle={{ paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}
@@ -125,7 +132,7 @@ export default function BottomSheet({
         >
           {children}
         </ScrollView>
-      </View>
+      </Animated.View>
     </Animated.View>
   );
 }

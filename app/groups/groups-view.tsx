@@ -5,7 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import ThemedIcons from '@/components/ThemedIcons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StyleSheet, View, TouchableOpacity, ScrollView, ActivityIndicator, Image, Alert } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, ScrollView, ActivityIndicator, Image, Alert, Dimensions, Platform, KeyboardAvoidingView } from 'react-native';
 import { Group, GroupMember, groupsApiService, PromoteUserRequest, KickUserRequest } from '@/services/groupsApiService';
 import { useSession } from '@/context/SessionContext';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -465,13 +465,6 @@ export default function GroupView() {
         </View>
       )}
 
-      {/* Chat Modal */}
-      <GroupChat 
-        visible={showChatModal}
-        onClose={() => setShowChatModal(false)}
-        groupData={groupData}
-      />
-
       <View style={styles.headerContainer}>
         <LinearGradient
           colors={['#000', 'transparent']}
@@ -485,7 +478,7 @@ export default function GroupView() {
         ]} style={styles.optionsButton}> 
           <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#fff" />
         </OptionsPopup>
-        <ThemedText type="title" style={{color: '#fff'}}>
+        <ThemedText type="subtitle" style={{color: '#fff'}}>
          {groupData.name}
         </ThemedText>
         <View style={styles.groupStats}>
@@ -515,98 +508,99 @@ export default function GroupView() {
           {/* <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'bills' ? accentColor : 'rgba(0,0,0,0.5)'}]} onPress={() => []}>
             <ThemedText style={{color: selectedButton === 'bills' ? '#222' : '#fff'}}>Bill Split</ThemedText>
           </TouchableOpacity> */}
-          <TouchableOpacity style={[styles.button, {backgroundColor: 'rgba(0,0,0,0.5)'}]} onPress={() => setShowChatModal(true)}>
+          <TouchableOpacity style={[styles.button, {backgroundColor: selectedButton === 'chat' ? accentColor : 'rgba(0,0,0,0.5)'}]} onPress={() => handleButtonPress('chat')}>
             <ThemedText style={{color: '#fff'}}>Chat</ThemedText>
           </TouchableOpacity>
         </ScrollView>
 
         
       </View>
-      
-      <BottomSheet snapPoints={[0.3, 0.6, 0.9]} defaultIndex={1} style={{zIndex: 100000}}>
-        
-  
-        
+    
+      <View style={styles.content}>
+        {selectedButton === 'members' && (
+          <BottomSheet snapPoints={[0.3, 0.6, 1]} defaultIndex={1} style={{zIndex: 100000}}>
+            <ScrollView>
+              {approvedMembers.map(member => renderMemberItem(member))}
+            
+              {pendingMembers.length > 0 && (
+                <>
+                  <ThemedText type="defaultSemiBold" style={{ marginTop: 20, marginBottom: 10, opacity: 0.7 }}>
+                    Pending Approval ({pendingMembers.length})
+                  </ThemedText>
+                  {pendingMembers.map(member => renderMemberItem(member, true))}
+                </>
+              )}
+            </ScrollView>
+          </BottomSheet>
+        )}
 
-        <ScrollView>
-
-          <View style={{flex: 1}}>
-            {selectedButton === 'members' && (
-              <>
-                {approvedMembers.map(member => renderMemberItem(member))}
-              
-                {pendingMembers.length > 0 && (
-                  <>
-                    <ThemedText type="defaultSemiBold" style={{ marginTop: 20, marginBottom: 10, opacity: 0.7 }}>
-                      Pending Approval ({pendingMembers.length})
-                    </ThemedText>
-                    {pendingMembers.map(member => renderMemberItem(member, true))}
-                  </>
-                )}
-              </>
-            )}
-
-            {selectedButton === 'itinerary' && (
-              <>
-                {groupData.itineraryID ? (
-                  <View>
-                    {loadingItinerary ? (
-                      <ActivityIndicator size="small" />
-                    ) : itineraryData ? (
-                      <View style={styles.itineraryContainer}>
-                        <ViewItinerary json={itineraryData} />
-                        {isCurrentUserAdmin && (
-                          <View style={styles.itineraryButtonContainer}>
-                            <TouchableOpacity 
-                              style={[styles.itineraryButton, {backgroundColor: backgroundColor}]}
-                              onPress={handleEditItinerary}
-                            >
-                              <ThemedIcons library='MaterialDesignIcons' name='pencil' size={20}/>
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                              style={[styles.itineraryButton, {backgroundColor: 'red'}]}
-                              onPress={handleDeleteItinerary}
-                            >
-                              <ThemedIcons library='MaterialIcons' name='delete' size={20} color='white'/>
-                            </TouchableOpacity>
-                            
-                          </View>
-                        )}
-                        
-                        
-                      </View>
+        {selectedButton === 'itinerary' && (
+          <BottomSheet snapPoints={[0.3, 0.6, 1]} defaultIndex={1} style={{zIndex: 100000}}>
+            <ScrollView>
+              {groupData.itineraryID ? (
+                <View>
+                  {loadingItinerary ? (
+                    <ActivityIndicator size="small" />
+                  ) : itineraryData ? (
+                    <View style={styles.itineraryContainer}>
+                      <ViewItinerary json={itineraryData} />
+                      {isCurrentUserAdmin && (
+                        <View style={styles.itineraryButtonContainer}>
+                          <TouchableOpacity 
+                            style={[styles.itineraryButton, {backgroundColor: backgroundColor}]}
+                            onPress={handleEditItinerary}
+                          >
+                            <ThemedIcons library='MaterialDesignIcons' name='pencil' size={20}/>
+                          </TouchableOpacity>
+                          <TouchableOpacity 
+                            style={[styles.itineraryButton, {backgroundColor: 'red'}]}
+                            onPress={handleDeleteItinerary}
+                          >
+                            <ThemedIcons library='MaterialIcons' name='delete' size={20} color='white'/>
+                          </TouchableOpacity>
+                          
+                        </View>
+                      )}
                       
-                    ) : (
-                      <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
-                      title='Error Loading Itinerary'
-                      description="Failed to load itinerary details."
-                      />
-                    )}
-                  </View>
-                ) : (
-                  <View>
+                      
+                    </View>
+                    
+                  ) : (
                     <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
-                    title='No Itinerary Linked'
-                    description="This group doesn't have an associated itinerary yet."
+                    title='Error Loading Itinerary'
+                    description="Failed to load itinerary details."
                     />
-                    {isCurrentUserAdmin && (
-                      <Button
-                        title="Link Itinerary"
-                        onPress={() => router.push({
-                          pathname: '/groups/groups-linkItinerary',
-                          params: { groupID: groupData.id }
-                        })}
-                        buttonStyle={{ marginTop: 15 }}
-                      />
-                    )}
-                  </View>
-                  
-                )}
-              </>
-            )}
-          </View>
-        </ScrollView>
-      </BottomSheet>
+                  )}
+                </View>
+              ) : (
+                <View>
+                  <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
+                  title='No Itinerary Linked'
+                  description="This group doesn't have an associated itinerary yet."
+                  />
+                  {isCurrentUserAdmin && (
+                    <Button
+                      title="Link Itinerary"
+                      onPress={() => router.push({
+                        pathname: '/groups/groups-linkItinerary',
+                        params: { groupID: groupData.id }
+                      })}
+                      buttonStyle={{ marginTop: 15 }}
+                    />
+                  )}
+                </View>
+                
+              )}
+            </ScrollView>
+          </BottomSheet>
+        )}
+
+        {selectedButton === 'chat' && (
+          <GroupChat
+            groupData={groupData}
+          />
+        )}
+      </View>
     </ThemedView>
   );
 }
@@ -615,7 +609,7 @@ const styles = StyleSheet.create({
   groupStats: {
     flexDirection: 'row',
     gap: 15,
-    marginTop: 8,
+    marginTop: 3,
   },
   statItem: {
     flexDirection: 'row',
@@ -671,7 +665,7 @@ const styles = StyleSheet.create({
   },
   itineraryContainer:{
     marginBottom: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 16,
   },
   itineraryButtonContainer:{
     flex: 1,
@@ -699,8 +693,8 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
     pointerEvents: 'box-none',
-    padding: 20,
-    paddingTop: 30,
+    padding: 16,
+    paddingTop: 25,
     height: 200,
   },
   headerGradient: {
@@ -712,4 +706,17 @@ const styles = StyleSheet.create({
     opacity: .9,
     pointerEvents: 'none',
   },
+  content:{
+    width: '100%',
+    height: Dimensions.get('window').height-145,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 10,
+    pointerEvents: 'box-none',
+    overflow: 'hidden',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  }
 });

@@ -163,12 +163,12 @@ export default function RouteMap({
         {routeCoordinates.length > 0 && (
           <Polyline
             coordinates={routeCoordinates}
-            strokeColor={secondaryColor}
-            strokeWidth={4}
-            lineDashPattern={[1, 0]}
+            strokeColor="#4300FF"
+            strokeWidth={6}
             lineCap="round"
             lineJoin="round"
           />
+
         )}
 
         {/* Route Markers */}

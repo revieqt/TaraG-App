@@ -7,7 +7,6 @@ import TextField from '@/components/TextField';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { registerUserViaBackend } from '@/services/authApiService';
-import { useSession } from '@/context/SessionContext';
 import { calculateAge } from '@/utils/calculateAge';
 import { useLocation } from '@/hooks/useLocation';
 import { router } from 'expo-router';
@@ -31,7 +30,6 @@ export default function RegisterScreen() {
   const [errorMsg, setErrorMsg] = useState('');
   const scrollRef = useRef<ScrollView>(null);
   const [areaCode, setAreaCode] = useState('+63');
-  const { updateSession } = useSession();
   const { latitude, longitude } = useLocation();
 
   const handleRegister = async () => {
@@ -156,7 +154,7 @@ export default function RegisterScreen() {
             placeholder="Gender"
             value={gender}
             onValueChange={setGender}
-            values={['Male', 'Female', 'Other']}
+            values={['Male', 'Female', 'Others']}
             style={{ marginBottom: 15 }}
           />
 

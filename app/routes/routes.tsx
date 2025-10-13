@@ -136,7 +136,7 @@ export default function RoutesScreen() {
             <ThemedText>Clear History</ThemedText>
           </TouchableOpacity>
         ]}> 
-          <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#FFFFFF"/>
+          <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22}/>
         </OptionsPopup>
 
         <ThemedView color='primary' shadow style={[styles.historyItem, {marginTop: 30}]}>

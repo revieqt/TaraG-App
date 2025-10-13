@@ -214,9 +214,11 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",
+    overflow: 'hidden',
   },
   dayPlaceholder: {
     width: 32,
     height: 32,
+    overflow: 'hidden',
   },
 });
