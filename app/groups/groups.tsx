@@ -156,11 +156,16 @@ export default function GroupsSection(){
 
             <View style={{flex: 1}}>
                 {groupsLoading ? (
-                    <ThemedView color='primary' shadow style={{ width: '100%', height: 92, borderRadius: 10, overflow: 'hidden' }}>
-                        <LoadingContainerAnimation/>
+                    <ThemedView color='primary' shadow style={styles.groupContainer}>
+                        <View style={styles.groupHeader}>
+                            <View style={styles.cardTitleLoading}><LoadingContainerAnimation/></View>
+                            <View style={styles.cardMemberCountLoading}><LoadingContainerAnimation/></View>
+                        </View>
+                        <View style={styles.cardInviteCodeLoading}><LoadingContainerAnimation/></View>
                     </ThemedView>
                 ) : filteredGroups.length > 0 ? (
                     <View>
+                        
                         {filteredGroups.map((item) => (
                             <View key={item.id || ''}>
                                 {renderGroupItem({ item })}
@@ -212,5 +217,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         opacity: 0.7,
+    },
+    cardTitleLoading: {
+        width: 150,
+        height: 23,
+        borderRadius: 100,
+        overflow: 'hidden',
+    },
+    cardMemberCountLoading: {
+        width: 35,
+        height: 20,
+        borderRadius: 100,
+        overflow: 'hidden',
+    },
+    cardInviteCodeLoading: {
+        width: 100,
+        height: 17,
+        marginTop: 5,
+        borderRadius: 100,
+        overflow: 'hidden',
     },
 });

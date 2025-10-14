@@ -12,6 +12,8 @@ import AlertsContainer from '@/components/custom/AlertsContainer';
 import ActiveRouteButton from '@/components/custom/ActiveRouteButton';
 import ThemedIcons from '@/components/ThemedIcons';
 import MonthlyCalendar from '@/components/MonthlyCalendar';
+import FadedHeader from '@/components/custom/FadedHeader';
+import Button from '@/components/Button';
 
 export default function HomeScreen() {
   const { session } = useSession();
@@ -21,7 +23,6 @@ export default function HomeScreen() {
   const secondaryColor = useThemeColor({}, 'secondary');
   const floatAnimation = useRef(new Animated.Value(0)).current;
 
-  // Start floating animation on component mount
   useEffect(() => {
     const startFloatingAnimation = () => {
       Animated.loop(
@@ -195,13 +196,15 @@ export default function HomeScreen() {
           </View>
           <WeatherCard current />
           <MonthlyCalendar/>
+          {/* <ThemedView shadow style={styles.supportContainer}>
+            <FadedHeader title="Support" subtitle="Get help with any issues" iconLibrary="MaterialIcons" iconName="support"/>
+            <Button title="Contact Support" onPress={() => {}} buttonStyle={{margin: 10}}/>
+          </ThemedView> */}
         </View>
       </ScrollView>
       
       <AlertsContainer>
-         { session?.activeRoute && (
-          <ActiveRouteButton/>
-        )}
+         {session?.activeRoute && (<ActiveRouteButton/>)}
       </AlertsContainer>
 
       <LinearGradient
@@ -369,5 +372,13 @@ const styles = StyleSheet.create({
     zIndex: 3,
     pointerEvents: 'none',
     opacity: .5,
+  },
+  supportContainer:{
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginVertical: 30,
+    borderWidth: 1,
+    borderColor: '#ccc4',
   }
 });

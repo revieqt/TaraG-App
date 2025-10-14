@@ -24,9 +24,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 function getTodayKey() {
   const today = new Date();
@@ -41,7 +44,10 @@ export default function AIChatScreen() {
   const router = useRouter();
   const { session, updateSession } = useSession();
   const { latitude, longitude, city, suburb, loading: locationLoading, error: locationError } = useLocation();
-
+  const primaryColor = useThemeColor({}, 'primary');
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const accentColor = useThemeColor({}, 'accent');
   const [messageCount, setMessageCount] = useState(0);
 
   useEffect(() => {
@@ -502,27 +508,48 @@ export default function AIChatScreen() {
           </View>
         )}
       </ThemedView>
-      <ThemedView color="primary" style={styles.inputRowAbsolute}>
+
+      <LinearGradient
+        colors={['transparent',primaryColor,primaryColor]}
+        style={styles.inputRowAbsolute}
+      >
         {hasMessagesLeft ? (
           <>
-            <TextField
+            {/* <TextField
               value={input}
               onChangeText={setInput}
               placeholder="Type your message..."
               onSubmitEditing={handleSend}
-              style={{ flex: 1, marginBottom: 0 }}
+              style={styles.input}
+              multiline
+            /> */}
+            <TextInput
+              style={[
+              styles.input,
+              { 
+                  backgroundColor: backgroundColor,
+                  color: textColor,
+              }
+              ]}
+              placeholder="Type a message..."
+              placeholderTextColor={textColor}
+              
+              value={input}
+              onChangeText={setInput}
+              multiline
+              maxLength={500}
             />
             <TouchableOpacity
               style={styles.sendBtn}
               onPress={handleSend}
               disabled={loading || !input.trim()}
             >
-              <ThemedIcons
-                library="MaterialIcons"
-                name="send"
-                size={30}
-                color="#00FFDE"
-              />
+              <ThemedIcons 
+                library="MaterialIcons" 
+                name="send" 
+                size={30} 
+                color={input.trim() ? accentColor : '#ccc9'} 
+                />
             </TouchableOpacity>
           </>
         ) : (
@@ -542,7 +569,7 @@ export default function AIChatScreen() {
             />
           </View>
         )}
-      </ThemedView>
+      </LinearGradient>
     </KeyboardAvoidingView>
   );
 }
@@ -569,21 +596,34 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   inputRowAbsolute: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
     position: 'absolute',
+    bottom: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    paddingTop: 40,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 16,
   },
   sendBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+  },
+  input: {
+    flex: 1,
+    minHeight: 44,
+    maxHeight: 120,
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    fontSize: 14,
+    marginRight: 14,
+    textAlignVertical: 'top',
+    fontFamily: 'Poppins',
+    borderWidth: 1,
+    borderColor: '#ccc4'
   },
   loadingContainer: {
     flexDirection: 'row',
