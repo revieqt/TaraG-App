@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedIcons } from '@/components/ThemedIcons';
@@ -27,6 +27,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [ chosenWeatherType, setChosenWeatherType] = useState<string | null>(null);
 
   const currentLocation = useLocation();
   
@@ -93,33 +94,33 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
                            locationLoading ||
                            currentLocation.loading;
 
-  if (shouldShowLoading) {
-    return (
-      <ThemedView shadow color='primary' style={[styles.locationContent, { height: 202 }]}>
-        <View style={styles.descLoading}><LoadingContainerAnimation /></View>
-        <View style={styles.locationLoading}><LoadingContainerAnimation /></View>
-        <View style={styles.weatherTypeLoading}><LoadingContainerAnimation /></View>
+  // if (shouldShowLoading) {
+  //   return (
+  //     <ThemedView shadow color='primary' style={[styles.locationContent, { height: 202 }]}>
+  //       <View style={styles.descLoading}><LoadingContainerAnimation /></View>
+  //       <View style={styles.locationLoading}><LoadingContainerAnimation /></View>
+  //       <View style={styles.weatherTypeLoading}><LoadingContainerAnimation /></View>
         
-        <View style={styles.weatherDetailsContainer}>
-          <View style={styles.weather}>
-            <View style={styles.weatherIconLoading}><LoadingContainerAnimation /></View>
-            <View style={styles.weatherValueLoading}><LoadingContainerAnimation /></View>
-            <View style={styles.weatherLabelLoading}><LoadingContainerAnimation /></View>
-          </View>
-          <View style={styles.weather}>
-            <View style={styles.weatherIconLoading}><LoadingContainerAnimation /></View>
-            <View style={styles.weatherValueLoading}><LoadingContainerAnimation /></View>
-            <View style={styles.weatherLabelLoading}><LoadingContainerAnimation /></View>
-          </View>
-          <View style={styles.weather}>
-            <View style={styles.weatherIconLoading}><LoadingContainerAnimation /></View>
-            <View style={styles.weatherValueLoading}><LoadingContainerAnimation /></View>
-            <View style={styles.weatherLabelLoading}><LoadingContainerAnimation /></View>
-          </View>
-        </View>
-      </ThemedView>
-    );
-  }
+  //       <View style={styles.weatherDetailsContainer}>
+  //         <View style={styles.weather}>
+  //           <View style={styles.weatherIconLoading}><LoadingContainerAnimation /></View>
+  //           <View style={styles.weatherValueLoading}><LoadingContainerAnimation /></View>
+  //           <View style={styles.weatherLabelLoading}><LoadingContainerAnimation /></View>
+  //         </View>
+  //         <View style={styles.weather}>
+  //           <View style={styles.weatherIconLoading}><LoadingContainerAnimation /></View>
+  //           <View style={styles.weatherValueLoading}><LoadingContainerAnimation /></View>
+  //           <View style={styles.weatherLabelLoading}><LoadingContainerAnimation /></View>
+  //         </View>
+  //         <View style={styles.weather}>
+  //           <View style={styles.weatherIconLoading}><LoadingContainerAnimation /></View>
+  //           <View style={styles.weatherValueLoading}><LoadingContainerAnimation /></View>
+  //           <View style={styles.weatherLabelLoading}><LoadingContainerAnimation /></View>
+  //         </View>
+  //       </View>
+  //     </ThemedView>
+  //   );
+  // }
 
   return (
     <ThemedView shadow color='primary' style={styles.locationContent}>
@@ -142,33 +143,48 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
       )}
       
       <View style={styles.weatherDetailsContainer}>
-        <View style={styles.weather}>
+        <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType('temperature')}>
           <ThemedIcons library='MaterialDesignIcons' name='thermometer' size={20} color='#B36B6B'/>
-          <ThemedText type='defaultSemiBold' style={{marginTop: 5}}>
+          <ThemedText style={{marginTop: 5}}>
             {weatherData ? `${Math.round(weatherData.temperature)}°C` : 'N/A'}
           </ThemedText>
-          <ThemedText style={styles.weatherLabel}>Temperature</ThemedText>
-        </View>
-        <View style={styles.weather}>
-          <ThemedIcons library='MaterialDesignIcons' name='cloud' size={20} color='#6B8BA4'/>
-          <ThemedText type='defaultSemiBold' style={{marginTop: 5}}>
+          <ThemedText style={styles.weatherLabel}>Heat Level</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType('precipitation')}>
+          <ThemedIcons library='MaterialDesignIcons' name='cloud' size={20} color='#5A7D9A'/>
+          <ThemedText style={{marginTop: 5}}>
             {weatherData ? `${weatherData.precipitation}mm` : 'N/A'}
           </ThemedText>
-          <ThemedText style={styles.weatherLabel}>Precipitation</ThemedText>
-        </View>
-        <View style={styles.weather}>
+          <ThemedText style={styles.weatherLabel}>Rainfall</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType('humidity')}>
           <ThemedIcons library='MaterialDesignIcons' name='water' size={20} color='#5A7D9A'/>
-          <ThemedText type='defaultSemiBold' style={{marginTop: 5}}>
+          <ThemedText style={{marginTop: 5}}>
             {weatherData ? `${weatherData.humidity}%` : 'N/A'}
           </ThemedText>
-          <ThemedText style={styles.weatherLabel}>Air Humidity</ThemedText>
-        </View>
+          <ThemedText style={styles.weatherLabel}>Humidity</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType('wind')}>
+          <ThemedIcons library='MaterialDesignIcons' name='fan' size={20} color='#5A7D9A'/>
+          <ThemedText style={{marginTop: 5}}>
+            {weatherData ? `${weatherData.humidity}%` : 'N/A'}
+          </ThemedText>
+          <ThemedText style={styles.weatherLabel}>Wind</ThemedText>
+        </TouchableOpacity>
       </View>
       
       {!weatherData && weatherError && (
         <ThemedText style={{ opacity: 0.5, marginTop: 10, textAlign: 'center', fontSize: 12 }}>
           Weather data not available
         </ThemedText>
+      )}
+
+      {chosenWeatherType && (
+        <ThemedView style={styles.specificWeatherContainer}>
+          <ThemedText>
+            {chosenWeatherType.charAt(0).toUpperCase() + chosenWeatherType.slice(1)}
+          </ThemedText>
+        </ThemedView>
       )}
     </ThemedView>
   );
@@ -177,7 +193,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
 const styles = StyleSheet.create({
   locationContent: {
     width: '100%',
-    padding: 16,
+    padding: 14,
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 15,
@@ -190,16 +206,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
-    gap: 10,
-    marginTop: 30,
+    gap: 7,
+    marginTop: 35,
   },
   weather: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: '30%',
+    width: '23%',
   },
   weatherLabel: {
-    fontSize: 12,
+    fontSize: 9,
     opacity: 0.5,
   },
   weatherImage: {
@@ -209,11 +225,6 @@ const styles = StyleSheet.create({
     height: 150,
     marginRight: -50,
     marginTop: -17,
-  },
-  weatherTypeContainer: {
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    borderRadius: 20,
   },
   weatherValueLoading: {
     width: 50,
@@ -255,6 +266,12 @@ const styles = StyleSheet.create({
     height: 20,
     marginVertical:3,
     borderRadius: 100,
+    overflow: 'hidden',
+  },
+  specificWeatherContainer: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
     overflow: 'hidden',
   },
 });

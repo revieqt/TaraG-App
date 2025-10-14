@@ -79,7 +79,9 @@ const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={initialRegion} mapType={getMapTypeEnum(currentMapType)}>
+      <MapView style={styles.map} initialRegion={initialRegion} 
+      showsUserLocation={true}
+      mapType={getMapTypeEnum(currentMapType)}>
         {allLocations.map((loc, idx) => (
           <TaraMarker
             key={`${loc.latitude},${loc.longitude},${idx}`}
