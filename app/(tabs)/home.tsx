@@ -7,13 +7,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import HomeMap from '@/components/maps/HomeMap';
 import { router } from 'expo-router';
 import { Dimensions, ScrollView, StyleSheet, TouchableOpacity, View, Animated, Image } from 'react-native';
-import { useEffect,  useRef } from 'react';
+import { useEffect,  useRef, useState } from 'react';
 import AlertsContainer from '@/components/custom/AlertsContainer';
 import ActiveRouteButton from '@/components/custom/ActiveRouteButton';
 import ThemedIcons from '@/components/ThemedIcons';
 import MonthlyCalendar from '@/components/MonthlyCalendar';
-import FadedHeader from '@/components/custom/FadedHeader';
-import Button from '@/components/Button';
+import { TARA_MESSAGES } from '@/constants/Config';
 
 export default function HomeScreen() {
   const { session } = useSession();
@@ -22,6 +21,58 @@ export default function HomeScreen() {
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
   const floatAnimation = useRef(new Animated.Value(0)).current;
+  
+  // Message bubble state
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [showBubble, setShowBubble] = useState(false);
+  const bubbleOpacity = useRef(new Animated.Value(0)).current;
+
+  // Function to get random message
+  const getRandomMessage = () => {
+    const randomIndex = Math.floor(Math.random() * TARA_MESSAGES.length);
+    return TARA_MESSAGES[randomIndex];
+  };
+
+  // Function to show message bubble
+  const showMessageBubble = () => {
+    const message = getRandomMessage();
+    setCurrentMessage(message);
+    setShowBubble(true);
+
+    // Fade in
+    Animated.timing(bubbleOpacity, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+      Animated.timing(bubbleOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowBubble(false);
+      });
+    }, 8000);
+  };
+
+  // Function to handle Tara image tap
+  const handleTaraPress = () => {
+    if (showBubble) {
+      // If bubble is already showing, hide it and show new message
+      Animated.timing(bubbleOpacity, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }).start(() => {
+        setTimeout(() => showMessageBubble(), 100);
+      });
+    } else {
+      showMessageBubble();
+    }
+  };
 
   useEffect(() => {
     const startFloatingAnimation = () => {
@@ -43,6 +94,15 @@ export default function HomeScreen() {
 
     startFloatingAnimation();
   }, [floatAnimation]);
+
+  // Show initial message bubble when screen first appears
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      showMessageBubble();
+    }, 1000); // Show after 1 second delay
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -67,28 +127,57 @@ export default function HomeScreen() {
               </ThemedText>
               <ThemedText type='defaultSemiBold' style={{opacity: 0.7}}>Welcome to TaraG!</ThemedText>
             </View>
-            <Animated.Image 
-              source={require('@/assets/images/tara-cheerful.png')} 
-              style={[
-                styles.taraImage,
-                {
-                  transform: [
+            <View style={styles.taraContainer}>
+              <TouchableOpacity onPress={handleTaraPress} activeOpacity={1}>
+                <Animated.Image 
+                  source={require('@/assets/images/tara-cheerful.png')} 
+                  style={[
+                    styles.taraImage,
                     {
-                      translateY: floatAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, -10],
-                      }),
-                    },
+                      transform: [
+                        {
+                          translateY: floatAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -10],
+                          }),
+                        },
+                        {
+                          rotate: floatAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: ['0deg', '-3deg'],
+                          }),
+                        },
+                        
+                      ],
+                    }
+                  ]} 
+                />
+              </TouchableOpacity>
+              
+              {/* Message Bubble */}
+              {showBubble && (
+                <Animated.View 
+                  style={[
+                    styles.messageBubble,
                     {
-                      rotate: floatAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ['0deg', '-3deg'],
-                      }),
-                    },
-                  ],
-                }
-              ]} 
-            />
+                      opacity: bubbleOpacity,
+                      transform: [
+                        {
+                          translateY: floatAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -10],
+                          }),
+                        },
+                      ],
+                    }
+                  ]}
+                >
+                  <ThemedText style={styles.bubbleText}>
+                    {currentMessage}
+                  </ThemedText>
+                </Animated.View>
+              )}
+            </View>
           </View>
         </View>
         <LinearGradient
@@ -196,10 +285,6 @@ export default function HomeScreen() {
           </View>
           <WeatherCard current />
           <MonthlyCalendar/>
-          {/* <ThemedView shadow style={styles.supportContainer}>
-            <FadedHeader title="Support" subtitle="Get help with any issues" iconLibrary="MaterialIcons" iconName="support"/>
-            <Button title="Contact Support" onPress={() => {}} buttonStyle={{margin: 10}}/>
-          </ThemedView> */}
         </View>
       </ScrollView>
       
@@ -380,5 +465,36 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     borderWidth: 1,
     borderColor: '#ccc4',
-  }
+  },
+  taraContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    zIndex: 1000,
+  },
+  messageBubble: {
+    position: 'absolute',
+    bottom: -17,
+    right: 14,
+    backgroundColor: 'rgba(255,255,255,.9)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderTopRightRadius: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 100000,
+  },
+  bubbleText: {
+    textAlign: 'center',
+    flexWrap: 'wrap',
+    wordWrap: 'wrap',
+    color: '#000',
+  },
 });

@@ -567,11 +567,9 @@ export default function ActiveRouteMap() {
           colors={['transparent','transparent', primaryColor]}
           style={styles.bottomGradient}
         />
-        
-          <View style={styles.directionArrowContainer}>
-            {showDirectionArrow ? (<>
-              {route3dEnabled && (
-                <View style={[
+          {route3dEnabled&&(
+            <View style={styles.directionArrowContainer}>
+              <View style={[
                   styles.directionArrow,
                   {
                     transform: [
@@ -586,11 +584,14 @@ export default function ActiveRouteMap() {
                   color={accentColor} 
                 />
               </View>
-              )}
-            </>) : (<>
+            </View>
+          )}
+
+          {!showDirectionArrow &&(
+            <View style={styles.directionArrowContainer}>
               <ActivityIndicator size="large" color={accentColor} />
-            </>)}
-          </View>
+            </View>
+          )}
         
         <OptionsPopup
         style={styles.sideButton}

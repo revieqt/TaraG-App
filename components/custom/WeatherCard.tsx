@@ -136,7 +136,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
       <ThemedText type='subtitle' style={{fontSize: 16}}>{getLocationText()}</ThemedText>
       
       {weatherData && (
-        <ThemedText style={{ opacity: 0.7, fontSize: 12 }}>
+        <ThemedText style={{ opacity: 0.5, fontSize: 12 }}>
           {weatherData.weatherType}
         </ThemedText>
       )}

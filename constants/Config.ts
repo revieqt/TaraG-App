@@ -48,3 +48,22 @@ export const DEFAULT_AREA_CODES = [
     { label: '+44', value: '44+' },
     { label: '+91', value: '91+' },
   ];
+
+// Tara's random messages for the home screen
+export const TARA_MESSAGES = [
+  "Ready for your next adventure? ",
+  "Let's explore something new today! ",
+  "I'm here to help you travel smarter! ",
+  "Planning a trip? I've got you covered! ",
+  "Adventure awaits - where shall we go? ",
+  "Need travel tips? Just ask me! ",
+  "Let's make your journey unforgettable! ",
+  "Discover amazing places with me! ",
+  "Your travel companion is ready! ",
+  "Time to create new memories! ",
+  "Every journey starts with a single step! ",
+  "Let's turn your travel dreams into reality! ",
+  "I'm excited to help you explore! ",
+  "Ready to discover hidden gems? ",
+  "Your next adventure is just a tap away! "
+];
