@@ -1,16 +1,23 @@
 import { useState, useEffect } from 'react';
 import { BACKEND_URL } from '@/constants/Config';
 
-interface WeatherData {
+interface HourlyWeatherData {
+  time: string;
   temperature: number;
-  weatherCode: number;
-  weatherType: string;
   precipitation: number;
   humidity: number;
+  windSpeed: number;
+  weatherCode: number;
+  weatherType: string;
+}
+
+interface WeatherResponse {
+  date: string;
+  hourlyData: HourlyWeatherData[];
 }
 
 export const useWeather = (latitude: number, longitude: number, date?: string) => {
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +33,7 @@ export const useWeather = (latitude: number, longitude: number, date?: string) =
     console.log('🌤️ Fetching weather for:', { latitude, longitude, date });
 
     try {
-      let url = `${BACKEND_URL}/weather/current?latitude=${latitude}&longitude=${longitude}`;
+      let url = `${BACKEND_URL}/weather?latitude=${latitude}&longitude=${longitude}`;
       
       // Add date parameter if provided
       if (date) {
