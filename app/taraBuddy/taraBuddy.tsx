@@ -14,8 +14,15 @@ import {LinearGradient} from "expo-linear-gradient";
 export default function TaraBuddySection() {
   const primaryColor = useThemeColor({}, "primary");
   const { session } = useSession();
-  const { createTaraBuddyProfile } = useTaraBuddyApi();
+  
+  // Only call the API hook if we have a valid session
+  const taraBuddyApi = session?.accessToken && session?.user?.id ? useTaraBuddyApi() : null;
   const hasPreference = Boolean(session?.user?.taraBuddyPreference);
+  
+  // If no session, don't render anything (user is logging out)
+  if (!session?.accessToken || !session?.user?.id) {
+    return null;
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -36,7 +43,7 @@ export default function TaraBuddySection() {
                   Alert.alert("Error", "Please make your profile public to start matching");
                 }else{
                   try {
-                    await createTaraBuddyProfile();
+                    await taraBuddyApi?.createTaraBuddyProfile();
                   } catch (err: any) {
                     Alert.alert("Error", err.message || "Failed to start matching");
                   }

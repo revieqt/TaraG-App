@@ -22,8 +22,7 @@ export default function HomeScreen() {
   const secondaryColor = useThemeColor({}, 'secondary');
   const floatAnimation = useRef(new Animated.Value(0)).current;
   
-  // Message bubble state
-  const [currentMessage, setCurrentMessage] = useState('');
+  const [displayedMessage, setDisplayedMessage] = useState('');
   const [showBubble, setShowBubble] = useState(false);
   const bubbleOpacity = useRef(new Animated.Value(0)).current;
 
@@ -33,10 +32,26 @@ export default function HomeScreen() {
     return TARA_MESSAGES[randomIndex];
   };
 
+  // Typewriter effect function
+  const typewriterEffect = (message: string) => {
+    setDisplayedMessage('');
+    let currentIndex = 0;
+    
+    const typeInterval = setInterval(() => {
+      if (currentIndex < message.length) {
+        setDisplayedMessage(message.substring(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(typeInterval);
+      }
+    }, 50); // 50ms delay between each character
+    
+    return typeInterval;
+  };
+
   // Function to show message bubble
   const showMessageBubble = () => {
     const message = getRandomMessage();
-    setCurrentMessage(message);
     setShowBubble(true);
 
     // Fade in
@@ -44,9 +59,13 @@ export default function HomeScreen() {
       toValue: 1,
       duration: 300,
       useNativeDriver: true,
-    }).start();
+    }).start(() => {
+      // Start typewriter effect after fade in completes
+      typewriterEffect(message);
+    });
 
-    // Auto hide after 5 seconds
+    // Auto hide after message is fully typed + 5 seconds
+    const hideDelay = (message.length * 50) + 5000; // typewriter time + 5 seconds
     setTimeout(() => {
       Animated.timing(bubbleOpacity, {
         toValue: 0,
@@ -54,8 +73,9 @@ export default function HomeScreen() {
         useNativeDriver: true,
       }).start(() => {
         setShowBubble(false);
+        setDisplayedMessage('');
       });
-    }, 8000);
+    }, hideDelay);
   };
 
   // Function to handle Tara image tap
@@ -169,11 +189,12 @@ export default function HomeScreen() {
                           }),
                         },
                       ],
+                      backgroundColor: primaryColor,
                     }
                   ]}
                 >
                   <ThemedText style={styles.bubbleText}>
-                    {currentMessage}
+                    {displayedMessage}
                   </ThemedText>
                 </Animated.View>
               )}
@@ -476,7 +497,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -17,
     right: 14,
-    backgroundColor: 'rgba(255,255,255,.9)',
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 16,
@@ -490,11 +510,12 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     zIndex: 100000,
+    borderWidth: 1,
+    borderColor: '#ccc4',
   },
   bubbleText: {
     textAlign: 'center',
     flexWrap: 'wrap',
     wordWrap: 'wrap',
-    color: '#000',
   },
 });
