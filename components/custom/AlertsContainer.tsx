@@ -305,7 +305,7 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
                   style={styles.closeButton}
                   onPress={closeModal}
                 >
-                  <ThemedIcons library='MaterialIcons' name="close" size={25} color='white'/>
+                  <ThemedIcons library='MaterialIcons' name="arrow-back" size={25} color='white'/>
                 </TouchableOpacity>
                 
                 <Animated.View 
@@ -326,15 +326,12 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
                 
                 {/* Navigation Controls Container */}
                 <View style={styles.navigationContainer}>
-                  {/* Left Arrow */}
-                  {allAlerts.length > 1 && currentIndex > 0 && (
-                    <TouchableOpacity 
-                      style={styles.bottomArrowButton}
-                      onPress={goToPrev}
-                    >
-                      <ThemedIcons library="MaterialIcons" name="chevron-left" size={24} color="white" />
-                    </TouchableOpacity>
-                  )}
+                  <TouchableOpacity 
+                    style={[styles.bottomArrowButton, { opacity: currentIndex > 0 ? 1 : 0 }]}
+                    onPress={goToPrev}
+                  >
+                    <ThemedIcons library="MaterialIcons" name="chevron-left" size={30}/>
+                  </TouchableOpacity>
                   
                   {/* Navigation Dots */}
                   <View style={styles.dotsContainer}>
@@ -351,15 +348,12 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
                     ))}
                   </View>
                   
-                  {/* Right Arrow */}
-                  {allAlerts.length > 1 && currentIndex < allAlerts.length - 1 && (
-                    <TouchableOpacity 
-                      style={styles.bottomArrowButton}
-                      onPress={goToNext}
-                    >
-                      <ThemedIcons library="MaterialIcons" name="chevron-right" size={24} color="white" />
-                    </TouchableOpacity>
-                  )}
+                  <TouchableOpacity 
+                    style={[styles.bottomArrowButton, { opacity: currentIndex < allAlerts.length - 1 ? 1 : 0 }]}
+                    onPress={goToNext}
+                  >
+                    <ThemedIcons library="MaterialIcons" name="chevron-right" size={30}/>
+                  </TouchableOpacity>
                 </View>
               </View>
           </Animated.View>
@@ -463,14 +457,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 5,
   },
   dot: {
     width: 8,
@@ -488,10 +476,8 @@ const styles = StyleSheet.create({
   closeButton: {
     position: 'absolute',
     top: 20,
-    right: 20,
+    left: 8,
     zIndex: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 50,
     padding: 8,
   },
 });

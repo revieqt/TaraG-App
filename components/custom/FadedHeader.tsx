@@ -24,7 +24,7 @@ const FadedHeader: React.FC<FadedHeaderProps> = ({ color, title, subtitle, iconL
         colors={['transparent', backgroundColor]}
         style={styles.gradientOverlay}
       >
-        {title && <ThemedText type='subtitle'>{title}</ThemedText>}
+        {title && <ThemedText type='subtitle' >{title}</ThemedText>}
         {subtitle && <ThemedText style={{opacity: .7}}>{subtitle}</ThemedText>}
       </LinearGradient>
       {iconName && (

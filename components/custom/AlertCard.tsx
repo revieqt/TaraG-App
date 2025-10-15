@@ -26,8 +26,88 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
     <ThemedView
       style={styles.container}
     >
-      <GradientHeader color={severityColor}/>
-      <ScrollView 
+      <ThemedView color='secondary' style={[styles.header, {backgroundColor: severityColor}]}>
+        <LinearGradient
+          colors={['transparent', backgroundColor]}
+          style={styles.titleContainer}
+        >
+          <ThemedText type="subtitle" style={{paddingRight: 80, color: '#fff'}}>
+            {alert.title}
+          </ThemedText>
+          <ThemedText style={{color: '#fff'}}>
+            {alert.startOn ? new Date(alert.startOn).toDateString() : 'No start date'}
+            {alert.endOn && (' - ' + new Date(alert.endOn).toDateString())}
+          </ThemedText>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}
+          style={{marginRight: 80}}
+          contentContainerStyle={styles.locationsContainer}>
+            {alert.locations.map((location, index) => (
+              <ThemedView shadow color='primary' key={index} style={styles.locationBox}>
+                <ThemedText style={styles.locationBoxText}>
+                  {location.charAt(0).toUpperCase() + location.slice(1).toLowerCase()}
+                </ThemedText>
+              </ThemedView>
+            ))}
+          </ScrollView>
+        </LinearGradient>
+
+        <LinearGradient
+          colors={[backgroundColor, backgroundColor, 'transparent']}
+          start={{ x: 1, y: 0 }}
+          end={{ x: 0, y: 0 }}
+          style={styles.circle}
+        >
+
+          <LinearGradient
+            colors={[backgroundColor, backgroundColor, 'transparent']}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 0 }}
+            style={styles.innerCirlce}
+          />
+        </LinearGradient>
+
+        <Image source={require('@/assets/images/tara-worried.png')} style={styles.taraImage} />
+      </ThemedView>
+
+      <LinearGradient
+        colors={['transparent',backgroundColor, backgroundColor]}
+        style={styles.overlay}
+      />
+
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.descriptionContainer}>
+        <ThemedText>
+          {alert.description}
+        </ThemedText>
+      </ScrollView>
+      {/* <GradientHeader color={severityColor}/> */}
+      {/* <View style={styles.header}>
+        <View style={styles.titleContainer}>
+          <ThemedText type="subtitle" style={{paddingRight: 80}}>
+            {alert.title}
+          </ThemedText>
+          <ThemedText>
+            {alert.startOn ? new Date(alert.startOn).toDateString() : 'No start date'}
+            {alert.endOn && (' - ' + new Date(alert.endOn).toDateString())}
+          </ThemedText>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}
+          style={{marginRight: 80}}
+          contentContainerStyle={styles.locationsContainer}>
+            {alert.locations.map((location, index) => (
+              <ThemedView shadow color='primary' key={index} style={styles.locationBox}>
+                <ThemedText style={styles.locationBoxText}>
+                  {location.charAt(0).toUpperCase() + location.slice(1).toLowerCase()}
+                </ThemedText>
+              </ThemedView>
+            ))}
+          </ScrollView>
+        </View>
+
+        <Image source={require('@/assets/images/tara-worried.png')} style={styles.taraImage} />
+      </View>
+      <ThemedView color='primary' shadow style={styles.descriptionContainer}>
+        
+      </ThemedView> */}
+      {/* <ScrollView 
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -39,7 +119,8 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
             {alert.startOn ? new Date(alert.startOn).toDateString() : 'No start date'}
             {alert.endOn && (' - ' + new Date(alert.endOn).toDateString())}
           </ThemedText>
-          <View style={styles.locationsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.locationsContainer}>
             {alert.locations.map((location, index) => (
               <ThemedView shadow color='primary' key={index} style={styles.locationBox}>
                 <ThemedText style={styles.locationBoxText}>
@@ -47,7 +128,13 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
                 </ThemedText>
               </ThemedView>
             ))}
-          </View>
+
+            <ThemedView shadow color='primary' style={styles.locationBox}>
+                <ThemedText style={styles.locationBoxText}>
+                  test
+                </ThemedText>
+              </ThemedView>
+          </ScrollView>
 
         <ThemedText style={{marginTop: 30, paddingBottom: 120}}>
           {alert.description}
@@ -68,7 +155,7 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
         </View>
         
         <Image source={require('@/assets/images/tara-worried.png')} style={styles.taraImage} />
-      </View>
+      </View> */}
     </ThemedView>
   );
 };
@@ -78,21 +165,28 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden'
   },
-  content: {
-    flex: 1,
-    zIndex: 1000,
-    marginTop: 80
+  header: {
+    width: '100%',
+    height: 220,
   },
-  scrollContent: {
-    padding: 20,
-    flexGrow: 1,
+  titleContainer:{
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+  },
+  descriptionContainer: {
+    padding: 16,
+    flex: 1,
+    zIndex: 100
   },
   locationsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
     gap: 8,
-    marginTop: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 35,
+    marginTop: 10
   },
   locationBox: {
     paddingHorizontal: 15,
@@ -103,30 +197,39 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  gradientOverlay: {
-    height: 100,
+  circle: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    zIndex: 3,
-    pointerEvents: 'none',
+    top: 10,
+    right: '-50%',
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 1000,
+    overflow: 'hidden',
+    opacity: .4,
+    padding: 30,
+  },
+  innerCirlce:{
+    flex: 1,
+    borderRadius: 1000,
+    overflow: 'hidden',
+    opacity: .5,
+    padding: 30,
   },
   taraImage: {
     position: 'absolute',
-    bottom: -95,
-    right: -50,
-    width: 170,
+    bottom: -110,
+    right: -30,
+    width: '35%',
     height: 300,
     resizeMode: 'contain',
-    zIndex: 2,
+    zIndex: 0,
   },
   overlay: {
     position: 'absolute',
-    top: 0,
+    top: 180,
     left: 0,
     right: 0,
-    paddingTop: 250,
-    zIndex: 1,
+    height: 100,
+    zIndex: 2
   },
 });
