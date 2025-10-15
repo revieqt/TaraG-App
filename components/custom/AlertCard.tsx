@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet, View , Image} from 'react-native';
+import { TouchableOpacity, StyleSheet, View , Image, ScrollView} from 'react-native';
 import { ThemedText } from '../ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { AlertItem } from '@/context/AlertsContext';
@@ -27,9 +27,12 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
       style={styles.container}
     >
       <GradientHeader color={severityColor}/>
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <ThemedText type="title" style={{paddingRight: 80}}>
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+          <ThemedText type="subtitle" style={{paddingRight: 80}}>
             {alert.title}
           </ThemedText>
           <ThemedText>
@@ -46,14 +49,10 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
             ))}
           </View>
 
-          
-
-        </View>
-
-        <ThemedText style={{marginTop: 30}}>
+        <ThemedText style={{marginTop: 30, paddingBottom: 120}}>
           {alert.description}
         </ThemedText>
-      </View>
+      </ScrollView>
       
 
       <View style={styles.overlay}>
@@ -70,11 +69,6 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
         
         <Image source={require('@/assets/images/tara-worried.png')} style={styles.taraImage} />
       </View>
-      
-      <View style={styles.content}>
-        
-
-      </View>
     </ThemedView>
   );
 };
@@ -84,19 +78,21 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden'
   },
-  header: {
-    gap: 8
-  },
   content: {
-    padding: 20,
+    flex: 1,
     zIndex: 1000,
     marginTop: 80
+  },
+  scrollContent: {
+    padding: 20,
+    flexGrow: 1,
   },
   locationsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
-    gap: 8
+    gap: 8,
+    marginTop: 15,
   },
   locationBox: {
     paddingHorizontal: 15,

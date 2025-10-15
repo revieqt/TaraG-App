@@ -324,42 +324,43 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
                   ))}
                 </Animated.View>
                 
-                {/* Navigation Dots */}
-                <View style={styles.dotsContainer}>
-                  {allAlerts.map((alert, index) => (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.dot,
-                        index === currentIndex && styles.activeDot,
-                        alert.state === 'unread' && styles.unreadDot
-                      ]}
-                      onPress={() => goToAlert(index)}
-                    />
-                  ))}
+                {/* Navigation Controls Container */}
+                <View style={styles.navigationContainer}>
+                  {/* Left Arrow */}
+                  {allAlerts.length > 1 && currentIndex > 0 && (
+                    <TouchableOpacity 
+                      style={styles.bottomArrowButton}
+                      onPress={goToPrev}
+                    >
+                      <ThemedIcons library="MaterialIcons" name="chevron-left" size={24} color="white" />
+                    </TouchableOpacity>
+                  )}
+                  
+                  {/* Navigation Dots */}
+                  <View style={styles.dotsContainer}>
+                    {allAlerts.map((alert, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        style={[
+                          styles.dot,
+                          index === currentIndex && styles.activeDot,
+                          alert.state === 'unread' && styles.unreadDot
+                        ]}
+                        onPress={() => goToAlert(index)}
+                      />
+                    ))}
+                  </View>
+                  
+                  {/* Right Arrow */}
+                  {allAlerts.length > 1 && currentIndex < allAlerts.length - 1 && (
+                    <TouchableOpacity 
+                      style={styles.bottomArrowButton}
+                      onPress={goToNext}
+                    >
+                      <ThemedIcons library="MaterialIcons" name="chevron-right" size={24} color="white" />
+                    </TouchableOpacity>
+                  )}
                 </View>
-                
-                {/* Navigation Arrows */}
-                {allAlerts.length > 1 && (
-                  <>
-                    {currentIndex > 0 && (
-                      <TouchableOpacity 
-                        style={[styles.arrowButton, styles.arrowLeft]}
-                        onPress={goToPrev}
-                      >
-                        <ThemedIcons library="MaterialIcons" name="chevron-left" size={24} />
-                      </TouchableOpacity>
-                    )}
-                    {currentIndex < allAlerts.length - 1 && (
-                      <TouchableOpacity 
-                        style={[styles.arrowButton, styles.arrowRight]}
-                        onPress={goToNext}
-                      >
-                        <ThemedIcons library="MaterialIcons" name="chevron-right" size={24} />
-                      </TouchableOpacity>
-                    )}
-                  </>
-                )}
               </View>
           </Animated.View>
       </Modal>
@@ -442,15 +443,34 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     height: '100%',
   },
-  dotsContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
+  navigationContainer: {
     position: 'absolute',
     bottom: 50,
     left: 20,
     right: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    flex: 1,
+  },
+  bottomArrowButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
   dot: {
     width: 8,
@@ -464,27 +484,6 @@ const styles = StyleSheet.create({
   },
   unreadDot: {
     backgroundColor: 'red',
-  },
-  arrowButton: {
-    position: 'absolute',
-    top: '50%',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  arrowLeft: {
-    left: 10,
-  },
-  arrowRight: {
-    right: 10,
   },
   closeButton: {
     position: 'absolute',

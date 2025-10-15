@@ -6,7 +6,7 @@ import { ThemedIcons } from '@/components/ThemedIcons';
 import { useLocation } from '@/hooks/useLocation';
 import { useWeather } from '@/hooks/useWeather';
 import { getWeatherImage } from '@/utils/weatherUtils';
-import { BACKEND_URL } from '@/constants/Config';
+import { BACKEND_URL, LOCAL_ALERT_DESCRIPTION } from '@/constants/Config';
 import LoadingContainerAnimation from '../LoadingContainerAnimation';
 import Svg, { Polyline, Circle, Text as SvgText, Line } from 'react-native-svg';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -127,7 +127,6 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
       ]).start();
     }
   }, [chosenWeatherType]);
-
   // Create weather alerts based on conditions
   useEffect(() => {
     if (!weatherData?.hourlyData || !currentHourWeather) return;
@@ -183,7 +182,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         const alertKey = createAlertKey('heavy-rain', Math.floor(precipitation));
         createAlertIfNew(alertKey, {
           title: 'Heavy Rainfall Warning',
-          description: `Heavy rainfall detected with ${precipitation}mm/hr at ${timeString}. Take precautions and avoid outdoor activities.`,
+          description: `Heavy rainfall detected with ${precipitation}mm/hr at ${timeString}.\n\n${LOCAL_ALERT_DESCRIPTION['heavy-rain'].join('\n')}`,
           severity: 'high',
           startOn: alertDate,
           locations,
@@ -198,7 +197,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         const alertKey = createAlertKey('extreme-heat', Math.floor(temperature));
         createAlertIfNew(alertKey, {
           title: 'Extreme Heat Warning',
-          description: `Extreme heat detected with temperature at ${temperature}°C at ${timeString}. Stay hydrated and avoid prolonged sun exposure.`,
+          description: `Extreme heat detected with temperature at ${temperature}°C at ${timeString}.\n\n${LOCAL_ALERT_DESCRIPTION['extreme-heat'].join('\n')}`,
           severity: 'high',
           startOn: alertDate,
           locations,
@@ -213,7 +212,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         const alertKey = createAlertKey('cold-temp', Math.floor(temperature));
         createAlertIfNew(alertKey, {
           title: 'Cold Temperature Alert',
-          description: `Cold temperature detected at ${temperature}°C at ${timeString}. Dress warmly and take precautions against cold weather.`,
+          description: `Cold temperature detected at ${temperature}°C at ${timeString}.\n\n${LOCAL_ALERT_DESCRIPTION['cold-temp'].join('\n')}`,
           severity: 'medium',
           startOn: alertDate,
           locations,
@@ -228,7 +227,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         const alertKey = createAlertKey('strong-wind', Math.floor(windSpeed));
         createAlertIfNew(alertKey, {
           title: 'Strong Wind Warning',
-          description: `Strong winds detected at ${Math.round(windSpeed)}km/h at ${timeString}. Secure loose objects and exercise caution outdoors.`,
+          description: `Strong winds detected at ${Math.round(windSpeed)}km/h at ${timeString}.\n\n${LOCAL_ALERT_DESCRIPTION['strong-wind'].join('\n')}`,
           severity: 'high',
           startOn: alertDate,
           locations,
@@ -243,7 +242,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         const alertKey = createAlertKey('drizzle', weatherCode);
         createAlertIfNew(alertKey, {
           title: 'Drizzle Alert',
-          description: `Light drizzle conditions detected at ${timeString}. Roads may be slippery, drive carefully.`,
+          description: `Light drizzle conditions detected at ${timeString}.\n\n${LOCAL_ALERT_DESCRIPTION['drizzle'].join('\n')}`,
           severity: 'low',
           startOn: alertDate,
           locations,
@@ -257,7 +256,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         const alertKey = createAlertKey('rain', weatherCode);
         createAlertIfNew(alertKey, {
           title: 'Rain Alert',
-          description: `Rain conditions detected at ${timeString}. Carry an umbrella and be cautious of wet surfaces.`,
+          description: `Rain conditions detected at ${timeString}.\n\n${LOCAL_ALERT_DESCRIPTION['rain'].join('\n')}`,
           severity: 'medium',
           startOn: alertDate,
           locations,
@@ -271,7 +270,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         const alertKey = createAlertKey('snow', weatherCode);
         createAlertIfNew(alertKey, {
           title: 'Snow Alert',
-          description: `Snow conditions detected at ${timeString}. Roads may be icy, drive with extreme caution.`,
+          description: `Snow conditions detected at ${timeString}.\n\n${LOCAL_ALERT_DESCRIPTION['snow'].join('\n')}`,
           severity: 'high',
           startOn: alertDate,
           locations,
@@ -285,7 +284,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         const alertKey = createAlertKey('thunderstorm', weatherCode);
         createAlertIfNew(alertKey, {
           title: 'Thunderstorm Alert',
-          description: `Thunderstorm conditions detected at ${timeString}. Seek shelter immediately and avoid outdoor activities.`,
+          description: `Thunderstorm conditions detected at ${timeString}.\n\n${LOCAL_ALERT_DESCRIPTION['thunderstorm'].join('\n')}`,
           severity: 'high',
           startOn: alertDate,
           locations,

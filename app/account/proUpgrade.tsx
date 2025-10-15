@@ -18,7 +18,9 @@ const ProUpgrade = () => {
             {!user?.isProUser ? (
                 <>
                 <ThemedText type='subtitle' style={{fontSize: 17, color: 'skyblue'}}>Basic Traveler</ThemedText>
-                <ThemedText style={{textAlign: 'center', opacity: .5, marginBottom: 10}}>Unlock the full TaraG experience. Get TaraG Pro for as low as ${TRAVELLER_PRO_PRICE}/month</ThemedText>
+                <ThemedText style={{textAlign: 'center', opacity: .5, marginBottom: 10}}>Unlock the full TaraG experience. 
+                    {/* Get TaraG Pro for as low as ${TRAVELLER_PRO_PRICE}/month */}
+                    </ThemedText>
                 <Button
                     title='Get TaraG Pro'
                     type='primary'

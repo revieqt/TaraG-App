@@ -15,6 +15,7 @@ const { height } = Dimensions.get("window");
 
 export default function LoginScreen() {
   const translateY = useRef(new Animated.Value(0)).current;
+  const floatAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -29,7 +30,26 @@ export default function LoginScreen() {
     return () => clearTimeout(timer);
   }, []);
   
-  
+    useEffect(() => {
+    const startFloatingAnimation = () => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(floatAnimation, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(floatAnimation, {
+            toValue: 0,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    };
+
+    startFloatingAnimation();
+  }, [floatAnimation]);
   
 
   const [email, setEmail] = useState('');
@@ -131,9 +151,28 @@ export default function LoginScreen() {
                   </ThemedView>
                 </ThemedView>
               </ThemedView>
-              <Image
-                source={require('@/assets/images/tara-cheerful.png')}
-                style={styles.taraImage}
+              <Animated.Image 
+                source={require('@/assets/images/tara-cheerful.png')} 
+                style={[
+                  styles.taraImage,
+                  {
+                    transform: [
+                      {
+                        translateY: floatAnimation.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, -10],
+                        }),
+                      },
+                      {
+                        rotate: floatAnimation.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0deg', '-3deg'],
+                        }),
+                      },
+                      
+                    ],
+                  }
+                ]} 
               />
               <LinearGradient
                 colors={['transparent', primaryColor]}
@@ -143,7 +182,8 @@ export default function LoginScreen() {
                 pointerEvents="none"
               />
             </View>
-            <ThemedView color='primary' style={{padding: 20}}>
+            
+            <ThemedView color='primary' style={{padding: 16}}>
               <TextField
                 placeholder="Email"
                 value={email}
@@ -225,12 +265,12 @@ const styles = StyleSheet.create({
     marginTop: 17,
   },
   taraImage: {
-    width: 250,
+    width: '62%',
     position: 'absolute',
     resizeMode: 'contain',
     borderRadius: 50,
-    marginBottom: -200,
-    marginLeft: 20
+    marginLeft: 20,
+    bottom: -200,
   },
   gradientOverlay: {
     height: 100,
@@ -242,18 +282,18 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
   },
   textContainer:{
-    bottom: 300,
-    gap: 8,
+    top: '20%',
+    gap: 3,
     position: 'absolute',
     padding: 16
   },
   title:{
-    fontSize: 32,
+    fontSize: 30,
     color: '#fff',
     textAlign: 'center'
   },
   subtitle:{
-    fontSize: 15,
+    fontSize: 14,
     color: '#fff',
     textAlign: 'center'
   },
