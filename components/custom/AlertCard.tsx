@@ -33,8 +33,8 @@ export const AlertCard: React.FC<AlertCardProps> = ({ alert, onPress }) => {
             {alert.title}
           </ThemedText>
           <ThemedText>
-            {alert.startOn ? new Date(alert.startOn).toDateString() : 'No start date'} - 
-            {alert.endOn ? new Date(alert.endOn).toDateString() : 'No end date'}
+            {alert.startOn ? new Date(alert.startOn).toDateString() : 'No start date'}
+            {alert.endOn && (' - ' + new Date(alert.endOn).toDateString())}
           </ThemedText>
           <View style={styles.locationsContainer}>
             {alert.locations.map((location, index) => (

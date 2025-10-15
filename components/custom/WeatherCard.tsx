@@ -10,6 +10,7 @@ import { BACKEND_URL } from '@/constants/Config';
 import LoadingContainerAnimation from '../LoadingContainerAnimation';
 import Svg, { Polyline, Circle, Text as SvgText, Line } from 'react-native-svg';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useAlerts } from '@/context/AlertsContext';
 
 interface WeatherCardProps {
   current?: boolean;
@@ -31,6 +32,8 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
   const [locationError, setLocationError] = useState<string | null>(null);
   const [chosenWeatherType, setChosenWeatherType] = useState<string | null>(null);
   const backgroundColor = useThemeColor({}, 'background');
+  const { addLocalAlert } = useAlerts();
+  const [createdAlerts, setCreatedAlerts] = useState<Set<string>>(new Set());
 
   const currentLocation = useLocation();
   
@@ -124,6 +127,182 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
       ]).start();
     }
   }, [chosenWeatherType]);
+
+  // Create weather alerts based on conditions
+  useEffect(() => {
+    if (!weatherData?.hourlyData || !currentHourWeather) return;
+
+    const createWeatherAlerts = () => {
+      const currentTime = new Date();
+      const alertDate = date ? new Date(date) : currentTime;
+      const timeString = alertDate.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit', 
+        hour12: true 
+      });
+
+      // Get location for alerts
+      const getLocationArray = (): string[] => {
+        if (current) {
+          const locations = [];
+          if (currentLocation.suburb) locations.push(currentLocation.suburb);
+          if (currentLocation.city) locations.push(currentLocation.city);
+          if (currentLocation.state) locations.push(currentLocation.state);
+          return locations.length > 0 ? locations : ['Current Location'];
+        } else {
+          const locations = [];
+          if (locationData?.suburb) locations.push(locationData.suburb);
+          if (locationData?.city) locations.push(locationData.city);
+          if (locationData?.state) locations.push(locationData.state);
+          return locations.length > 0 ? locations : ['Unknown Location'];
+        }
+      };
+
+      const locations = getLocationArray();
+
+      // Check each weather condition and create alerts
+      const { temperature, precipitation, windSpeed, weatherCode } = currentHourWeather;
+
+      // Create unique alert keys to prevent duplicates
+      const createAlertKey = (type: string, value: number | string) => {
+        const locationKey = locations.join('-');
+        const dateKey = alertDate.toDateString();
+        return `${type}-${value}-${locationKey}-${dateKey}`;
+      };
+
+      // Helper function to create alert if not already created
+      const createAlertIfNew = (alertKey: string, alertData: any) => {
+        if (!createdAlerts.has(alertKey)) {
+          addLocalAlert(alertData);
+          setCreatedAlerts(prev => new Set(prev).add(alertKey));
+        }
+      };
+
+      // Heavy Rainfall Warning
+      if (precipitation > 20) {
+        const alertKey = createAlertKey('heavy-rain', Math.floor(precipitation));
+        createAlertIfNew(alertKey, {
+          title: 'Heavy Rainfall Warning',
+          description: `Heavy rainfall detected with ${precipitation}mm/hr at ${timeString}. Take precautions and avoid outdoor activities.`,
+          severity: 'high',
+          startOn: alertDate,
+          locations,
+          target: 'everyone',
+          createdOn: currentTime,
+          state: 'unread',
+        });
+      }
+
+      // Extreme Heat Warning
+      if (temperature >= 37) {
+        const alertKey = createAlertKey('extreme-heat', Math.floor(temperature));
+        createAlertIfNew(alertKey, {
+          title: 'Extreme Heat Warning',
+          description: `Extreme heat detected with temperature at ${temperature}°C at ${timeString}. Stay hydrated and avoid prolonged sun exposure.`,
+          severity: 'high',
+          startOn: alertDate,
+          locations,
+          target: 'everyone',
+          createdOn: currentTime,
+          state: 'unread',
+        });
+      }
+
+      // Cold Temperature Alert
+      if (temperature <= 18) {
+        const alertKey = createAlertKey('cold-temp', Math.floor(temperature));
+        createAlertIfNew(alertKey, {
+          title: 'Cold Temperature Alert',
+          description: `Cold temperature detected at ${temperature}°C at ${timeString}. Dress warmly and take precautions against cold weather.`,
+          severity: 'medium',
+          startOn: alertDate,
+          locations,
+          target: 'everyone',
+          createdOn: currentTime,
+          state: 'unread',
+        });
+      }
+
+      // Strong Wind Warning
+      if (windSpeed >= 50) {
+        const alertKey = createAlertKey('strong-wind', Math.floor(windSpeed));
+        createAlertIfNew(alertKey, {
+          title: 'Strong Wind Warning',
+          description: `Strong winds detected at ${Math.round(windSpeed)}km/h at ${timeString}. Secure loose objects and exercise caution outdoors.`,
+          severity: 'high',
+          startOn: alertDate,
+          locations,
+          target: 'everyone',
+          createdOn: currentTime,
+          state: 'unread',
+        });
+      }
+
+      // Weather code based alerts
+      if ([51, 53, 55, 56, 57].includes(weatherCode)) {
+        const alertKey = createAlertKey('drizzle', weatherCode);
+        createAlertIfNew(alertKey, {
+          title: 'Drizzle Alert',
+          description: `Light drizzle conditions detected at ${timeString}. Roads may be slippery, drive carefully.`,
+          severity: 'low',
+          startOn: alertDate,
+          locations,
+          target: 'everyone',
+          createdOn: currentTime,
+          state: 'unread',
+        });
+      }
+
+      if ([61, 63, 65, 66, 67, 80, 81, 82].includes(weatherCode)) {
+        const alertKey = createAlertKey('rain', weatherCode);
+        createAlertIfNew(alertKey, {
+          title: 'Rain Alert',
+          description: `Rain conditions detected at ${timeString}. Carry an umbrella and be cautious of wet surfaces.`,
+          severity: 'medium',
+          startOn: alertDate,
+          locations,
+          target: 'everyone',
+          createdOn: currentTime,
+          state: 'unread',
+        });
+      }
+
+      if ([71, 73, 75, 77, 85, 86].includes(weatherCode)) {
+        const alertKey = createAlertKey('snow', weatherCode);
+        createAlertIfNew(alertKey, {
+          title: 'Snow Alert',
+          description: `Snow conditions detected at ${timeString}. Roads may be icy, drive with extreme caution.`,
+          severity: 'high',
+          startOn: alertDate,
+          locations,
+          target: 'everyone',
+          createdOn: currentTime,
+          state: 'unread',
+        });
+      }
+
+      if ([95, 96, 99].includes(weatherCode)) {
+        const alertKey = createAlertKey('thunderstorm', weatherCode);
+        createAlertIfNew(alertKey, {
+          title: 'Thunderstorm Alert',
+          description: `Thunderstorm conditions detected at ${timeString}. Seek shelter immediately and avoid outdoor activities.`,
+          severity: 'high',
+          startOn: alertDate,
+          locations,
+          target: 'everyone',
+          createdOn: currentTime,
+          state: 'unread',
+        });
+      }
+    };
+
+    createWeatherAlerts();
+  }, [weatherData, currentHourWeather, date, current, currentLocation, locationData, addLocalAlert]);
+
+  // Clear created alerts when location or date changes significantly
+  useEffect(() => {
+    setCreatedAlerts(new Set());
+  }, [finalLatitude, finalLongitude, date]);
 
   useEffect(() => {
     const reverseGeocode = async () => {

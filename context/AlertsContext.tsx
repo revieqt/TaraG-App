@@ -21,7 +21,7 @@ export interface AlertItem {
   description: string;
   severity: AlertSeverity;
   startOn: Date; // JS Date after conversion from Firestore timestamp
-  endOn: Date;   // JS Date after conversion from Firestore timestamp
+  endOn?: Date;   // JS Date after conversion from Firestore timestamp
   locations: string[]; // affected locations
   target: 'traveler' | 'tourGuide' | 'everyone';
   createdOn?: Date;
