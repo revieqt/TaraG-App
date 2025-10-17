@@ -229,7 +229,7 @@ const handleJoinGroup = async () => {
               <View style={styles.tabInnerContainer}>
                 <ThemedText style={[
                   styles.tabText,
-                  activeTab === idx && {color: secondaryColor},
+                  activeTab === idx && {color: secondaryColor, opacity: 1},
                 ]}>{label}</ThemedText>
               </View>
               <View style={[
@@ -370,6 +370,7 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 14,
     fontWeight: '500',
+    opacity: .6
   },
   tabUnderline: {
     height: 2,

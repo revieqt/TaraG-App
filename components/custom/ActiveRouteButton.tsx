@@ -93,10 +93,10 @@ const ActiveRouteButton: React.FC = () => {
               <ThemedIcons 
                 library='MaterialIcons' 
                 name={getRouteIcon(session?.activeRoute?.mode || 'route')} 
-                size={20} 
+                size={18} 
                 color="white" 
               />
-              <ThemedText style={{color: '#fff', fontSize: 10}}>
+              <ThemedText style={{color: '#fff', fontSize: 9}}>
                 {formatDistance(distance)} km
               </ThemedText>
             </Animated.View>
@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   button: {
-    width: 60,
-    height: 60,
+    width: 55,
+    height: 55,
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',

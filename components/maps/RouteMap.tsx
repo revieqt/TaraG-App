@@ -163,7 +163,7 @@ export default function RouteMap({
         {routeCoordinates.length > 0 && (
           <Polyline
             coordinates={routeCoordinates}
-            strokeColor="#4300FF"
+            strokeColor="#5EDFFF"
             strokeWidth={6}
             lineCap="round"
             lineJoin="round"

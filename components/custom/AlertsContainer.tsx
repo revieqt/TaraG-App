@@ -369,10 +369,10 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 7,
     zIndex: 1000,
-    width: 60,
+    width: 55,
     alignItems: 'flex-end',
     flexDirection: 'column-reverse',
-    gap: 5,
+    gap: 7,
   },
   openContainer:{
     position: 'absolute',

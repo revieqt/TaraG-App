@@ -11,9 +11,14 @@ import EmptyMessage from '@/components/EmptyMessage';
 import { useSession } from "@/context/SessionContext";
 import { groupsApiService, Group } from "@/services/groupsApiService";
 import LoadingContainerAnimation from "@/components/LoadingContainerAnimation";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
-export default function GroupsSection(){
+export default function GroupsSection({ activeTab ="tours" }: {activeTab?: string}){
     const { session } = useSession();
+    const [selectedTab, setSelectedTab] = useState<string>(activeTab);
+    const primaryColor = useThemeColor({}, 'primary');
+    const secondaryColor = useThemeColor({}, 'secondary');  
+    const textColor = useThemeColor({}, 'text');
     
     // State management
     const [searchText, setSearchText] = useState("");
@@ -144,7 +149,7 @@ export default function GroupsSection(){
     <View style={{padding: 16}}>
         <View style={{flex: 1}}>
             <TextField
-            placeholder="Search groups..."
+            placeholder="Search rooms..."
             value={searchText}
             onChangeText={setSearchText}
             onFocus={() => {}}
@@ -152,6 +157,18 @@ export default function GroupsSection(){
             isFocused={false}
             autoCapitalize="none"
             />
+        </View>
+
+        <View style={styles.tabRow}>
+            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "all" ? secondaryColor : primaryColor}]} onPress={() => setSelectedTab("all")}>
+                <ThemedText style={{color: selectedTab === "all" ? 'white' : textColor, opacity: selectedTab === "all" ? 1 : 0.7}}>All</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "groups" ? secondaryColor : primaryColor}]} onPress={() => setSelectedTab("groups")}>
+                <ThemedText style={{color: selectedTab === "groups" ? 'white' : textColor, opacity: selectedTab === "groups" ? 1 : 0.7}}>Groups</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "tours" ? secondaryColor : primaryColor}]} onPress={() => setSelectedTab("tours")}>
+                <ThemedText style={{color: selectedTab === "tours" ? 'white' : textColor, opacity: selectedTab === "tours" ? 1 : 0.7}}>Tours</ThemedText>
+            </TouchableOpacity>
         </View>
 
             <View style={{flex: 1}}>
@@ -237,4 +254,15 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         overflow: 'hidden',
     },
+    tabButton:{
+        paddingVertical: 7,
+        paddingHorizontal: 15,
+        borderRadius: 100,
+    },
+    tabRow:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+        gap: 8,
+    }
 });
