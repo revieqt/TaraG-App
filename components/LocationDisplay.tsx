@@ -1,6 +1,6 @@
 // LocationDisplay.tsx
 import { ThemedIcons } from "@/components/ThemedIcons";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { LayoutChangeEvent, StyleSheet, View } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -13,8 +13,16 @@ const LocationDisplay: React.FC<LocationDisplayProps> = ({ content }) => {
   const [bottomOffset, setBottomOffset] = useState<number | null>(null);
   const primaryColor = useThemeColor({}, 'primary');
 
+  // Reset offsets when content changes, but only if we have fewer items
+  useEffect(() => {
+    if (content.length <= 1) {
+      setTopOffset(null);
+      setBottomOffset(null);
+    }
+  }, [content.length]);
+
   const handleLayout = (e: LayoutChangeEvent, index: number) => {
-    const { y, height } = e.nativeEvent.layout;
+    const { y } = e.nativeEvent.layout;
     if (index === 0) {
       setTopOffset(y + 10);
     }

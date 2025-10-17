@@ -216,8 +216,9 @@
 import TextField from '@/components/TextField';
 import ThemedIcons from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
-import React, { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedView } from '@/components/ThemedView';
+import React, { useState, useRef } from 'react';
+import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export interface LocationItem {
   locationName: string;
@@ -238,6 +239,8 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchSuggestions = async () => {
     if (!input.trim()) {
@@ -293,24 +296,50 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
           placeholder={placeholder}
           value={input}
           onChangeText={handleInputChange}
-          onFocus={() => setShowDropdown(!!input && suggestions.length > 0)}
-          onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+          onFocus={() => {
+            if (blurTimeoutRef.current) {
+              clearTimeout(blurTimeoutRef.current);
+              blurTimeoutRef.current = null;
+            }
+            setIsInputFocused(true);
+            setShowDropdown(!!input && suggestions.length > 0);
+          }}
+          onBlur={() => {
+            setIsInputFocused(false);
+            // Only hide dropdown if no suggestions or after longer delay
+            blurTimeoutRef.current = setTimeout(() => {
+              if (!showDropdown) return;
+              setShowDropdown(false);
+            }, 500);
+          }}
           style={styles.textField}
         />
         <TouchableOpacity
-          onPress={fetchSuggestions}
+          onPress={() => {
+            if (showDropdown && suggestions.length > 0) {
+              // If dropdown is showing, dismiss keyboard but keep dropdown
+              Keyboard.dismiss();
+            } else {
+              // If no dropdown, fetch suggestions
+              fetchSuggestions();
+            }
+          }}
           style={styles.searchButton}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator size="small"/>
           ) : (
-            <ThemedIcons library="MaterialIcons" name="search" size={20}/>
+            <ThemedIcons 
+              library="MaterialIcons" 
+              name={showDropdown && suggestions.length > 0 ? "keyboard-hide" : "search"} 
+              size={20}
+            />
           )}
         </TouchableOpacity>
       </View>
-      {showDropdown && (
-        <View style={styles.dropdown}>
+      {showDropdown && suggestions.length > 0 && (
+        <ThemedView shadow style={styles.dropdown}>
           <ScrollView 
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
@@ -322,8 +351,16 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
               suggestions.map((item, index) => (
                 <TouchableOpacity
                   key={`${item.properties?.osm_id || item.properties?.place_id || index}-${index}`}
-                  onPress={() => handleSelect(item)}
+                  onPress={() => {
+                    if (blurTimeoutRef.current) {
+                      clearTimeout(blurTimeoutRef.current);
+                      blurTimeoutRef.current = null;
+                    }
+                    Keyboard.dismiss();
+                    handleSelect(item);
+                  }}
                   style={styles.dropdownItemBtn}
+                  activeOpacity={0.7}
                 >
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <ThemedText style={[styles.dropdownItem, { marginLeft: 6 }]}>
@@ -334,7 +371,7 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
               ))
             )}
           </ScrollView>
-        </View>
+        </ThemedView>
       )}
     </View>
   );
@@ -361,15 +398,9 @@ const styles = StyleSheet.create({
     top: 50,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    zIndex: 1000000000,
+    zIndex: 1000,
     maxHeight: 180,
-    pointerEvents: 'box-none',
   },
   scrollView: {
     flex: 1,
@@ -379,7 +410,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
+    minHeight: 44,
   },
   dropdownItem: {
     fontSize: 15,

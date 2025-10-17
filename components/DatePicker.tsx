@@ -54,13 +54,15 @@ const DatePicker: React.FC<DatePickerProps> = ({
   };
 
   return (
-    <View
+    <TouchableOpacity 
       style={[
         styles.inputWrapper,
         { backgroundColor },
         { borderColor: focused ? '#ccc' : '#ccc4', borderWidth: 1 },
         style, // <-- apply custom style
       ]}
+      onPress={handleFocus}
+      activeOpacity={0.7}
     >
       <TextInput
         value={value ? value.toISOString().slice(0, 10) : ''}
@@ -75,13 +77,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
         onBlur={handleBlur}
         pointerEvents="none"
       />
-      <TouchableOpacity
+      <View
         style={styles.iconButton}
-        onPress={handleFocus}
-        activeOpacity={0.7}
       >
         <Ionicons name="calendar" size={20} color={useThemeColor({ light: '#888', dark: '#aaa' }, 'icon')} />
-      </TouchableOpacity>
+      </View>
       {showPicker && (
         <DateTimePicker
           value={value || new Date()}
@@ -92,7 +92,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
           maximumDate={maximumDate}
         />
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

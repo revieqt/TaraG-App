@@ -17,6 +17,7 @@ import React, { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import CubeButton from '@/components/RoundedButton'
 import Switch from '@/components/Switch';
+import BackButton from '@/components/custom/BackButton';
 
 const ITINERARY_TYPES = [
   { label: 'Solo', value: 'Solo' },
@@ -195,122 +196,128 @@ export default function CreateItineraryScreen() {
 
   return (
     <ThemedView color='primary' style={{ flex: 1 }}>
-      <Header/>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
       >
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <TextField placeholder="Title" value={title} onChangeText={setTitle} 
-            style={{ fontFamily: 'PoppinsBold', fontSize: 27, borderColor: 'transparent', marginBottom: 0, height: 60}}
-          />
-          <TextField placeholder="Add a Description" value={description} onChangeText={setDescription} 
-            style={{ borderColor: 'transparent', minHeight: 60, height: descriptionHeight, textAlignVertical: 'top'}}
-            multiline
-            onContentSizeChange={e => setDescriptionHeight(e.nativeEvent.contentSize.height)}
-          />
-          <View style={{paddingHorizontal: 16, marginBottom: 10}}>
-            <DropDownField
-              placeholder="Type"
-              value={type}
-              onValueChange={setType}
-              values={ITINERARY_TYPES}
+          <ThemedView style={{paddingBottom: 50}}>
+            <BackButton style={{ marginTop: 20, marginLeft: 10 }}/>
+            <TextField placeholder="Title" value={title} onChangeText={setTitle} 
+              style={{ fontFamily: 'PoppinsBold', fontSize: 27, borderColor: 'transparent', marginBottom: 0, height: 60, backgroundColor: 'transparent'}}
             />
-            <View style={styles.rowBetween}>
-              <DatePicker
-                placeholder="Start Date"
-                value={startDate}
-                onChange={setStartDate}
-                minimumDate={new Date()}
-                maximumDate={endDate || undefined}
-                style={{flex: 2}}
+            <TextField placeholder="Add a Description" value={description} onChangeText={setDescription} 
+              style={{ borderColor: 'transparent',backgroundColor: 'transparent', minHeight: 60, height: descriptionHeight, textAlignVertical: 'top'}}
+              multiline
+              onContentSizeChange={e => setDescriptionHeight(e.nativeEvent.contentSize.height)}
+            />
+            <View style={{paddingHorizontal: 16, marginBottom: 10}}>
+              <DropDownField
+                placeholder="Type"
+                value={type}
+                onValueChange={setType}
+                values={ITINERARY_TYPES}
+                style={{backgroundColor: 'transparent', fontFamily: 'PoppinsRegular'}}
               />
-              <DatePicker
-                placeholder="End Date"
-                value={endDate}
-                onChange={setEndDate}
-                minimumDate={startDate || new Date()}
-                style={{flex: 2}}
-              />
-            </View>
-            
-            {/* Only show planDaily toggle if more than 1 day */}
-            {/* <ToggleButton
-                  value="planDaily"
-                  label={planDaily ? 'Yes' : 'No'}
-                  initialSelected={planDaily}
-                  onToggle={(_, selected) => {
-                    setPlanDaily(selected);
-                    setDailyLocations([]);
-                  }} */}
-            {numDays > 1 && (
-              <Switch
-                key="planDaily"
-                label="Plan Daily?"
-                description={planDaily ? 'Yes' : 'No'}
-                value={planDaily}
-                onValueChange={(value) => {
-                  setPlanDaily(value);
-                  setDailyLocations([]);
-                }}
-              />
-            )}
+              <View style={styles.rowBetween}>
+                <DatePicker
+                  placeholder="Start Date"
+                  value={startDate}
+                  onChange={setStartDate}
+                  minimumDate={new Date()}
+                  maximumDate={endDate || undefined}
+                  style={{flex: 2, backgroundColor: 'transparent'}}
+                />
+                <DatePicker
+                  placeholder="End Date"
+                  value={endDate}
+                  onChange={setEndDate}
+                  minimumDate={startDate || new Date()}
+                  style={{flex: 2, backgroundColor: 'transparent'}}
+                />
+              </View>
 
-            <ThemedView shadow color='primary' style={styles.locationContainer}>
-              {planDaily ? (
-                <>
-                  {autoDailyLocations.map((day, dayIdx) => (
-                    <View key={dayIdx} style={styles.dayBlock}>
-                      <ThemedText type='defaultSemiBold'>Day {dayIdx + 1}</ThemedText>
-                      <ThemedText style={{opacity: 0.5, marginBottom: 10}}>({day.date?.toDateString()})</ThemedText>
-                      <LocationDisplay
-                        content={day.locations.map((loc, locIdx) => (
-                          <View key={locIdx} style={styles.locationRow}>
-                            <View style={{ flex: 1 }}>
-                              <ThemedText>{loc.locationName}</ThemedText>
-                              {loc.note ? (
-                                <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
-                              ) : null}
-                            </View>
-                            <TouchableOpacity onPress={() => removeLocation(dayIdx, locIdx)}>
-                              <ThemedIcons library='MaterialIcons' name='close' size={20} color='red'/>
-                            </TouchableOpacity>
-                          </View>
-                        ))}
-                      />
+              {numDays > 1 && (
+                <Switch
+                  key="planDaily"
+                  label="Plan Daily?"
+                  description={planDaily ? 'Yes' : 'No'}
+                  value={planDaily}
+                  onValueChange={(value) => {
+                    setPlanDaily(value);
+                    setDailyLocations([]);
+                  }}
+                />
+              )}
+            </View>
+            <ThemedView color='primary' style={styles.bottomOverlay}/>
+          </ThemedView>
+          
+
+          <View style={styles.locationContainer}>
+            {planDaily ? (
+              <>
+                {autoDailyLocations.map((day, dayIdx) => (
+                  <View key={dayIdx} style={styles.dayBlock}>
+                    <View style={styles.rowBetween}>
+                      <View style={{flex: 1, marginTop: 5}}>
+                        <ThemedText type='subtitle' style={{fontSize: 16}}>Day {dayIdx + 1}</ThemedText>
+                        <ThemedText style={{opacity: 0.5, marginBottom: 10, fontSize: 12}}>({day.date?.toDateString()})</ThemedText>
+                      </View>
                       <TouchableOpacity style={styles.addLocationButton} onPress={() => openLocationModal(dayIdx)}>
-                        <ThemedIcons library='MaterialIcons' name='add' size={20}/>
-                        <ThemedText>Add Location</ThemedText>
+                        <ThemedIcons library='MaterialIcons' name='add' size={15} color='#00CAFF'/>
+                        <ThemedText style={{color: '#00CAFF', fontSize: 12}}>Add Location</ThemedText>
                       </TouchableOpacity>
                     </View>
-                  ))}
-                </>
-              ) : (
-                <>
+                    <LocationDisplay
+                      content={day.locations.map((loc, locIdx) => (
+                        <View key={locIdx} style={styles.locationRow}>
+                          <View style={{ flex: 1, marginBottom: 10 }}>
+                            <ThemedText>{loc.locationName}</ThemedText>
+                            {loc.note ? (
+                              <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
+                            ) : null}
+                          </View>
+                          <TouchableOpacity onPress={() => removeLocation(dayIdx, locIdx)}>
+                            <ThemedIcons library='MaterialIcons' name='close' size={20}/>
+                          </TouchableOpacity>
+                        </View>
+                      ))}
+                    />
+                    
+                  </View>
+                ))}
+              </>
+            ) : (
+              <>
+                <View style={styles.rowBetween}>
+                    <ThemedText type='subtitle' style={{fontSize: 16}}>Locations</ThemedText>
+                  <TouchableOpacity style={styles.addLocationButton} onPress={() => openLocationModal(null)}>
+                    <ThemedIcons library='MaterialIcons' name='add' size={15} color='#00CAFF'/>
+                    <ThemedText style={{color: '#00CAFF', fontSize: 12}}>Add Location</ThemedText>
+                  </TouchableOpacity>
+                </View>
+                <View style={{marginTop: 16}}>
                   <LocationDisplay
                     content={locations.map((loc, idx) => (
                       <View key={idx} style={styles.locationRow}>
-                        <View style={{ flex: 1 }}>
+                        <View style={{ flex: 1, marginBottom: 15 }}>
                           <ThemedText>{loc.locationName}</ThemedText>
                           {loc.note ? (
                             <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
                           ) : null}
                         </View>
                         <TouchableOpacity onPress={() => removeLocation(null, idx)}>
-                          <ThemedIcons library='MaterialIcons' name='close' size={20} color='red'/>
+                          <ThemedIcons library='MaterialIcons' name='close' size={20}/>
                         </TouchableOpacity>
                       </View>
                     ))}
                   />
-                  <TouchableOpacity style={styles.addLocationButton} onPress={() => openLocationModal(null)}>
-                    <ThemedIcons library='MaterialIcons' name='add' size={20}/>
-                    <ThemedText>Add Location</ThemedText>
-                  </TouchableOpacity>
-                </>
-              )}
-            </ThemedView>
-            
+                </View>
+                
+              </>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -392,24 +399,31 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
-  label: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginBottom: 5,
+  bottomOverlay:{
+   position: 'absolute',
+   bottom:-2,
+   left: 0,
+   right: 0,
+   height: 20,
+   borderTopLeftRadius: 200,
+   borderTopRightRadius: 200,
+   borderWidth: 1,
+   borderColor: '#ccc4',
+   borderBottomWidth: 0,
   },
   dayBlock: {
-    borderBottomColor: '#ccc4',
-    borderBottomWidth: 1,
-    padding: 10
+    marginBottom: 16
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingRight: 10
   },
   addLocationButton:{
-    backgroundColor: '#ccc5',
-    padding: 10,
-    borderRadius: 10,
+    borderColor: '#00CAFF',
+    borderWidth: 1,
+    padding: 7,
+    borderRadius: 100,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -421,13 +435,11 @@ const styles = StyleSheet.create({
     right: 20
   },
   locationContainer:{
-    marginTop: 10,
-    borderRadius: 14,
-    overflow: 'hidden'
+    paddingHorizontal: 16,
   },
   modalOverlay:{
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
@@ -435,6 +447,8 @@ const styles = StyleSheet.create({
   modalContent: {
     padding: 14,
     width: '100%',
-    borderRadius: 14
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#ccc4',
   }
 });
