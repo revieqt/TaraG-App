@@ -17,7 +17,7 @@ export default function GroupsSection({ activeTab ="tours" }: {activeTab?: strin
     const { session } = useSession();
     const [selectedTab, setSelectedTab] = useState<string>(activeTab);
     const primaryColor = useThemeColor({}, 'primary');
-    const secondaryColor = useThemeColor({}, 'secondary');  
+    const accentColor = useThemeColor({}, 'accent');  
     const textColor = useThemeColor({}, 'text');
     
     // State management
@@ -160,13 +160,13 @@ export default function GroupsSection({ activeTab ="tours" }: {activeTab?: strin
         </View>
 
         <View style={styles.tabRow}>
-            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "all" ? secondaryColor : primaryColor}]} onPress={() => setSelectedTab("all")}>
+            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "all" ? accentColor : primaryColor}]} onPress={() => setSelectedTab("all")}>
                 <ThemedText style={{color: selectedTab === "all" ? 'white' : textColor, opacity: selectedTab === "all" ? 1 : 0.7}}>All</ThemedText>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "groups" ? secondaryColor : primaryColor}]} onPress={() => setSelectedTab("groups")}>
+            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "groups" ? accentColor : primaryColor}]} onPress={() => setSelectedTab("groups")}>
                 <ThemedText style={{color: selectedTab === "groups" ? 'white' : textColor, opacity: selectedTab === "groups" ? 1 : 0.7}}>Groups</ThemedText>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "tours" ? secondaryColor : primaryColor}]} onPress={() => setSelectedTab("tours")}>
+            <TouchableOpacity style={[styles.tabButton, {backgroundColor: selectedTab === "tours" ? accentColor : primaryColor}]} onPress={() => setSelectedTab("tours")}>
                 <ThemedText style={{color: selectedTab === "tours" ? 'white' : textColor, opacity: selectedTab === "tours" ? 1 : 0.7}}>Tours</ThemedText>
             </TouchableOpacity>
         </View>

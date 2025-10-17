@@ -367,8 +367,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
-    zIndex: 100000,
+    zIndex: 1000000000,
     maxHeight: 180,
+    pointerEvents: 'box-none',
   },
   scrollView: {
     flex: 1,

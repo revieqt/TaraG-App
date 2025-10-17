@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     right: 7,
     zIndex: 1000,
-    width: 55,
+    width: 60,
     alignItems: 'flex-end',
     flexDirection: 'column-reverse',
     gap: 7,

@@ -20,6 +20,7 @@ export default function HomeScreen() {
   const backgroundColor = useThemeColor({}, 'background');
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
+  const accentColor = useThemeColor({}, 'accent');
   const floatAnimation = useRef(new Animated.Value(0)).current;
   
   const [displayedMessage, setDisplayedMessage] = useState('');
@@ -210,22 +211,22 @@ export default function HomeScreen() {
         />
         <View style={{ paddingHorizontal: 16, marginBottom: 20, zIndex: 1000 }}>
           <View style={styles.menu}>
-            <TouchableOpacity style={styles.menuOptions} onPress={() => router.push('/routes/routes')}>
+            <TouchableOpacity style={[styles.menuOptions, {backgroundColor: accentColor}]} onPress={() => router.push('/routes/routes')}>
               <ThemedIcons library="MaterialIcons" name="route" size={25} color='#fff'/>
               <ThemedText style={styles.menuOptionText}>Routes</ThemedText>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuOptions} onPress={() => router.push('/itineraries/itineraries')}>
+            <TouchableOpacity style={[styles.menuOptions, {backgroundColor: accentColor}]} onPress={() => router.push('/itineraries/itineraries')}>
               <ThemedIcons library="MaterialDesignIcons" name="calendar" size={25} color='#fff'/>
               <ThemedText style={styles.menuOptionText}>Itineraries</ThemedText>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuOptions} onPress={() => router.push('/safety/safety')}>
+            <TouchableOpacity style={[styles.menuOptions, {backgroundColor: accentColor}]} onPress={() => router.push('/safety/safety')}>
               <ThemedIcons library="MaterialIcons" name="health-and-safety" size={25} color='#fff'/>
               <ThemedText style={styles.menuOptionText}>Safety</ThemedText>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuOptions} onPress={() => router.push('/home/aiChat')}>
+            <TouchableOpacity style={[styles.menuOptions, {backgroundColor: accentColor}]} onPress={() => router.push('/home/aiChat')}>
               <ThemedIcons library="MaterialDesignIcons" name="robot" size={25} color='#fff'/>
               <ThemedText style={styles.menuOptionText}>TaraAI</ThemedText>
             </TouchableOpacity>

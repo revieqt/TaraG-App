@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 13,
+    borderRadius: 15,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
