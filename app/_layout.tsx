@@ -3,6 +3,8 @@ import { TrackingProvider } from '@/context/TrackingContext';
 import { RouteTrackerProvider } from '@/context/RouteTrackerContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AlertsProvider } from '@/context/AlertsContext';
+import { ItineraryProvider } from '@/context/ItineraryContext';
+import { useAutoSync } from '@/services/itinerariesApiService';
 import GlobalAlarmProvider from '@/components/providers/GlobalAlarmProvider';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { initializeThemeCache } from '@/hooks/useTheme';
@@ -21,6 +23,9 @@ SplashScreen.preventAutoHideAsync();
 
 function SessionInitializer() {
   const { session } = useSession();
+  
+  // Auto-sync itineraries when app starts
+  useAutoSync();
 
   // const { updateUserLocation, isLocationAvailable } = useLocationUpdater();
   
@@ -75,15 +80,17 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <SessionProvider>
-        <TrackingProvider>
-          <RouteTrackerProvider>
-            <AlertsProvider>
-              <GlobalAlarmProvider>
-                <AppContent />
-              </GlobalAlarmProvider>
-            </AlertsProvider>
-          </RouteTrackerProvider>
-        </TrackingProvider>
+        <ItineraryProvider>
+          <TrackingProvider>
+            <RouteTrackerProvider>
+              <AlertsProvider>
+                <GlobalAlarmProvider>
+                  <AppContent />
+                </GlobalAlarmProvider>
+              </AlertsProvider>
+            </RouteTrackerProvider>
+          </TrackingProvider>
+        </ItineraryProvider>
       </SessionProvider>
     </ThemeProvider>
   );
@@ -127,7 +134,7 @@ function AppContent() {
           <Stack.Screen name="groups/groups-linkItinerary" />
           <Stack.Screen name="safety/safety" />
           <Stack.Screen name="safety/disasterMap-weather" />
-          <Stack.Screen name="payment" />
+          <Stack.Screen name="locationPermission" />
           <Stack.Screen name="+not-found" />
         </Stack>
       </SafeAreaView>

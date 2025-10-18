@@ -11,8 +11,8 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import ToggleButton from '@/components/ToggleButton';
 import { useSession } from '@/context/SessionContext';
-import { saveItinerary } from '@/services/itinerariesApiService';
-import { useRouter } from 'expo-router';
+import { useSaveItinerary } from '@/services/itinerariesApiService';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import CubeButton from '@/components/RoundedButton'
@@ -50,6 +50,8 @@ function getNumDays(start: Date, end: Date): number {
 export default function CreateItineraryScreen() {
   const { session } = useSession();
   const router = useRouter();
+  const { saveItineraryComplete } = useSaveItinerary();
+  const params = useLocalSearchParams();
   const [descriptionHeight, setDescriptionHeight] = useState(60);
 
   // State
@@ -82,6 +84,16 @@ export default function CreateItineraryScreen() {
 
   // Calculate number of days between startDate and endDate
   const numDays = startDate && endDate ? getNumDays(startDate, endDate) : 0;
+
+  // Set initial startDate from URL parameter
+  useEffect(() => {
+    if (params.startDate && typeof params.startDate === 'string') {
+      const initialDate = new Date(params.startDate);
+      if (!isNaN(initialDate.getTime())) {
+        setStartDate(initialDate);
+      }
+    }
+  }, [params.startDate]);
 
   // If only 1 day, force planDaily to false
   useEffect(() => {
@@ -154,10 +166,17 @@ export default function CreateItineraryScreen() {
     setErrorMessage(undefined);
 
     (async () => {
-      const saveResult = await saveItinerary(result, session?.accessToken || '');
+      console.log('🎯 Creating itinerary with data:', result);
+      const saveResult = await saveItineraryComplete(result);
       setLoading(false);
       setSuccess(saveResult.success);
       setErrorMessage(saveResult.errorMessage);
+      
+      if (saveResult.success) {
+        console.log('✅ Itinerary created successfully!');
+      } else {
+        console.error('❌ Failed to create itinerary:', saveResult.errorMessage);
+      }
     })();
   };
 

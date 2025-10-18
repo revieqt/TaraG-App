@@ -339,14 +339,14 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
         </TouchableOpacity>
       </View>
       {showDropdown && suggestions.length > 0 && (
-        <ThemedView shadow style={styles.dropdown}>
+        <ThemedView color='primary' shadow style={styles.dropdown}>
           <ScrollView 
             style={styles.scrollView}
             showsVerticalScrollIndicator={false}
             nestedScrollEnabled={true}
           >
             {suggestions.length === 0 ? (
-              <ThemedText style={styles.dropdownItem}>No results</ThemedText>
+              <ThemedText>No results</ThemedText>
             ) : (
               suggestions.map((item, index) => (
                 <TouchableOpacity
@@ -363,7 +363,7 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
                   activeOpacity={0.7}
                 >
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <ThemedText style={[styles.dropdownItem, { marginLeft: 6 }]}>
+                    <ThemedText>
                       {item.properties?.display_name || item.properties?.name || 'Unknown location'}
                     </ThemedText>
                   </View>
@@ -412,10 +412,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     minHeight: 44,
-  },
-  dropdownItem: {
-    fontSize: 15,
-    color: '#222',
   },
 });
 
