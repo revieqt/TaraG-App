@@ -180,6 +180,93 @@ export async function cancelItinerary(id: string, accessToken: string) {
   }
 }
 
+// Hook for deleting itinerary with context integration
+export function useDeleteItinerary() {
+  const { session } = useSession();
+  const { deleteItinerary: deleteItineraryContext } = useItinerary();
+
+  const deleteItineraryComplete = async (id: string) => {
+    if (!session?.user?.id || !session?.accessToken) {
+      return { success: false, errorMessage: 'User not authenticated' };
+    }
+
+    console.log('🗑️ Deleting itinerary:', id);
+    const result = await deleteItinerary(id, session.accessToken);
+    
+    if (result.success) {
+      console.log('✅ Itinerary deleted from backend, removing from context');
+      // Delete from context
+      await deleteItineraryContext(id);
+    } else {
+      console.error('❌ Failed to delete itinerary:', result.errorMessage);
+    }
+
+    return result;
+  };
+
+  return { deleteItineraryComplete };
+}
+
+// Hook for marking itinerary as completed with context integration
+export function useMarkItineraryAsDone() {
+  const { session } = useSession();
+  const { updateItinerary: updateItineraryContext } = useItinerary();
+
+  const markItineraryAsDoneComplete = async (id: string) => {
+    if (!session?.user?.id || !session?.accessToken) {
+      return { success: false, errorMessage: 'User not authenticated' };
+    }
+
+    console.log('✅ Marking itinerary as completed:', id);
+    const result = await markItineraryAsDone(id, session.accessToken);
+    
+    if (result.success) {
+      console.log('✅ Itinerary marked as completed in backend, updating context');
+      // Update status in context
+      await updateItineraryContext(id, {
+        status: 'completed',
+        updatedOn: new Date()
+      });
+    } else {
+      console.error('❌ Failed to mark itinerary as completed:', result.errorMessage);
+    }
+
+    return result;
+  };
+
+  return { markItineraryAsDoneComplete };
+}
+
+// Hook for cancelling itinerary with context integration
+export function useCancelItinerary() {
+  const { session } = useSession();
+  const { updateItinerary: updateItineraryContext } = useItinerary();
+
+  const cancelItineraryComplete = async (id: string) => {
+    if (!session?.user?.id || !session?.accessToken) {
+      return { success: false, errorMessage: 'User not authenticated' };
+    }
+
+    console.log('❌ Cancelling itinerary:', id);
+    const result = await cancelItinerary(id, session.accessToken);
+    
+    if (result.success) {
+      console.log('✅ Itinerary cancelled in backend, updating context');
+      // Update status in context
+      await updateItineraryContext(id, {
+        status: 'cancelled',
+        updatedOn: new Date()
+      });
+    } else {
+      console.error('❌ Failed to cancel itinerary:', result.errorMessage);
+    }
+
+    return result;
+  };
+
+  return { cancelItineraryComplete };
+}
+
 export async function updateItinerary(id: string, itinerary: any, accessToken: string) {
   try {
     const response = await fetch(`${BACKEND_URL}/itinerary/update/${id}`, {

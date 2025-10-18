@@ -6,10 +6,10 @@ import { ThemedView } from '@/components/ThemedView';
 import BackButton from '@/components/custom/BackButton';
 import ViewItinerary from '@/components/custom/ViewItinerary';
 import {
-  cancelItinerary as cancelItineraryApi,
-  deleteItinerary as deleteItineraryApi,
-  markItineraryAsDone,
   getItinerariesById,
+  useDeleteItinerary,
+  useMarkItineraryAsDone,
+  useCancelItinerary,
 } from '@/services/itinerariesApiService';
 import { useSession } from '@/context/SessionContext';
 import { useItinerary } from '@/context/ItineraryContext';
@@ -25,6 +25,9 @@ export default function ItineraryViewScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { session } = useSession();
   const { getItineraryById } = useItinerary();
+  const { deleteItineraryComplete } = useDeleteItinerary();
+  const { markItineraryAsDoneComplete } = useMarkItineraryAsDone();
+  const { cancelItineraryComplete } = useCancelItinerary();
   const [itinerary, setItinerary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -115,12 +118,12 @@ export default function ItineraryViewScreen() {
 
   // Handlers for actions
   const handleMarkAsCompleted = async () => {
-    if (!itinerary?.id || !session?.accessToken) {
-      Alert.alert('Error', 'No access token available');
+    if (!itinerary?.id) {
+      Alert.alert('Error', 'No itinerary available');
       return;
     }
     setLoading(true);
-    const result = await markItineraryAsDone(itinerary.id, session.accessToken);
+    const result = await markItineraryAsDoneComplete(itinerary.id);
     setLoading(false);
     if (result.success) {
       setItinerary({ ...itinerary, status: 'completed', manuallyUpdated: true });
@@ -132,12 +135,12 @@ export default function ItineraryViewScreen() {
   };
 
   const handleCancel = async () => {
-    if (!itinerary?.id || !session?.accessToken) {
-      Alert.alert('Error', 'No access token available');
+    if (!itinerary?.id) {
+      Alert.alert('Error', 'No itinerary available');
       return;
     }
     setLoading(true);
-    const result = await cancelItineraryApi(itinerary.id, session.accessToken);
+    const result = await cancelItineraryComplete(itinerary.id);
     setLoading(false);
     if (result.success) {
       setItinerary({ ...itinerary, status: 'cancelled', manuallyUpdated: true });
@@ -157,12 +160,8 @@ export default function ItineraryViewScreen() {
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete', style: 'destructive', onPress: async () => {
-            if (!session?.accessToken) {
-              Alert.alert('Error', 'No access token available');
-              return;
-            }
             setLoading(true);
-            const result = await deleteItineraryApi(itinerary.id, session.accessToken);
+            const result = await deleteItineraryComplete(itinerary.id);
             setLoading(false);
             if (result.success) {
               Alert.alert('Deleted', 'Itinerary deleted.');
