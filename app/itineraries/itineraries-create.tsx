@@ -4,7 +4,6 @@ import DropDownField from '@/components/DropDownField';
 import Header from '@/components/Header';
 import LocationAutocomplete, { LocationItem } from '@/components/LocationAutocomplete';
 import LocationDisplay from '@/components/LocationDisplay';
-import LoadingModal from '@/components/modals/LoadingModal';
 import TextField from '@/components/TextField';
 import ThemedIcons from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
@@ -18,6 +17,7 @@ import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, T
 import CubeButton from '@/components/RoundedButton'
 import Switch from '@/components/Switch';
 import BackButton from '@/components/custom/BackButton';
+import ProcessModal from '@/components/modals/ProcessModal';
 
 const ITINERARY_TYPES = [
   { label: 'Solo', value: 'Solo' },
@@ -340,12 +340,11 @@ export default function CreateItineraryScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      <LoadingModal
+      <ProcessModal
         visible={loading || success || !!errorMessage}
         success={success}
-        successMessage="Itinerary saved! Redirecting..."
+        successMessage="Itinerary saved!"
         errorMessage={errorMessage}
-        redirectTo="/home/itineraries/itineraries"
       />
       <CubeButton
         size={60}

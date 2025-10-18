@@ -16,11 +16,13 @@ import React, { useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { renderProUpgrade } from '@/app/account/proUpgrade';
 import { renderMapTypeSettings } from '@/app/account/settings-mapType';
+import { useItinerary } from '@/context/ItineraryContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AccountScreen() {
   const { session, clearSession } = useSession();
   const user = session?.user;
+  const { clearAllItineraries } = useItinerary();
   const { refreshGlobalAlerts, loading: alertsLoading } = useAlerts();
   const location = useLocation();
   const [showPayment, setShowPayment] = useState(false);
@@ -94,6 +96,32 @@ export default function AccountScreen() {
             } catch (error) {
               console.error("Error clearing AsyncStorage:", error);
               Alert.alert("Error", "Failed to clear cache.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleClearItineraries = async () => {
+    Alert.alert(
+      "Clear Itineraries",
+      "By clearing itineraries, you will lose all your saved itineraries. This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await clearAllItineraries();
+              Alert.alert("Success", "All itineraries have been cleared.");
+            } catch (error) {
+              console.error("Error clearing itineraries:", error);
+              Alert.alert("Error", "Failed to clear itineraries.");
             }
           },
         },
