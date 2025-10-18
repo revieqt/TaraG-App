@@ -12,6 +12,29 @@ interface ViewItineraryProps {
 const ViewItinerary: React.FC<ViewItineraryProps> = ({ json }) => {
   const itinerary = json;
 
+  const formatDate = (dateValue: any): string => {
+    if (!dateValue) return 'N/A';
+    
+    try {
+      if (typeof dateValue === 'string') {
+        return dateValue.slice(0, 10);
+      }
+      if (dateValue instanceof Date) {
+        return dateValue.toISOString().slice(0, 10);
+      }
+      if (typeof dateValue === 'number') {
+        return new Date(dateValue).toISOString().slice(0, 10);
+      }
+      if (dateValue.toDate && typeof dateValue.toDate === 'function') {
+        return dateValue.toDate().toISOString().slice(0, 10);
+      }
+      return 'Invalid Date';
+    } catch (error) {
+      console.warn('Error formatting date:', dateValue, error);
+      return 'Invalid Date';
+    }
+  };
+
   const renderDayLocations = (loc: any) => {
       return (
         <LocationDisplay
@@ -30,29 +53,36 @@ const ViewItinerary: React.FC<ViewItineraryProps> = ({ json }) => {
     <View style={{ flex: 1 }}>
       {itinerary && (
         <>
-          <ThemedText type="title" style={{ marginBottom: 8, flex: 1 }}>{itinerary.title}</ThemedText>
+          <View style={styles.header}>
+            <ThemedText type="subtitle" style={{ flex: 1 }}>{itinerary.title}</ThemedText>
 
-          <View style={styles.typesContainer}>
-            <ThemedIcons library="MaterialIcons" name="edit-calendar" size={15}/>
-            <ThemedText style={styles.type}>{itinerary.type}</ThemedText>
-            <ThemedIcons library="MaterialDesignIcons" name="calendar" size={15}/>
-            <ThemedText style={styles.type}>{itinerary.startDate?.slice(0,10)}  to  {itinerary.endDate?.slice(0,10)}</ThemedText>
+            <View style={styles.typesContainer}>
+              <ThemedIcons library="MaterialDesignIcons" name="calendar" size={15}/>
+              <ThemedText>{formatDate(itinerary.startDate)}  to  {formatDate(itinerary.endDate)}</ThemedText>
+            </View>
+
+            <View style={styles.typesContainer}>
+              <ThemedIcons library="MaterialIcons" name="edit-calendar" size={15}/>
+              <ThemedText>{itinerary.type}</ThemedText>
+            </View>
+
+            <View style={styles.typesContainer}>
+              <ThemedIcons library="MaterialIcons" name="person" size={15}/>
+              <ThemedText>Created by {itinerary.username}</ThemedText>
+            </View>
           </View>
-
-          <ThemedText style={{marginBottom: 25}}>{itinerary.description}</ThemedText>
-          {Array.isArray(itinerary.locations) && itinerary.locations.length > 0 ? (
+          <ThemedText style={{marginVertical: 25}}>{itinerary.description}</ThemedText>
+          {Array.isArray(itinerary.locations) && itinerary.locations.length > 0 && (
             itinerary.locations.map((loc: any, idx: number) => (
               <View key={idx}>
                 {loc.date && <>
-                  <ThemedText type='defaultSemiBold'>Day {idx + 1} </ThemedText>
-                  <ThemedText style={{marginBottom: 12, opacity: .5}}>({loc.date?.slice(0,10)})</ThemedText>
+                  <ThemedText type='subtitle' style={{fontSize: 15}}>Day {idx + 1} </ThemedText>
+                  <ThemedText style={{marginBottom: 12, opacity: .5}}>({formatDate(loc.date)})</ThemedText>
                 </>
               }
                 {renderDayLocations(loc)}
               </View>
             ))
-          ) : (
-            <ThemedText style={{ marginLeft: 8 }}>No locations.</ThemedText>
           )}
         </>
       )}
@@ -64,15 +94,17 @@ const styles = StyleSheet.create({
   options:{
     marginLeft: 12,
   },
-  type:{
-    marginLeft: 4,
-    marginRight: 12,
+  header:{
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc4',
+    paddingBottom: 10
   },
   typesContainer:{
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    gap: 4
+    gap: 10,
+    opacity: .7,
+    marginTop: 3
   }
 });
 export default ViewItinerary;

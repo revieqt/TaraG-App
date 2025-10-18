@@ -11,7 +11,6 @@ import FadedHeader from '@/components/custom/FadedHeader';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import EmptyMessage from '@/components/EmptyMessage';
 
-// ItineraryCard Component
 interface ItineraryCardProps {
   itinerary: Itinerary;
 }
@@ -26,14 +25,6 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ itinerary }) => {
       year: 'numeric'
     });
   };
-
-  const getDaysDifference = (startDate: Date, endDate: Date) => {
-    const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays === 0 ? 1 : diffDays + 1; // Include both start and end days
-  };
-
-  const days = getDaysDifference(new Date(itinerary.startDate), new Date(itinerary.endDate));
 
   return (
     <TouchableOpacity 
@@ -50,13 +41,16 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ itinerary }) => {
           <ThemedText style={{ marginLeft: 6 , opacity: 0.7}}>
             {formatDate(new Date(itinerary.startDate))} - {formatDate(new Date(itinerary.endDate))}
           </ThemedText>
-          <ThemedText style={{ marginLeft: 6 , opacity: 0.7}}>
-            ( {days} {days === 1 ? 'day' : 'days'} )
+        </View>
+        <View style={styles.cardDates}>
+          <ThemedIcons library='MaterialIcons' name='person' size={16} />
+          <ThemedText style={{ marginLeft: 6 , opacity: 0.5}}>
+            {itinerary.username}
           </ThemedText>
         </View>
 
         {itinerary.description && (
-          <ThemedText style={{ opacity: 0.5, paddingRight: 50}} numberOfLines={2}>
+          <ThemedText style={{ opacity: 0.5, paddingRight: 50, fontSize: 12, marginTop: 8}} numberOfLines={2}>
             {itinerary.description}
           </ThemedText>
         )}
@@ -83,11 +77,9 @@ export default function ItinerariesScreen() {
     session?.user?.id && itinerary.userID === session.user.id
   );
 
-  // Get current date for filtering
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time for accurate date comparison
+  today.setHours(0, 0, 0, 0);
 
-  // Filter functions for each category
   const getOngoingItineraries = (): Itinerary[] => {
     return userItineraries.filter(itinerary => {
       const startDate = new Date(itinerary.startDate);
@@ -96,18 +88,6 @@ export default function ItinerariesScreen() {
       endDate.setHours(23, 59, 59, 999);
       
       const isOngoing = today >= startDate && today <= endDate && itinerary.status === 'pending';
-      
-      console.log('🔍 Ongoing filter for:', itinerary.title, {
-        today: today.toDateString(),
-        startDate: startDate.toDateString(),
-        endDate: endDate.toDateString(),
-        status: itinerary.status,
-        todayTime: today.getTime(),
-        startTime: startDate.getTime(),
-        endTime: endDate.getTime(),
-        isOngoing
-      });
-      
       return isOngoing;
     });
   };
@@ -152,16 +132,6 @@ export default function ItinerariesScreen() {
   };
 
   const filteredItineraries = getFilteredItineraries();
-
-  // Debug: Log itineraries when they change
-  useEffect(() => {
-    console.log('📋 ItinerariesScreen - Total itineraries:', itineraries.length);
-    console.log('👤 Current user ID:', session?.user?.id);
-    console.log('🎯 User itineraries:', userItineraries.length);
-    console.log('🔍 Filtered itineraries (' + selectedOption + '):', filteredItineraries.length);
-  }, [itineraries, session?.user?.id, selectedOption, filteredItineraries.length]);
-
- 
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -304,12 +274,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 16,
     overflow: 'hidden',
-    paddingBottom: 25,
   },
   cardDates: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
   },
   statusBadge: {
     paddingHorizontal: 8,

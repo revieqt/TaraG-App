@@ -21,6 +21,7 @@ export interface Itinerary {
   startDate: Date;
   endDate: Date;
   userID: string;
+  username: string;
   createdOn: Date;
   updatedOn: Date;
   status: 'pending' | 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
@@ -196,6 +197,7 @@ export const ItineraryProvider: React.FC<{ children: ReactNode }> = ({ children 
       startDate: safeConvertDate(backendItinerary.startDate, 'startDate'),
       endDate: safeConvertDate(backendItinerary.endDate, 'endDate'),
       userID: backendItinerary.userID,
+      username: backendItinerary.username,
       createdOn: safeConvertDate(backendItinerary.createdOn, 'createdOn'),
       updatedOn: safeConvertDate(backendItinerary.updatedOn, 'updatedOn'),
       status: backendItinerary.status || 'pending',
@@ -207,15 +209,6 @@ export const ItineraryProvider: React.FC<{ children: ReactNode }> = ({ children 
           }))
         : backendItinerary.locations || []
     };
-
-    console.log('📝 Converted itinerary for AsyncStorage:', {
-      id: itinerary.id,
-      title: itinerary.title,
-      userID: itinerary.userID,
-      startDate: itinerary.startDate,
-      endDate: itinerary.endDate,
-      status: itinerary.status
-    });
 
     const updatedItineraries = [...itineraries, itinerary];
     await saveItineraries(updatedItineraries);
@@ -295,6 +288,7 @@ export const ItineraryProvider: React.FC<{ children: ReactNode }> = ({ children 
       startDate: safeConvertDate(backendItinerary.startDate, 'startDate'),
       endDate: safeConvertDate(backendItinerary.endDate, 'endDate'),
       userID: backendItinerary.userID,
+      username: backendItinerary.username,
       createdOn: safeConvertDate(backendItinerary.createdOn, 'createdOn'),
       updatedOn: safeConvertDate(backendItinerary.updatedOn, 'updatedOn'),
       status: backendItinerary.status || 'pending',

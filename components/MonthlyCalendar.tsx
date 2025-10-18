@@ -48,8 +48,8 @@ const monthNames = [
 
 const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({
   style,
-  highlightColor = "#007AFF",
-  itineraryHighlightColor = "#FF6B6B",
+  highlightColor = "#4300FF",
+  itineraryHighlightColor = "#00CAFF",
 }) => {
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: '#00CAFF',
     marginHorizontal: 1,
   },
   moreIndicator: {

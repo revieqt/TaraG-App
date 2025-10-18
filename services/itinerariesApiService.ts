@@ -192,13 +192,54 @@ export async function updateItinerary(id: string, itinerary: any, accessToken: s
     });
     const data = await response.json();
     if (response.ok && data.success) {
-      return { success: true };
+      return { success: true, data: data.itinerary };
     } else {
       return { success: false, errorMessage: data.error || 'Failed to update itinerary' };
     }
   } catch (err: any) {
     return { success: false, errorMessage: err.message || 'Failed to update itinerary' };
   }
+}
+
+// Hook for updating itinerary with context integration
+export function useUpdateItinerary() {
+  const { session } = useSession();
+  const { updateItinerary: updateItineraryContext } = useItinerary();
+
+  const updateItineraryComplete = async (id: string, itineraryData: any) => {
+    if (!session?.user?.id || !session?.accessToken) {
+      return { success: false, errorMessage: 'User not authenticated' };
+    }
+
+    const itineraryWithUser = {
+      ...itineraryData,
+      userID: session.user.id
+    };
+
+    console.log('🎯 Updating itinerary with data:', itineraryWithUser);
+    const result = await updateItinerary(id, itineraryWithUser, session.accessToken);
+    
+    if (result.success) {
+      console.log('✅ Itinerary updated successfully!');
+      // Update the itinerary in context
+      await updateItineraryContext(id, {
+        title: itineraryData.title,
+        description: itineraryData.description,
+        type: itineraryData.type,
+        startDate: new Date(itineraryData.startDate),
+        endDate: new Date(itineraryData.endDate),
+        planDaily: itineraryData.planDaily,
+        locations: itineraryData.locations,
+        updatedOn: new Date()
+      });
+    } else {
+      console.error('❌ Failed to update itinerary:', result.errorMessage);
+    }
+
+    return result;
+  };
+
+  return { updateItineraryComplete };
 }
 
 // Custom hook for saving itineraries with new flow: frontend → backend → AsyncStorage
@@ -211,7 +252,6 @@ export function useSaveItinerary() {
       return { success: false, errorMessage: 'User not authenticated' };
     }
 
-    // Add userID to itinerary data before sending to backend
     const itineraryWithUser = {
       ...itineraryData,
       userID: session.user.id

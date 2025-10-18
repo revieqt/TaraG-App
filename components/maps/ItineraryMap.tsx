@@ -3,6 +3,7 @@ import { View, StyleSheet, Dimensions } from 'react-native';
 import MapView, { MAP_TYPES } from 'react-native-maps';
 import TaraMarker from './TaraMarker';
 import { useMapType } from '@/hooks/useMapType';
+import { useLocation } from '@/hooks/useLocation';
 
 interface Location {
   latitude: number;
@@ -12,34 +13,50 @@ interface Location {
 }
 
 interface DateLocations {
-  date: number; // timestamp
+  date: number | Date | string; // flexible date format
   locations: Location[];
 }
 
 interface Itinerary {
-  userID: string;
-  title: string;
-  type: string;
-  description: string;
-  startDate: number;
-  endDate: number;
-  planDaily: boolean;
-  status: string;
-  manuallyUpdated: boolean;
-  createdOn: number;
-  updatedOn: number;
-  locations: DateLocations[];
+  userID?: string;
+  title?: string;
+  type?: string;
+  description?: string;
+  startDate?: number | Date | string;
+  endDate?: number | Date | string;
+  planDaily?: boolean;
+  status?: string;
+  manuallyUpdated?: boolean;
+  createdOn?: number | Date | string;
+  updatedOn?: number | Date | string;
+  locations?: DateLocations[] | Location[]; // flexible locations format
 }
 
 interface ItineraryMapProps {
-  itinerary: Itinerary;
+  itinerary: Itinerary | null;
 }
 
 const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
   const { mapType: currentMapType } = useMapType();
-  const allLocations: Location[] = Array.isArray(itinerary.locations)
+  const { latitude: userLat, longitude: userLng } = useLocation();
+  
+  // Return null if no itinerary provided
+  if (!itinerary) {
+    return null;
+  }
+  const allLocations: Location[] = Array.isArray(itinerary?.locations)
     ? itinerary.locations
-        .flatMap(day => Array.isArray(day.locations) ? day.locations : [])
+        .flatMap(item => {
+          // Handle DateLocations format (has date and locations array)
+          if (item && typeof item === 'object' && 'locations' in item && Array.isArray(item.locations)) {
+            return item.locations;
+          }
+          // Handle direct Location format
+          if (item && typeof item === 'object' && 'latitude' in item && 'longitude' in item) {
+            return [item];
+          }
+          return [];
+        })
         .filter(
           (loc): loc is Location =>
             !!loc &&
@@ -48,7 +65,7 @@ const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
         )
     : [];
 
-  // Center map on the first valid location, fallback to a default
+  // Center map on the first valid location, fallback to user's location, then default
   const initialRegion = allLocations.length > 0
     ? {
         latitude: allLocations[0].latitude,
@@ -56,11 +73,18 @@ const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
         latitudeDelta: 0.05,
         longitudeDelta: 0.05,
       }
+    : userLat && userLng
+    ? {
+        latitude: userLat,
+        longitude: userLng,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }
     : {
-        latitude: 0,
-        longitude: 0,
-        latitudeDelta: 1,
-        longitudeDelta: 1,
+        latitude: 10.3157, // Default to Cebu City coordinates
+        longitude: 123.8854,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
       };
 
     const getMapTypeEnum = (mapType: string) => {

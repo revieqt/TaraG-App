@@ -1,14 +1,12 @@
 import Button from '@/components/Button';
 import DatePicker from '@/components/DatePicker';
 import DropDownField from '@/components/DropDownField';
-import Header from '@/components/Header';
 import LocationAutocomplete, { LocationItem } from '@/components/LocationAutocomplete';
 import LocationDisplay from '@/components/LocationDisplay';
 import TextField from '@/components/TextField';
 import ThemedIcons from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import ToggleButton from '@/components/ToggleButton';
 import { useSession } from '@/context/SessionContext';
 import { useSaveItinerary } from '@/services/itinerariesApiService';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -146,6 +144,7 @@ export default function CreateItineraryScreen() {
     const createdOn = new Date();
     let result = {
       userID: session?.user?.id || '',
+      username: session?.user?.username || '',
       title,
       description,
       type,

@@ -5,14 +5,14 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import BackButton from '@/components/custom/BackButton';
 import ViewItinerary from '@/components/custom/ViewItinerary';
-import TaraMap from '@/components/maps/TaraMap';
-import TaraMarker from '@/components/maps/TaraMarker';
 import {
   cancelItinerary as cancelItineraryApi,
   deleteItinerary as deleteItineraryApi,
   markItineraryAsDone,
+  getItinerariesById,
 } from '@/services/itinerariesApiService';
 import { useSession } from '@/context/SessionContext';
+import { useItinerary } from '@/context/ItineraryContext';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -22,8 +22,9 @@ import Button from '@/components/Button';
 import ItineraryMap from '@/components/maps/ItineraryMap';
 
 export default function ItineraryViewScreen() {
-  const { itineraryData } = useLocalSearchParams<{ itineraryData?: string }>();
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const { session } = useSession();
+  const { getItineraryById } = useItinerary();
   const [itinerary, setItinerary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,20 +33,58 @@ export default function ItineraryViewScreen() {
   const router = useRouter();
 
   useEffect(() => {
-    if (itineraryData) {
-      try {
-        setItinerary(JSON.parse(itineraryData));
-        setError(null);
-      } catch (err) {
-        setError('Failed to parse itinerary data.');
+    const loadItinerary = async () => {
+      if (!id) {
+        setError('No itinerary ID provided.');
         setItinerary(null);
+        setLoading(false);
+        return;
       }
-    } else {
-      setError('No itinerary data provided.');
-      setItinerary(null);
-    }
-    setLoading(false);
-  }, [itineraryData]);
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // First, search in local ItineraryContext
+        console.log('🔍 Searching for itinerary ID in local context:', id);
+        const localItinerary = getItineraryById(id);
+        
+        if (localItinerary) {
+          console.log('✅ Found itinerary in local context:', localItinerary.title);
+          setItinerary(localItinerary);
+          setLoading(false);
+          return;
+        }
+
+        // If not found locally, fetch from backend
+        console.log('🌐 Itinerary not found locally, fetching from backend...');
+        if (!session?.accessToken) {
+          setError('Authentication required to fetch itinerary.');
+          setLoading(false);
+          return;
+        }
+
+        const result = await getItinerariesById(id, session.accessToken);
+        
+        if (result.success && result.data) {
+          console.log('✅ Found itinerary in backend:', result.data.title);
+          setItinerary(result.data);
+        } else {
+          console.log('❌ Itinerary not found in backend');
+          setError(result.errorMessage || 'Itinerary not found.');
+          setItinerary(null);
+        }
+      } catch (err: any) {
+        console.error('❌ Error loading itinerary:', err);
+        setError(err.message || 'Failed to load itinerary.');
+        setItinerary(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadItinerary();
+  }, [id, getItineraryById, session?.accessToken]);
 
   const getAllLocations = () => {
     if (!itinerary?.locations) return [];
@@ -209,20 +248,20 @@ export default function ItineraryViewScreen() {
   };
 
   const showFirstOptions =
-    itinerary && (itinerary.status === 'upcoming' || itinerary.status === 'current');
+    itinerary && (itinerary.status === 'pending');
 
   return (
     <ThemedView style={{ flex: 1 }}>
       <BackButton type='floating' />
       <ItineraryMap itinerary={itinerary} />
 
-      <BottomSheet snapPoints={[0.25, 0.9]} defaultIndex={0} style={{paddingHorizontal: 20}}>
+      <BottomSheet snapPoints={[0.45, 0.9]} defaultIndex={0} style={{paddingHorizontal: 20}}>
         {showFirstOptions ? (
           <OptionsPopup
             options={[
               <OptionsPopup
                 key="createGroupTrip"
-                style={styles.optionsChild}
+                style={styles.createGroupTrip}
                 options={[
                   <View key="header">
                     <ThemedText type='subtitle'>Create Group Trip</ThemedText>
@@ -269,7 +308,7 @@ export default function ItineraryViewScreen() {
             ]}
             style={styles.options}
           >
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={24} color="#888" />
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={20} color="#888" />
           </OptionsPopup>
         ) : (
           <OptionsPopup
@@ -285,7 +324,7 @@ export default function ItineraryViewScreen() {
             ]}
             style={styles.options}
           >
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={24} color="#888" />
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={20} color="#888" />
           </OptionsPopup>
         )}
         {loading && <ActivityIndicator style={{ marginTop: 32 }} />}
@@ -306,6 +345,11 @@ const styles = StyleSheet.create({
   optionsChild:{
     flexDirection: 'row',
     gap: 10,
-    padding: 5
+    flex: 1,
+  },
+  createGroupTrip:{
+    flexDirection: 'row',
+    height: 20,
+    gap: 10,
   }
 });
