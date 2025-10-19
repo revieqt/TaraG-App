@@ -1,14 +1,11 @@
 import { useLocation } from '@/hooks/useLocation';
-import { useSession } from '@/context/SessionContext';
 import { useMapType } from '@/hooks/useMapType';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { MAP_TYPES, PROVIDER_DEFAULT, Region } from 'react-native-maps';
-import TaraMarker from './TaraMarker';
 
 const HomeMap: React.FC = () => {
   const { latitude, longitude, loading } = useLocation();
-  const { session } = useSession();
   const { mapType: currentMapType } = useMapType();
   const animationRef = useRef<number | null>(null);
   const mapRef = useRef<MapView>(null);
@@ -87,20 +84,8 @@ const HomeMap: React.FC = () => {
         style={styles.map}
         provider={PROVIDER_DEFAULT}
         initialRegion={defaultRegion}
-      >
-        {session &&
-          latitude !== 0 &&
-          longitude !== 0 &&
-          !loading && (
-            <TaraMarker
-              key="user-marker"
-              coordinate={{ latitude: latitude as number, longitude: longitude as number }}
-              title="You are here"
-              description="Current Location"
-              icon={session.user?.profileImage}
-            />
-          )}
-      </MapView>
+        showsUserLocation={true}
+      />
     </View>
   );
 };

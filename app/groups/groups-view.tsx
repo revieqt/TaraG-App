@@ -524,7 +524,7 @@ export default function GroupView() {
             
               {pendingMembers.length > 0 && (
                 <>
-                  <ThemedText type="defaultSemiBold" style={{ marginTop: 20, marginBottom: 10, opacity: 0.7 }}>
+                  <ThemedText type="defaultSemiBold" style={{ marginTop: 20, marginBottom: 10, opacity: 0.7, paddingHorizontal: 16 }}>
                     Pending Approval ({pendingMembers.length})
                   </ThemedText>
                   {pendingMembers.map(member => renderMemberItem(member, true))}

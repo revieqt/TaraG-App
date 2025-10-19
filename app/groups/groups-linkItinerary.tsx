@@ -7,62 +7,72 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StyleSheet, View, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useSession } from '@/context/SessionContext';
 import { useState, useEffect } from 'react';
-import { getItinerariesByUserAndStatus } from '@/services/itinerariesApiService';
 import { groupsApiService } from '@/services/groupsApiService';
 import EmptyMessage from '@/components/EmptyMessage';
+import { useItinerary, Itinerary } from '@/context/ItineraryContext';
 
 export default function LinkItineraryToGroup() {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { session } = useSession();
-  const [itineraries, setItineraries] = useState<any[]>([]);
-  const [selectedItinerary, setSelectedItinerary] = useState<any>(null);
+  const [filteredItineraries, setFilteredItineraries] = useState<Itinerary[]>([]);
+  const [selectedItinerary, setSelectedItinerary] = useState<Itinerary | null>(null);
   const [loading, setLoading] = useState(true);
+  const { itineraries } = useItinerary();
   const accentColor = useThemeColor({}, 'accent');
   const primaryColor = useThemeColor({}, 'primary');
   
   const groupID = params.groupID as string;
 
-  // Fetch user's itineraries
+  // Filter itineraries from context
   useEffect(() => {
-    const fetchItineraries = async () => {
-      if (!session?.accessToken || !session?.user?.id) return;
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0); // Set to start of day for comparison
       
-      setLoading(true);
-      try {
-        // Fetch ongoing and upcoming itineraries
-        const [ongoingResult, upcomingResult] = await Promise.all([
-          getItinerariesByUserAndStatus(session.user.id, 'ongoing', session.accessToken),
-          getItinerariesByUserAndStatus(session.user.id, 'upcoming', session.accessToken)
-        ]);
-        
-        const combinedItineraries = [];
-        
-        if (ongoingResult.success && ongoingResult.data) {
-          combinedItineraries.push(...ongoingResult.data);
+      // Filter itineraries based on requirements:
+      // 1. Only current user's itineraries
+      // 2. Only current/future dates (startDate >= today)
+      // 3. Exclude completed and cancelled status
+      const filtered = itineraries.filter((itinerary) => {
+        // Check if it belongs to current user
+        if (itinerary.userID !== session?.user?.id) {
+          return false;
         }
         
-        if (upcomingResult.success && upcomingResult.data) {
-          combinedItineraries.push(...upcomingResult.data);
+        // Check if status is not completed or cancelled
+        if (itinerary.status === 'completed' || itinerary.status === 'cancelled') {
+          return false;
         }
         
-        setItineraries(combinedItineraries);
+        // Check if start date is current or future
+        const startDate = new Date(itinerary.startDate);
+        startDate.setHours(0, 0, 0, 0); // Set to start of day for comparison
         
-        if (!ongoingResult.success && !upcomingResult.success) {
-          console.error('Failed to fetch itineraries:', ongoingResult.errorMessage || upcomingResult.errorMessage);
-        }
-      } catch (error) {
-        console.error('Error fetching itineraries:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchItineraries();
-  }, [session]);
+        return startDate >= currentDate;
+      });
+      
+      // Sort by start date (earliest first)
+      filtered.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+      
+      setFilteredItineraries(filtered);
+    } catch (error) {
+      console.error('Error filtering itineraries:', error);
+      setFilteredItineraries([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [itineraries, session?.user?.id]);
 
   // Handle itinerary selection
-  const handleItinerarySelect = (itinerary: any) => {
+  const handleItinerarySelect = (itinerary: Itinerary) => {
     setSelectedItinerary(itinerary);
   };
 
@@ -104,14 +114,14 @@ export default function LinkItineraryToGroup() {
           description="Please wait while we fetch your itineraries."
           loading
           />
-        ) : itineraries.length === 0 ? (
+        ) : filteredItineraries.length === 0 ? (
           <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
-          title='No Itinerary Found'
-          description="You have no upcoming or incoming itineraries."
+          title='No Available Itineraries'
+          description="You have no current or upcoming itineraries available for linking."
           />
         ) : (
           <>
-          {itineraries.map((itinerary) => (
+          {filteredItineraries.map((itinerary) => (
               <TouchableOpacity
                 key={itinerary.id}
                 style={[
@@ -120,7 +130,9 @@ export default function LinkItineraryToGroup() {
                     borderColor: accentColor,
                     borderWidth: 2,
                     backgroundColor: `${accentColor}20`
-                  }
+                  },
+                  {backgroundColor: primaryColor}
+
                 ]}
                 onPress={() => handleItinerarySelect(itinerary)}
               >
@@ -129,7 +141,7 @@ export default function LinkItineraryToGroup() {
                     {itinerary.title || 'Untitled Itinerary'}
                   </ThemedText>
                   <ThemedText style={styles.itineraryDate}>
-                    {new Date(itinerary.createdAt).toLocaleDateString()}
+                    {new Date(itinerary.startDate).toLocaleDateString()} - {new Date(itinerary.endDate).toLocaleDateString()}
                   </ThemedText>
                 </View>
                 
@@ -143,11 +155,9 @@ export default function LinkItineraryToGroup() {
                   <ThemedText style={styles.itineraryStatus}>
                     Status: {itinerary.status}
                   </ThemedText>
-                  {itinerary.days && (
-                    <ThemedText style={styles.itineraryDays}>
-                      {itinerary.days.length} day{itinerary.days.length !== 1 ? 's' : ''}
-                    </ThemedText>
-                  )}
+                  <ThemedText style={styles.itineraryDays}>
+                    {Math.ceil((new Date(itinerary.endDate).getTime() - new Date(itinerary.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1} day{Math.ceil((new Date(itinerary.endDate).getTime() - new Date(itinerary.startDate).getTime()) / (1000 * 60 * 60 * 24)) !== 0 ? 's' : ''}
+                  </ThemedText>
                 </View>
               </TouchableOpacity>
             ))}
