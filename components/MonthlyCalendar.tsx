@@ -26,6 +26,7 @@ interface MonthlyCalendarProps {
   style?: ViewStyle;
   highlightColor?: string;
   itineraryHighlightColor?: string;
+  hideDetails?: boolean;
 }
 
 const { width } = Dimensions.get("window");
@@ -50,6 +51,7 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({
   style,
   highlightColor = "#4300FF",
   itineraryHighlightColor = "#00CAFF",
+  hideDetails = false,
 }) => {
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -363,7 +365,7 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({
       </View>
     </View>
 
-    {/* Itineraries Horizontal ScrollView */}
+    {!hideDetails && (
       <View style={{marginTop: 10}}>
         <View style={styles.titleRow}>
           <ThemedText type='defaultSemiBold' style={{marginBottom: 10, opacity: 0.8}}>
@@ -445,6 +447,7 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({
             
         </ScrollView>
       </View>
+    )}
     </>
     
 );

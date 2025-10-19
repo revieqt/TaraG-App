@@ -10,6 +10,7 @@ import CubeButton from '@/components/RoundedButton';
 import FadedHeader from '@/components/custom/FadedHeader';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import EmptyMessage from '@/components/EmptyMessage';
+import MonthlyCalendar from '@/components/MonthlyCalendar';
 
 interface ItineraryCardProps {
   itinerary: Itinerary;
@@ -72,7 +73,6 @@ export default function ItinerariesScreen() {
   const { itineraries } = useItinerary();
   const { session } = useSession();
 
-  // Filter itineraries by current user
   const userItineraries = itineraries.filter(itinerary => 
     session?.user?.id && itinerary.userID === session.user.id
   );
@@ -136,7 +136,9 @@ export default function ItinerariesScreen() {
     <ThemedView style={{ flex: 1 }}>
       <ScrollView>
         <FadedHeader title='Itineraries' subtitle='Your travel plans' iconName='event-note' iconLibrary='MaterialIcons'/>
-        
+        <ThemedView color='primary' shadow style={styles.calendarContainer}>
+          <MonthlyCalendar hideDetails/>
+        </ThemedView>
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false} 
@@ -252,8 +254,13 @@ export default function ItinerariesScreen() {
 }
 
 const styles = StyleSheet.create({
+  calendarContainer: {
+    margin: 16,
+    borderRadius: 14
+  },
   typeButtonsContainer: {
-    paddingVertical: 16,
+    paddingTop: 5,
+    paddingBottom: 16,
   },
   typeButton: {
     paddingVertical: 7,
