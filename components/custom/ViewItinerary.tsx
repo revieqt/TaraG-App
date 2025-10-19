@@ -3,7 +3,7 @@ import OptionsPopup from '@/components/OptionsPopup';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface ViewItineraryProps {
   json: any;
@@ -39,9 +39,14 @@ const ViewItinerary: React.FC<ViewItineraryProps> = ({ json }) => {
       return (
         <LocationDisplay
           content={loc.locations && Array.isArray(loc.locations) ? loc.locations.map((l: any, i: number) => (
-            <View key={i}>
-              <ThemedText>{l.locationName} </ThemedText>
-              <ThemedText style={{opacity: .5}}>{l.note ? `${l.note}` : ''}</ThemedText>
+            <View key={i} style={{flexDirection: 'row', alignItems: 'center', gap: 10, justifyContent: 'space-between', marginBottom: 10}}>
+              <View>
+                <ThemedText>{l.locationName} </ThemedText>
+                <ThemedText style={{opacity: .5}}>{l.note ? `${l.note}` : ''}</ThemedText>
+              </View>
+              <TouchableOpacity>
+                <ThemedIcons library="MaterialDesignIcons" name="weather-cloudy-clock" size={20}/>
+              </TouchableOpacity>
             </View>
             
           )) : []}

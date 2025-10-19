@@ -70,6 +70,7 @@ export default function UpdateItineraryScreen() {
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [itineraryId, setItineraryId] = useState<string>('');
+  const [status, setStatus] = useState<string>('pending');
 
   // Populate fields from params
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function UpdateItineraryScreen() {
         setTitle(data.title || '');
         setDescription(data.description || '');
         setType(data.type || 'Solo');
+        setStatus(data.status || 'pending');
         setPlanDaily(!!data.planDaily);
         setStartDate(data.startDate ? new Date(data.startDate) : null);
         setEndDate(data.endDate ? new Date(data.endDate) : null);
@@ -170,6 +172,7 @@ export default function UpdateItineraryScreen() {
       title,
       description,
       type,
+      status,
       updatedOn: updatedOn.toISOString(),
       startDate: startDate ? startDate.toISOString() : null,
       endDate: endDate ? endDate.toISOString() : null,

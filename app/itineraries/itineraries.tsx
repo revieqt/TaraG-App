@@ -87,7 +87,7 @@ export default function ItinerariesScreen() {
       startDate.setHours(0, 0, 0, 0);
       endDate.setHours(23, 59, 59, 999);
       
-      const isOngoing = today >= startDate && today <= endDate && itinerary.status === 'pending';
+      const isOngoing = today >= startDate && itinerary.status === 'pending';
       return isOngoing;
     });
   };
@@ -110,7 +110,6 @@ export default function ItinerariesScreen() {
       endDate.setHours(23, 59, 59, 999);
       
       return (
-        today > endDate || 
         itinerary.status === 'completed' || 
         itinerary.status === 'cancelled'
       );

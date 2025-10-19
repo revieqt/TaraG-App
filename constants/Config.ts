@@ -29,6 +29,12 @@ export const TARA_MESSAGES = [
   "Your next adventure is just a tap away! "
 ];
 
+export const TARAAI_SUGGESTIONS = [
+  "Plan a 3-day itinerary for Cebu",
+  "Create a route from Manila to Baguio",
+  "What are the best beaches in Palawan?",
+];
+
 export const LOCAL_ALERT_DESCRIPTION = {
   'heavy-rain': [
     "• Stay indoors if possible and avoid unnecessary travel",

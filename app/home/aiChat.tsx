@@ -16,6 +16,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import * as Speech from 'expo-speech';
+import {AutoScrollView} from '@/components/AutoScrollView';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -312,57 +313,51 @@ export default function AIChatScreen() {
               flex: 1,
               justifyContent: 'center',
               alignItems: 'center',
-              paddingHorizontal: 32,
+              paddingHorizontal: 16,
             }}
           >
             <Image
               source={require('@/assets/images/slide1-img.png')}
               style={{
-                width: 80,
-                height: 80,
-                borderRadius: 40,
+                width: 60,
+                height: 60,
                 marginBottom: 10,
               }}
             />
             <ThemedText type="subtitle" style={{ marginBottom: 10 }}>
               Hello, I am Tara
             </ThemedText>
-            <ThemedText style={{ textAlign: 'center', color: '#888' }}>
+            <ThemedText style={{ textAlign: 'center', opacity: 0.5 }}>
               Your personal travel companion. Ask me anything about travel—destinations, tips, weather, and more.
             </ThemedText>
             
             {/* Travel Suggestions */}
-            <View style={{ marginTop: 20, width: '100%' }}>
-              <ThemedText style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>
-                Try asking me:
-              </ThemedText>
-              <View style={{ gap: 8 }}>
-                <TouchableOpacity
-                  style={styles.suggestionButton}
-                  onPress={() => handleSuggestionPress("Plan a 3-day itinerary for Cebu")}
-                >
-                  <ThemedText style={styles.suggestionText}>Plan a 3-day itinerary for Cebu</ThemedText>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.suggestionButton}
-                  onPress={() => handleSuggestionPress("Create a route from Manila to Baguio")}
-                >
-                  <ThemedText style={styles.suggestionText}>Create a route from Manila to Baguio</ThemedText>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.suggestionButton}
-                  onPress={() => handleSuggestionPress("What are the best beaches in Palawan?")}
-                >
-                  <ThemedText style={styles.suggestionText}>What are the best beaches in Palawan?</ThemedText>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.suggestionButton}
-                  onPress={() => handleSuggestionPress("Best local food in Iloilo")}
-                >
-                  <ThemedText style={styles.suggestionText}>Best local food in Iloilo</ThemedText>
-                </TouchableOpacity>
-              </View>
-            </View>
+            <AutoScrollView horizontal speed={10000} style={styles.suggestionContainer}>
+              <TouchableOpacity
+                style={styles.suggestionButton}
+                onPress={() => handleSuggestionPress("Plan a 3-day itinerary for Cebu")}
+              >
+                <ThemedText style={styles.suggestionText}>Plan a 3-day itinerary for Cebu</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.suggestionButton}
+                onPress={() => handleSuggestionPress("Create a route from Manila to Baguio")}
+              >
+                <ThemedText style={styles.suggestionText}>Create a route from Manila to Baguio</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.suggestionButton}
+                onPress={() => handleSuggestionPress("What are the best beaches in Palawan?")}
+              >
+                <ThemedText style={styles.suggestionText}>What are the best beaches in Palawan?</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.suggestionButton}
+                onPress={() => handleSuggestionPress("Best local food in Iloilo")}
+              >
+                <ThemedText style={styles.suggestionText}>Best local food in Iloilo</ThemedText>
+              </TouchableOpacity>
+            </AutoScrollView>
           </ThemedView>
         ) : (
           <FlatList
@@ -515,14 +510,6 @@ export default function AIChatScreen() {
       >
         {hasMessagesLeft ? (
           <>
-            {/* <TextField
-              value={input}
-              onChangeText={setInput}
-              placeholder="Type your message..."
-              onSubmitEditing={handleSend}
-              style={styles.input}
-              multiline
-            /> */}
             <TextInput
               style={[
               styles.input,
@@ -553,7 +540,7 @@ export default function AIChatScreen() {
             </TouchableOpacity>
           </>
         ) : (
-          <View style={{ height: 180 }}>
+          <View style={{ height: 250, paddingTop: 80 }}>
             <ThemedText style={{ textAlign: 'center', flex: 1 }}>
               You have reached the free daily credits for messages to Tara today. Upgrade to Pro for unlimited access or come back tomorrow.
             </ThemedText>
@@ -594,6 +581,8 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
     borderRadius: 20,
     padding: 12,
+    borderColor: '#ccc3',
+    borderWidth: 1,
   },
   inputRowAbsolute: {
     position: 'absolute',
@@ -632,17 +621,19 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     paddingHorizontal: 16,
   },
+  suggestionContainer: {
+    maxHeight: 100
+  },
   suggestionButton: {
-    backgroundColor: 'rgba(67, 0, 255, 0.1)',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(67, 0, 255, 0.3)',
+    backgroundColor: '#00CAFF',
+    borderRadius: 50,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+    opacity: 0.8,
   },
   suggestionText: {
-    color: '#4300FF',
+    color: '#fff',
     textAlign: 'center',
-    fontSize: 14,
+    fontSize: 13,
   },
 });

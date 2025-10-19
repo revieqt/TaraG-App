@@ -186,6 +186,26 @@ export default function ItineraryViewScreen() {
     });
   };
 
+  const handleRepeatItinerary = () => {
+    if (!itinerary || typeof itinerary !== 'object') {
+      Alert.alert('Error', 'No itinerary data to repeat.');
+      return;
+    }
+    
+    // Create a copy of the itinerary without startDate and endDate, and set status to pending
+    const itineraryToRepeat = {
+      ...itinerary,
+      startDate: undefined,
+      endDate: undefined,
+      status: 'pending'
+    };
+    
+    router.push({
+      pathname: '/itineraries/itineraries-update',
+      params: { itineraryData: JSON.stringify(itineraryToRepeat) }
+    });
+  };
+
   const handleCreateGroupWithItinerary = async () => {
     if (!groupName.trim()) {
       Alert.alert('Error', 'Please enter a group name');
@@ -312,7 +332,7 @@ export default function ItineraryViewScreen() {
         ) : (
           <OptionsPopup
             options={[
-              <TouchableOpacity style={styles.optionsChild}>
+              <TouchableOpacity style={styles.optionsChild} onPress={handleRepeatItinerary}>
                 <ThemedIcons library="MaterialIcons" name="history" size={20} />
                 <ThemedText>Repeat Itinerary</ThemedText>
               </TouchableOpacity>,

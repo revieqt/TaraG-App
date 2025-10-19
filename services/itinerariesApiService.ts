@@ -313,6 +313,7 @@ export function useUpdateItinerary() {
         title: itineraryData.title,
         description: itineraryData.description,
         type: itineraryData.type,
+        status: itineraryData.status,
         startDate: new Date(itineraryData.startDate),
         endDate: new Date(itineraryData.endDate),
         planDaily: itineraryData.planDaily,
