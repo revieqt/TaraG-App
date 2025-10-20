@@ -18,9 +18,9 @@ import ThemedIcons from '@/components/ThemedIcons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Group } from '@/services/groupsApiService';
 import { useSession } from '@/context/SessionContext';
-import { useSocket } from '@/context/SocketContext';
-import { useMessages, Message } from '@/context/MessageContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { realtimeChatService, ChatMessage } from '@/services/realtimeChatService';
+import Button from '@/components/Button';
 
 
 interface GroupChatProps {
@@ -31,10 +31,11 @@ export default function GroupChat({
   groupData
 }: GroupChatProps) {
   const { session } = useSession();
-  const { socket, joinGroup, leaveGroup } = useSocket();
-  const { getGroupMessages, addMessage, setCurrentGroup } = useMessages();
   const [message, setMessage] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
@@ -42,36 +43,6 @@ export default function GroupChat({
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
 
-  // Get messages for this group from global state
-  const messages = groupData?.id ? getGroupMessages(groupData.id) : [];
-  
-  // Debug logging
-  useEffect(() => {
-    console.log('🔍 GroupChat Debug:', {
-      groupId: groupData?.id,
-      messagesCount: messages.length,
-      messages: messages,
-      socketConnected: !!socket,
-      userId: session?.user?.id
-    });
-  }, [messages, groupData?.id, socket, session?.user?.id]);
-
-  // Add a test message when component mounts (for debugging)
-  useEffect(() => {
-    if (groupData?.id && messages.length === 0) {
-      console.log('🧪 Adding test message for debugging...');
-      setTimeout(() => {
-        if (groupData?.id) {
-          addMessage(groupData.id, {
-            text: 'Test message - if you see this, the message system is working!',
-            sender: 'System',
-            senderId: 'system-test',
-            avatar: undefined,
-          });
-        }
-      }, 1000);
-    }
-  }, [groupData?.id, messages.length, addMessage]);
 
   // Keyboard listeners
   useEffect(() => {
@@ -88,56 +59,96 @@ export default function GroupChat({
     };
   }, []);
 
-  // Join/leave group when component mounts/unmounts
-  useEffect(() => {
-    if (!groupData?.id) return;
+  // Function to create chat room
+  const handleCreateChat = async () => {
+    if (!groupData?.id || !session?.accessToken) return;
 
-    // Join the group room
-    joinGroup(groupData.id);
-    
-    // Set current group for read status
-    setCurrentGroup(groupData.id);
-
-    // Leave group when component unmounts
-    return () => {
-      if (groupData?.id) {
-        leaveGroup(groupData.id);
+    setIsCreatingChat(true);
+    try {
+      const result = await realtimeChatService.createChatRoom(groupData.id, session.accessToken);
+      console.log('✅ Chat room created:', result);
+      
+      // Update the group data with the new chatID
+      // You might want to refresh the group data here or update it in context
+      if (groupData) {
+        groupData.chatID = result.chatID;
       }
-      setCurrentGroup(null);
-    };
-  }, [groupData?.id, joinGroup, leaveGroup, setCurrentGroup]);
-
-  const handleSend = () => {
-    if (message.trim() === '' || !groupData?.id) return;
-    
-    console.log('📤 Sending message:', {
-      groupId: groupData.id,
-      text: message,
-      sender: `${session?.user?.fname} ${session?.user?.lname}` || 'You',
-      senderId: session?.user?.id || '1',
-      socketConnected: !!socket
-    });
-    
-    // Add message using global context
-    addMessage(groupData.id, {
-      text: message,
-      sender: `${session?.user?.fname} ${session?.user?.lname}` || 'You',
-      senderId: session?.user?.id || '1',
-      avatar: session?.user?.profileImage,
-    });
-    
-    setMessage('');
-    
-    // Auto-scroll to bottom after new message
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    } catch (error) {
+      console.error('❌ Error creating chat room:', error);
+    } finally {
+      setIsCreatingChat(false);
+    }
   };
 
-  const renderMessage = ({ item }: { item: Message }) => {
+  // Load messages when chat room exists
+  const loadMessages = async () => {
+    if (!groupData?.chatID || !session?.accessToken) return;
+
+    setIsLoadingMessages(true);
+    try {
+      const fetchedMessages = await realtimeChatService.getMessages(groupData.chatID, session.accessToken);
+      setMessages(fetchedMessages.map(msg => ({
+        ...msg,
+        isCurrentUser: msg.senderId === session.user?.id
+      })));
+    } catch (error) {
+      console.error('❌ Error loading messages:', error);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  };
+
+  // Load messages when component mounts and when chatID changes
+  useEffect(() => {
+    if (groupData?.chatID) {
+      loadMessages();
+    }
+  }, [groupData?.chatID, session?.accessToken]);
+
+  // Set up real-time message polling (simple approach)
+  useEffect(() => {
+    if (!groupData?.chatID || !session?.accessToken) return;
+
+    const interval = setInterval(() => {
+      loadMessages();
+    }, 3000); // Poll every 3 seconds for new messages
+
+    return () => clearInterval(interval);
+  }, [groupData?.chatID, session?.accessToken]);
+
+  const handleSend = async () => {
+    if (message.trim() === '' || !groupData?.chatID || !session?.accessToken || !session?.user?.id) return;
+    
+    const messageToSend = {
+      text: message.trim(),
+      senderId: session.user.id,
+      senderName: `${session.user.fname} ${session.user.lname}` || 'Unknown',
+      senderAvatar: session.user.profileImage
+    };
+
+    try {
+      console.log('📤 Sending message to Firebase RTDB:', messageToSend);
+      
+      await realtimeChatService.sendMessage(groupData.chatID, messageToSend, session.accessToken);
+      
+      setMessage('');
+      
+      // Immediately reload messages to show the new message
+      await loadMessages();
+      
+      // Auto-scroll to bottom after new message
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } catch (error) {
+      console.error('❌ Error sending message:', error);
+    }
+  };
+
+  const renderMessage = ({ item }: { item: ChatMessage }) => {
     const isCurrentUser = item.isCurrentUser;
     const member = groupData?.members.find(m => m.userID === item.senderId);
-    const displayName = isCurrentUser ? 'You' : (member?.name || item.sender);
+    const displayName = isCurrentUser ? 'You' : (member?.name || item.senderName);
     
     return (
       <View style={[
@@ -146,9 +157,9 @@ export default function GroupChat({
       ]}>
         {!isCurrentUser && (
           <View style={styles.avatarContainer}>
-            {item.avatar ? (
+            {item.senderAvatar ? (
               <Image 
-                source={{ uri: item.avatar }} 
+                source={{ uri: item.senderAvatar }} 
                 style={styles.avatarImage}
               />
             ) : (
@@ -162,29 +173,32 @@ export default function GroupChat({
           </View>
         )}
         
-        <View>
+        <View style={styles.messageContent}>
             {!isCurrentUser && (
             <ThemedText style={styles.senderName} type="defaultSemiBold">
                 {displayName}
             </ThemedText>
             )}
-            <ThemedView shadow color='primary' style={[
+            <View style={[
             styles.messageBubble,
             isCurrentUser 
-                ? { backgroundColor: accentColor, borderBottomRightRadius: 4 }
-                : {  borderBottomLeftRadius: 4 }
+                ? [styles.currentUserBubble, { backgroundColor: accentColor }]
+                : [styles.otherUserBubble, { backgroundColor: primaryColor }]
             ]}>
             
-            <ThemedText>
+            <ThemedText style={[
+                styles.messageText,
+                { color: isCurrentUser ? '#FFFFFF' : textColor }
+            ]}>
                 {item.text}
             </ThemedText>
             
-            </ThemedView>
+            </View>
             <ThemedText style={[
                 styles.timestamp,
                 { textAlign: isCurrentUser ? 'right' : 'left' }
             ]}>
-                {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </ThemedText>
         </View>
       </View>
@@ -196,6 +210,7 @@ export default function GroupChat({
   // Check approved members (same logic as groups-view.tsx)
   const approvedMembers = groupData.members.filter(m => m.isApproved);
   const isOnlyMember = approvedMembers.length === 1;
+  const hasChatID = groupData.chatID && groupData.chatID.trim() !== '';
 
   return (
     <ThemedView style={[styles.container, { paddingBottom: keyboardHeight }]}>
@@ -211,6 +226,24 @@ export default function GroupChat({
               <ThemedText style={[styles.emptyStateSubtext, {color: textColor}]}>
                 Invite others to start chatting!
               </ThemedText>
+            </View>
+          ) : !hasChatID ? (
+            <View style={styles.emptyStateContainer}>
+              <View style={{opacity: 0.5}}>
+                <ThemedIcons library="MaterialIcons" name="chat" size={48} color={textColor} />
+              </View>
+              <ThemedText style={[styles.emptyStateText, {color: textColor}]}>
+                No chat room yet
+              </ThemedText>
+              <ThemedText style={[styles.emptyStateSubtext, {color: textColor}]}>
+                Start a conversation with your group members
+              </ThemedText>
+              <Button
+                title={isCreatingChat ? "Creating..." : "Start Chat"}
+                onPress={handleCreateChat}
+                disabled={isCreatingChat}
+                buttonStyle={{ marginTop: 20 }}
+              />
             </View>
           ) : (
             <FlatList
@@ -279,8 +312,9 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: 12,
     width: '100%',
+    paddingHorizontal: 4,
   },
   currentUserMessage: {
     justifyContent: 'flex-end',
@@ -298,16 +332,43 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
   },
+  messageContent: {
+    flex: 1,
+    maxWidth: '85%',
+  },
   messageBubble: {
-    maxWidth: '80%',
-    padding: 10,
+    padding: 12,
     paddingHorizontal: 16,
-    borderRadius: 15,
+    borderRadius: 18,
+    marginVertical: 2,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  currentUserBubble: {
+    borderBottomRightRadius: 6,
+    alignSelf: 'flex-end',
+  },
+  otherUserBubble: {
+    borderBottomLeftRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  messageText: {
+    fontSize: 15,
+    lineHeight: 20,
+    fontFamily: 'Poppins',
   },
   senderName: {
-    fontSize: 11,
-    opacity: 0.5,
-    marginBottom: 3,
+    fontSize: 12,
+    opacity: 0.7,
+    marginBottom: 4,
+    marginLeft: 4,
+    fontWeight: '600',
   },
   timestamp: {
     fontSize: 10,
