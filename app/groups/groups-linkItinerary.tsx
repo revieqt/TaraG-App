@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { groupsApiService } from '@/services/groupsApiService';
 import EmptyMessage from '@/components/EmptyMessage';
 import { useItinerary, Itinerary } from '@/context/ItineraryContext';
+import Button from '@/components/Button';
 
 export default function LinkItineraryToGroup() {
   const params = useLocalSearchParams();
@@ -107,7 +108,14 @@ export default function LinkItineraryToGroup() {
     <ThemedView style={{flex: 1}}>
       <Header label='Select an Itinerary'/>
       
-      <ScrollView style={{flex: 1, padding: 20}} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{flex: 1, padding: 16}} showsVerticalScrollIndicator={false}>
+        <Button
+          title='Create New Itinerary'
+          onPress={() => router.push('/itineraries/itineraries-create')}
+          buttonStyle={{
+            marginBottom: 16,
+          }}
+        />
         {loading ? (
           <EmptyMessage
           title='Loading'

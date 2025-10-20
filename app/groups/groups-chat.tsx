@@ -18,17 +18,10 @@ import ThemedIcons from '@/components/ThemedIcons';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Group } from '@/services/groupsApiService';
 import { useSession } from '@/context/SessionContext';
+import { useSocket } from '@/context/SocketContext';
+import { useMessages, Message } from '@/context/MessageContext';
 import { LinearGradient } from 'expo-linear-gradient';
 
-interface Message {
-  id: string;
-  text: string;
-  sender: string;
-  senderId: string;
-  timestamp: Date;
-  isCurrentUser: boolean;
-  avatar?: string;
-}
 
 interface GroupChatProps {
   groupData: Group | null;
@@ -38,8 +31,9 @@ export default function GroupChat({
   groupData
 }: GroupChatProps) {
   const { session } = useSession();
+  const { socket, joinGroup, leaveGroup } = useSocket();
+  const { getGroupMessages, addMessage, setCurrentGroup } = useMessages();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const backgroundColor = useThemeColor({}, 'background');
@@ -47,6 +41,37 @@ export default function GroupChat({
   const accentColor = useThemeColor({}, 'accent');
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
+
+  // Get messages for this group from global state
+  const messages = groupData?.id ? getGroupMessages(groupData.id) : [];
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 GroupChat Debug:', {
+      groupId: groupData?.id,
+      messagesCount: messages.length,
+      messages: messages,
+      socketConnected: !!socket,
+      userId: session?.user?.id
+    });
+  }, [messages, groupData?.id, socket, session?.user?.id]);
+
+  // Add a test message when component mounts (for debugging)
+  useEffect(() => {
+    if (groupData?.id && messages.length === 0) {
+      console.log('🧪 Adding test message for debugging...');
+      setTimeout(() => {
+        if (groupData?.id) {
+          addMessage(groupData.id, {
+            text: 'Test message - if you see this, the message system is working!',
+            sender: 'System',
+            senderId: 'system-test',
+            avatar: undefined,
+          });
+        }
+      }, 1000);
+    }
+  }, [groupData?.id, messages.length, addMessage]);
 
   // Keyboard listeners
   useEffect(() => {
@@ -63,55 +88,44 @@ export default function GroupChat({
     };
   }, []);
 
-  // Mock data for demonstration
+  // Join/leave group when component mounts/unmounts
   useEffect(() => {
-    if (!groupData) return;
+    if (!groupData?.id) return;
+
+    // Join the group room
+    joinGroup(groupData.id);
     
-    const mockMessages: Message[] = [
-      {
-        id: '1',
-        text: `Welcome to the ${groupData.name} chat!`,
-        sender: 'System',
-        senderId: 'system',
-        timestamp: new Date(Date.now() - 3600000),
-        isCurrentUser: false,
-      },
-      {
-        id: '2',
-        text: 'Thanks! Excited to be here!',
-        sender: 'John Doe',
-        senderId: '2',
-        timestamp: new Date(Date.now() - 1800000),
-        isCurrentUser: false,
-        avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-      },
-      {
-        id: '3',
-        text: 'Hey everyone! 👋',
-        sender: 'You',
-        senderId: session?.user?.id || '1',
-        timestamp: new Date(),
-        isCurrentUser: true,
-        avatar: session?.user?.profileImage,
-      },
-    ];
-    setMessages(mockMessages);
-  }, [groupData, session]);
+    // Set current group for read status
+    setCurrentGroup(groupData.id);
+
+    // Leave group when component unmounts
+    return () => {
+      if (groupData?.id) {
+        leaveGroup(groupData.id);
+      }
+      setCurrentGroup(null);
+    };
+  }, [groupData?.id, joinGroup, leaveGroup, setCurrentGroup]);
 
   const handleSend = () => {
-    if (message.trim() === '' || !groupData) return;
+    if (message.trim() === '' || !groupData?.id) return;
     
-    const newMessage: Message = {
-      id: Date.now().toString(),
+    console.log('📤 Sending message:', {
+      groupId: groupData.id,
       text: message,
-      sender: session?.user?.fname + ' ' + session?.user?.lname || 'You',
+      sender: `${session?.user?.fname} ${session?.user?.lname}` || 'You',
       senderId: session?.user?.id || '1',
-      timestamp: new Date(),
-      isCurrentUser: true,
-      avatar: session?.user?.profileImage,
-    };
+      socketConnected: !!socket
+    });
     
-    setMessages(prev => [...prev, newMessage]);
+    // Add message using global context
+    addMessage(groupData.id, {
+      text: message,
+      sender: `${session?.user?.fname} ${session?.user?.lname}` || 'You',
+      senderId: session?.user?.id || '1',
+      avatar: session?.user?.profileImage,
+    });
+    
     setMessage('');
     
     // Auto-scroll to bottom after new message

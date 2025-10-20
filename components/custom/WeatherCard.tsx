@@ -354,34 +354,46 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
   const renderGraph = (type: string) => {
     if (!weatherData?.hourlyData) return null;
 
-    let data: number[] = [];
+    let rawData: number[] = [];
     let unit = '';
     let color = '#5A7D9A';
 
     switch (type) {
       case 'temperature':
-        data = weatherData.hourlyData.map(item => item.temperature);
+        rawData = weatherData.hourlyData.map(item => item.temperature);
         unit = '°C';
         color = '#B36B6B';
         break;
       case 'precipitation':
-        data = weatherData.hourlyData.map(item => item.precipitation);
+        rawData = weatherData.hourlyData.map(item => item.precipitation);
         unit = 'mm';
         color = '#5A7D9A';
         break;
       case 'humidity':
-        data = weatherData.hourlyData.map(item => item.humidity);
+        rawData = weatherData.hourlyData.map(item => item.humidity);
         unit = '%';
         color = '#5A7D9A';
         break;
       case 'wind':
-        data = weatherData.hourlyData.map(item => item.windSpeed);
+        rawData = weatherData.hourlyData.map(item => item.windSpeed);
         unit = 'km/h';
         color = '#5A7D9A';
         break;
     }
 
-    if (data.length === 0) return null;
+    // Filter out invalid values (NaN, null, undefined) and ensure all values are valid numbers
+    const data = rawData.filter(value => 
+      typeof value === 'number' && 
+      !isNaN(value) && 
+      isFinite(value)
+    );
+
+    console.log(`🌤️ Graph data for ${type}:`, { rawData, filteredData: data, weatherData: weatherData.hourlyData });
+
+    if (data.length === 0) {
+      console.log(`🌤️ No valid data for ${type} graph`);
+      return null;
+    }
 
     const screenWidth = Dimensions.get('window').width - 60;
     const graphHeight = 150;
@@ -398,7 +410,12 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
     const points = data.map((value, index) => {
       const x = padding + (index * (screenWidth - 2 * padding)) / (data.length - 1);
       const y = graphHeight - bottomPadding - ((value - minValue) / range) * (graphHeight - padding - bottomPadding);
-      return { x, y, value };
+      
+      // Ensure x and y are valid numbers
+      const safeX = isNaN(x) || !isFinite(x) ? padding : x;
+      const safeY = isNaN(y) || !isFinite(y) ? graphHeight - bottomPadding : y;
+      
+      return { x: safeX, y: safeY, value };
     });
 
     const pointsString = points.map(p => `${p.x},${p.y}`).join(' ');
@@ -539,9 +556,6 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
     );
   }
 
-  // Graph component using animated SVG
-  
-
   return (
     <ThemedView shadow color='primary' style={styles.locationContent}>
       {currentHourWeather && (
@@ -566,28 +580,28 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
         <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'temperature' ? null : 'temperature')}>
           <ThemedIcons library='MaterialDesignIcons' name='thermometer' size={20} color='#B36B6B'/>
           <ThemedText style={{marginTop: 5}}>
-            {currentHourWeather ? `${Math.round(currentHourWeather.temperature)}°C` : 'N/A'}
+            {currentHourWeather && !isNaN(currentHourWeather.temperature) ? `${Math.round(currentHourWeather.temperature)}°C` : 'N/A'}
           </ThemedText>
           <ThemedText style={styles.weatherLabel}>Temperature</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'precipitation' ? null : 'precipitation')}>
           <ThemedIcons library='MaterialDesignIcons' name='cloud' size={20} color='#5A7D9A'/>
           <ThemedText style={{marginTop: 5}}>
-            {currentHourWeather ? `${currentHourWeather.precipitation}mm` : 'N/A'}
+            {currentHourWeather && !isNaN(currentHourWeather.precipitation) ? `${currentHourWeather.precipitation}mm` : 'N/A'}
           </ThemedText>
           <ThemedText style={styles.weatherLabel}>Rainfall</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'humidity' ? null : 'humidity')}>
           <ThemedIcons library='MaterialDesignIcons' name='water' size={20} color='#5A7D9A'/>
           <ThemedText style={{marginTop: 5}}>
-            {currentHourWeather ? `${currentHourWeather.humidity}%` : 'N/A'}
+            {currentHourWeather && !isNaN(currentHourWeather.humidity) ? `${currentHourWeather.humidity}%` : 'N/A'}
           </ThemedText>
           <ThemedText style={styles.weatherLabel}>Humidity</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'wind' ? null : 'wind')}>
           <ThemedIcons library='MaterialDesignIcons' name='fan' size={20} color='#5A7D9A'/>
           <ThemedText style={{marginTop: 5}}>
-            {currentHourWeather ? `${Math.round(currentHourWeather.windSpeed)}km/h` : 'N/A'}
+            {currentHourWeather && !isNaN(currentHourWeather.windSpeed) ? `${Math.round(currentHourWeather.windSpeed)}km/h` : 'N/A'}
           </ThemedText>
           <ThemedText style={styles.weatherLabel}>Wind</ThemedText>
         </TouchableOpacity>

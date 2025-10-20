@@ -2,11 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Alert, Platform, Animated, Image } from 'react-native';
 import MapView, { Region, Marker, AnimatedRegion, MAP_TYPES, PROVIDER_DEFAULT } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { io, Socket } from 'socket.io-client';
 import TaraMarker from './TaraMarker';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useSession } from '@/context/SessionContext';
-import { BACKEND_URL } from '@/constants/Config';
+import { useSocket } from '@/context/SocketContext';
 import { ThemedText } from '@/components/ThemedText';
 import { useMapType } from '@/hooks/useMapType';
 
@@ -37,6 +36,7 @@ interface GroupMapProps {
 
 export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
   const { session } = useSession();
+  const { socket, joinGroup, leaveGroup, updateLocation } = useSocket();
   const accentColor = useThemeColor({}, 'accent');
   const primaryColor = useThemeColor({}, 'primary');
   const { mapType: currentMapType } = useMapType();
@@ -50,7 +50,6 @@ export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
     longitudeDelta: 0.0421,
   });
   
-  const socketRef = useRef<Socket | null>(null);
   const locationWatchRef = useRef<Location.LocationSubscription | null>(null);
 
   // Convert string map type to MAP_TYPES enum
@@ -68,36 +67,21 @@ export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
     }
   };
 
-  // Initialize socket connection and location tracking
+  // Initialize socket listeners and location tracking
   useEffect(() => {
-    if (!session?.user?.id || !groupId) {
-      console.log('❌ Missing session user ID or group ID:', { userId: session?.user?.id, groupId });
+    if (!session?.user?.id || !groupId || !socket) {
+      console.log('❌ Missing session user ID, group ID, or socket:', { 
+        userId: session?.user?.id, 
+        groupId, 
+        socketConnected: !!socket 
+      });
       return;
     }
 
-    // Test backend connectivity first
-    const socketUrl = BACKEND_URL.replace('/api', '');
-    console.log('🔌 Connecting to Socket.IO server at:', socketUrl);
-    console.log('👤 User ID:', session.user.id, 'Group ID:', groupId);
+    console.log('📍 Setting up GroupMap for group:', groupId);
     
-    // Initialize socket connection - remove /api from URL for Socket.IO
-    socketRef.current = io(socketUrl, {
-      transports: ['websocket', 'polling'],
-      timeout: 20000,
-      forceNew: true,
-    });
-    
-    const socket = socketRef.current;
-
-    socket.on('connect', () => {
-      console.log('🔌 Connected to socket server for GroupMap');
-      // Join the group room
-      socket.emit('join-group', { 
-        groupId, 
-        userId: session.user?.id 
-      });
-      console.log(`📍 Joined group room: group-${groupId} with user: ${session.user?.id}`);
-    });
+    // Join the group room
+    joinGroup(groupId);
 
     // Listen for location updates from other members
     socket.on('member-location-update', (data: {
@@ -160,14 +144,6 @@ export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
       });
     });
 
-    socket.on('connect_error', (error) => {
-      console.error('❌ Socket connection error:', error);
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('🔌 Socket disconnected:', reason);
-    });
-
     // Request location permissions and start tracking
     requestLocationPermission();
 
@@ -176,15 +152,13 @@ export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
       if (locationWatchRef.current) {
         locationWatchRef.current.remove();
       }
-      if (socket) {
-        socket.emit('leave-group', { 
-          groupId, 
-          userId: session.user?.id 
-        });
-        socket.disconnect();
-      }
+      // Leave group room
+      leaveGroup(groupId);
+      
+      // Remove socket listeners
+      socket.off('member-location-update');
     };
-  }, [groupId, session?.user?.id]);
+  }, [groupId, session?.user?.id, socket, joinGroup, leaveGroup]);
 
   const requestLocationPermission = async () => {
     try {
@@ -233,20 +207,15 @@ export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
           setUserLocation(location);
           
           // Emit location update to other group members
-          if (socketRef.current && session?.user) {
+          if (session?.user) {
             const locationData = {
-              groupId,
-              userId: session.user.id,
-              userName: `${session.user.fname} ${session.user.lname}`,
-              profileImage: session.user.profileImage || '',
               location: {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
-              },
-              timestamp: Date.now()
+              }
             };
             console.log('📤 Emitting location update:', locationData);
-            socketRef.current.emit('update-location', locationData);
+            updateLocation(groupId, locationData);
           }
         }
       );

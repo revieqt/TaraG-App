@@ -4,6 +4,8 @@ import { RouteTrackerProvider } from '@/context/RouteTrackerContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AlertsProvider } from '@/context/AlertsContext';
 import { ItineraryProvider } from '@/context/ItineraryContext';
+import { SocketProvider } from '@/context/SocketContext';
+import { MessageProvider } from '@/context/MessageContext';
 import { useAutoSync } from '@/services/itinerariesApiService';
 import GlobalAlarmProvider from '@/components/providers/GlobalAlarmProvider';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -18,6 +20,7 @@ import 'react-native-get-random-values';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 import { useLocationUpdater } from '@/hooks/useLocationUpdater';
+import MessagePopup from '@/components/MessagePopup';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -80,17 +83,21 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <SessionProvider>
-        <ItineraryProvider>
-          <TrackingProvider>
-            <RouteTrackerProvider>
-              <AlertsProvider>
-                <GlobalAlarmProvider>
-                  <AppContent />
-                </GlobalAlarmProvider>
-              </AlertsProvider>
-            </RouteTrackerProvider>
-          </TrackingProvider>
-        </ItineraryProvider>
+        <SocketProvider>
+          <MessageProvider>
+            <ItineraryProvider>
+              <TrackingProvider>
+                <RouteTrackerProvider>
+                  <AlertsProvider>
+                    <GlobalAlarmProvider>
+                      <AppContent />
+                    </GlobalAlarmProvider>
+                  </AlertsProvider>
+                </RouteTrackerProvider>
+              </TrackingProvider>
+            </ItineraryProvider>
+          </MessageProvider>
+        </SocketProvider>
       </SessionProvider>
     </ThemeProvider>
   );
@@ -104,6 +111,7 @@ function AppContent() {
       <SafeAreaView style={{ flex: 1, backgroundColor }} edges={['top', 'bottom']}>
         <SessionInitializer />
         <StatusBar style="light" backgroundColor={backgroundColor} />
+        <MessagePopup />
         <Stack 
           screenOptions={{ headerShown: false }}
           initialRouteName={"index"}
