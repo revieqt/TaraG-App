@@ -208,6 +208,16 @@ export default function TaraBuddySection() {
 
   return (
     <View style={{ flex: 1 }}>
+      <TouchableOpacity 
+        onPress={() => router.push("/account/viewProfile")}
+        style={styles.settingsContainer}
+      >
+        <ThemedView color="primary" shadow style={styles.settings}>
+          <ThemedIcons library="MaterialIcons" name="person" size={16} color="white"/>
+          <ThemedText style={{ color: 'white', fontSize: 10 }}>Your Preferences</ThemedText>
+        </ThemedView>
+      </TouchableOpacity>
+      
       {!hasPreference ? (
         <View style={styles.cardContainer}>
           <ThemedView color="primary" shadow style={[styles.card, styles.welcomeCard]}>
@@ -365,11 +375,6 @@ export default function TaraBuddySection() {
           </View>
 
           <View style={styles.bottomOptionContainer}>
-            <TouchableOpacity onPress={() => router.push("/account/viewProfile")}>
-              <ThemedView color="primary" shadow style={styles.settings}>
-                <ThemedIcons library="MaterialIcons" name="person" size={20} />
-              </ThemedView>
-            </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.bottomOption, { backgroundColor: "#B85C5C" }]}
               onPress={handlePass}
@@ -384,11 +389,11 @@ export default function TaraBuddySection() {
             >
               <Foundation name="like" size={40} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push("/taraBuddy/taraBuddy-settings")}>
+            {/* <TouchableOpacity onPress={() => router.push("/taraBuddy/taraBuddy-settings")}>
               <ThemedView color="primary" shadow style={styles.settings}>
                 <ThemedIcons library="MaterialIcons" name="settings" size={20} />
               </ThemedView>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
           
           {/* Match Modal */}
@@ -474,7 +479,7 @@ const styles = StyleSheet.create({
   bottomOption: {
     alignItems: "center",
     justifyContent: "center",
-    width: 60,
+    width: 55,
     aspectRatio: 1,
     borderRadius: 50,
     backgroundColor: "white",
@@ -488,22 +493,21 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 4,
   },
+  settingsContainer: {
+    position: "absolute",
+    top: 70,
+    right: 10,
+    zIndex: 999999,
+    elevation: 999999, // For Android
+  },
   settings: {
     alignItems: "center",
     justifyContent: "center",
-    width: 40,
-    aspectRatio: 1,
+    padding: 7,
     borderRadius: 50,
-    backgroundColor: "white",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    zIndex: 4,
+    backgroundColor: "rgba(0,0,0,.5)",
+    flexDirection: "row",
+    gap: 5
   },
   cardContainer: {
     flex: 1,

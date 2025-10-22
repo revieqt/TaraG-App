@@ -148,7 +148,7 @@ export default function HomeScreen() {
               <ThemedText type='title' style={{color: secondaryColor}}>
                 Hello {user?.fname ? `${user.fname}` : ''}!
               </ThemedText>
-              <ThemedText type='defaultSemiBold' style={{opacity: 0.7}}>Welcome to TaraG!</ThemedText>
+              <ThemedText style={{opacity: 0.7, fontSize: 14}}>Welcome to TaraG!</ThemedText>
             </View>
             <View style={styles.taraContainer}>
               <TouchableOpacity onPress={handleTaraPress} activeOpacity={1}>
@@ -243,7 +243,7 @@ export default function HomeScreen() {
               activeOpacity={0.8}
             >
               <ThemedView color='primary' shadow style={[styles.gridChildContainer, styles.leftGridContainer]}>
-                <ThemedText style={{opacity: .5, fontSize: 12}}>Meet new friends with</ThemedText>
+                <ThemedText style={{opacity: .5, fontSize: 10}}>Meet new friends with</ThemedText>
                 <ThemedText type='defaultSemiBold' style={{opacity: .85}}>TaraBuddy</ThemedText>
                 <LinearGradient
                   colors={['rgba(0, 255, 222,.4)', 'transparent']}
@@ -253,9 +253,6 @@ export default function HomeScreen() {
                   pointerEvents="none"
                 />
                 <Image source={require('@/assets/images/slide3-img.png')} style={styles.taraBuddyImage} />
-                <View style={styles.bottomArrow}>
-                  <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={15}/>
-                </View>
               </ThemedView>
             </TouchableOpacity>
             <View style={[styles.gridChildContainer, {gap: '4%'}]}>
@@ -267,7 +264,7 @@ export default function HomeScreen() {
                 })}
                 activeOpacity={0.8} style={{flex:1, padding: 12}}
                 >
-                  <ThemedText style={{opacity: .5, fontSize: 12}}>Seamless group</ThemedText>
+                  <ThemedText style={{opacity: .5, fontSize: 10}}>Seamless group</ThemedText>
                   <ThemedText type='defaultSemiBold' style={{opacity: .85, fontSize: 15}}>Rooms</ThemedText>
                   <LinearGradient
                     colors={['rgba(0, 255, 222,.45)', 'transparent']}
@@ -277,9 +274,6 @@ export default function HomeScreen() {
                     pointerEvents="none"
                   />
                   <Image source={require('@/assets/images/slide4-img.png')} style={styles.rightGridImage} />
-                  <View style={styles.bottomArrow}>
-                    <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={10}/>
-                  </View>
                 </TouchableOpacity>
               </ThemedView>
               <ThemedView color='primary' shadow style={styles.rightGridContainer}>
@@ -290,7 +284,7 @@ export default function HomeScreen() {
                 })}
                 activeOpacity={0.8} style={{flex: 1, padding: 12}}
               >
-                  <ThemedText style={{opacity: .5, fontSize: 12}}>Join Organized</ThemedText>
+                  <ThemedText style={{opacity: .5, fontSize: 10}}>Join Organized</ThemedText>
                   <ThemedText type='defaultSemiBold' style={{opacity: .85, fontSize: 15}}>Tours</ThemedText>
                   <LinearGradient
                     colors={['rgba(0, 255, 222,.45)', 'transparent']}
@@ -300,9 +294,6 @@ export default function HomeScreen() {
                     pointerEvents="none"
                   />
                   <Image source={require('@/assets/images/slide2-img.png')} style={styles.rightGridImage} />
-                  <View style={styles.bottomArrow}>
-                    <ThemedIcons library="MaterialIcons" name="arrow-forward-ios" size={10}/>
-                  </View>
                 </TouchableOpacity>
               </ThemedView>
             </View>
@@ -385,7 +376,7 @@ const styles = StyleSheet.create({
   textContainer: {
     position: 'absolute',
     bottom: 0,
-    left: 20,
+    left: 16,
     zIndex: 3,
   },
   menuGradient: {
@@ -410,7 +401,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 3,
+    gap: 2,
     backgroundColor: 'rgba(0, 202, 255,.8)',
     borderRadius: 10,
     paddingTop: 5,
@@ -423,7 +414,7 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   menuOptionText:{
-    fontSize: 12,
+    fontSize: 11,
     marginTop: 5,
     color: '#fff'
   },
@@ -488,14 +479,6 @@ const styles = StyleSheet.create({
     bottom: '-45%',
     right: '-15%',
     opacity: .8,
-  },
-  bottomArrow:{
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    zIndex: 3,
-    pointerEvents: 'none',
-    opacity: .5,
   },
   supportContainer:{
     width: '100%',

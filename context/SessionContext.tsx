@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useState, useRef } from 'react';
+import { refreshAccessToken } from '@/services/authApiService';
 
 // 🧑‍💻 User type
 export type User = {
@@ -97,6 +98,35 @@ type SessionContextType = {
   updateSession: (newData: Partial<SessionData>) => Promise<void>;
   clearSession: () => Promise<void>;
   loading: boolean;
+  refreshToken: () => Promise<boolean>;
+};
+
+// 🔧 Helper functions for JWT handling
+const decodeJWT = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Error decoding JWT:', error);
+    return null;
+  }
+};
+
+const isTokenExpired = (token: string): boolean => {
+  const decoded = decodeJWT(token);
+  if (!decoded || !decoded.exp) return true;
+  
+  const currentTime = Math.floor(Date.now() / 1000);
+  const bufferTime = 300; // 5 minutes buffer before expiration
+  
+  return decoded.exp < (currentTime + bufferTime);
 };
 
 // 🔗 Context init
@@ -106,6 +136,8 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<SessionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const refreshTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isRefreshingRef = useRef(false);
 
   useEffect(() => {
     (async () => {
@@ -152,6 +184,12 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
 
   const clearSession = async () => {
     try {
+      // Clear any pending refresh timeout
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+        refreshTimeoutRef.current = null;
+      }
+      
       setSession(null);
       await AsyncStorage.removeItem('session');
       
@@ -161,8 +199,101 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const handleTokenRefresh = async (): Promise<boolean> => {
+    if (isRefreshingRef.current) {
+      console.log('🔄 Token refresh already in progress, skipping...');
+      return false;
+    }
+
+    if (!session?.refreshToken) {
+      console.log('❌ No refresh token available');
+      await clearSession();
+      return false;
+    }
+
+    try {
+      isRefreshingRef.current = true;
+      console.log('🔄 Refreshing access token...');
+      
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = 
+        await refreshAccessToken(session.refreshToken);
+      
+      const updatedSession = {
+        ...session,
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      };
+      
+      setSession(updatedSession);
+      await AsyncStorage.setItem('session', JSON.stringify(updatedSession));
+      
+      console.log('✅ Token refreshed successfully');
+      scheduleTokenRefresh(newAccessToken);
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Token refresh failed:', error);
+      await clearSession();
+      return false;
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  };
+
+  const scheduleTokenRefresh = (accessToken: string) => {
+    if (!accessToken) return;
+    
+    const decoded = decodeJWT(accessToken);
+    if (!decoded || !decoded.exp) return;
+    
+    const currentTime = Math.floor(Date.now() / 1000);
+    const expirationTime = decoded.exp;
+    const refreshTime = expirationTime - 600; // Refresh 10 minutes before expiration
+    const timeUntilRefresh = Math.max(0, (refreshTime - currentTime) * 1000);
+    
+    // Clear existing timeout
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+    
+    console.log(`⏰ Scheduling token refresh in ${Math.floor(timeUntilRefresh / 1000 / 60)} minutes`);
+    
+    refreshTimeoutRef.current = setTimeout(() => {
+      handleTokenRefresh();
+    }, timeUntilRefresh);
+  };
+
+  // Add useEffect to schedule token refresh when session loads
+  useEffect(() => {
+    if (session?.accessToken && !loading) {
+      // Check if token is already expired
+      if (isTokenExpired(session.accessToken)) {
+        console.log('🔄 Access token expired on load, refreshing...');
+        handleTokenRefresh();
+      } else {
+        // Schedule refresh for later
+        scheduleTokenRefresh(session.accessToken);
+      }
+    }
+  }, [session?.accessToken, loading]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <SessionContext.Provider value={{ session, updateSession, clearSession, loading }}>
+    <SessionContext.Provider value={{ 
+      session, 
+      updateSession, 
+      clearSession, 
+      loading, 
+      refreshToken: handleTokenRefresh 
+    }}>
       {children}
     </SessionContext.Provider>
   );

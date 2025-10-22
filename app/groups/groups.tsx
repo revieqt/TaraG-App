@@ -211,14 +211,6 @@ export default function GroupsSection({ activeTab ="tours" }: {activeTab?: strin
 }
 
 const styles = StyleSheet.create({
-    addButton: {
-        marginTop: -12,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     groupContainer:{
         padding: 20,
         borderRadius: 10,

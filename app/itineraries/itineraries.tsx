@@ -132,12 +132,24 @@ export default function ItinerariesScreen() {
 
   const filteredItineraries = getFilteredItineraries();
 
+  // Handle date selection from calendar
+  const handleDateSelect = (selectedDate: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+    
+    // If selected date is in the future, switch to upcoming tab
+    if (selectedDate > today) {
+      setSelectedOption('upcoming');
+    }
+  };
+
   return (
     <ThemedView style={{ flex: 1 }}>
       <ScrollView>
         <FadedHeader title='Itineraries' subtitle='Your travel plans' iconName='event-note' iconLibrary='MaterialIcons'/>
         <ThemedView color='primary' shadow style={styles.calendarContainer}>
-          <MonthlyCalendar hideDetails/>
+          <MonthlyCalendar hideDetails onDateSelect={handleDateSelect}/>
         </ThemedView>
         <ScrollView 
           horizontal 
@@ -247,7 +259,7 @@ export default function ItinerariesScreen() {
         iconName="add"
         iconColor="#fff"
         onPress={() => router.push('/itineraries/itineraries-create')}
-        style={{position: 'absolute', bottom: 20, right: 20}}
+        style={{position: 'absolute', bottom: 10, right: 10}}
       />
     </ThemedView>
   );

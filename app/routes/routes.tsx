@@ -273,7 +273,7 @@ export default function RoutesScreen() {
           iconName="add"
           iconColor="#fff"
           onPress={handleAddRoute}
-          style={{position: 'absolute', bottom: 20, right: 20}}
+          style={{position: 'absolute', bottom: 10, right: 10}}
         />
       )}
     </ThemedView>

@@ -269,7 +269,7 @@ const handleJoinGroup = async () => {
           </ScrollView>
           <OptionsPopup
           key="joinGroup"
-          style={[styles.addButton, {backgroundColor: primaryColor, bottom: 85}]}
+          style={[styles.addButton, {backgroundColor: primaryColor, bottom: 75}]}
           options={[
               <View key="header">
               <ThemedText type='subtitle'>Join A Group</ThemedText>
@@ -299,7 +299,7 @@ const handleJoinGroup = async () => {
 
           <OptionsPopup
             key="createGroup"
-            style={[styles.addButton, {backgroundColor: secondaryColor, bottom: 16}]}
+            style={[styles.addButton, {backgroundColor: secondaryColor, bottom: 10}]}
             options={[
                 <View key="header">
                 <ThemedText type='subtitle'>Create a Group</ThemedText>
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
-    right: 16,
+    right: 10,
     shadowColor: 'rgba(0,0,0,.3)',
     shadowOffset: {
       width: 0,

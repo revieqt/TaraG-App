@@ -582,7 +582,7 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
           <ThemedText style={{marginTop: 5}}>
             {currentHourWeather && !isNaN(currentHourWeather.temperature) ? `${Math.round(currentHourWeather.temperature)}°C` : 'N/A'}
           </ThemedText>
-          <ThemedText style={styles.weatherLabel}>Temperature</ThemedText>
+          <ThemedText style={styles.weatherLabel}>Heat</ThemedText>
         </TouchableOpacity>
         <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'precipitation' ? null : 'precipitation')}>
           <ThemedIcons library='MaterialDesignIcons' name='cloud' size={20} color='#5A7D9A'/>
@@ -665,11 +665,10 @@ const styles = StyleSheet.create({
   },
   weatherImage: {
     position: 'absolute',
-    right: 0,
-    width: 150,
-    height: 150,
-    marginRight: -50,
-    marginTop: -17,
+    top: '7%',
+    right: '-17%',
+    width: '50%',
+    height: '50%',
     zIndex: 1000,
   },
   weatherValueLoading: {

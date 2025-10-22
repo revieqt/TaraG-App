@@ -27,6 +27,7 @@ interface MonthlyCalendarProps {
   highlightColor?: string;
   itineraryHighlightColor?: string;
   hideDetails?: boolean;
+  onDateSelect?: (date: Date) => void;
 }
 
 const { width } = Dimensions.get("window");
@@ -52,6 +53,7 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({
   highlightColor = "#4300FF",
   itineraryHighlightColor = "#00CAFF",
   hideDetails = false,
+  onDateSelect,
 }) => {
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -251,6 +253,11 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({
   const handleDatePress = (day: number) => {
     const date = new Date(currentYear, currentMonth, day);
     setSelectedDate(date);
+    
+    // Call the callback if provided
+    if (onDateSelect) {
+      onDateSelect(date);
+    }
   };
 
   // Format date for display

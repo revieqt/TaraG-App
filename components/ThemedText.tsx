@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'PoppinsBold',
-    fontSize: 27,
+    fontSize: 24,
     lineHeight: 38,
   },
   subtitle: {
