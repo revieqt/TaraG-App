@@ -25,7 +25,7 @@ export const BackButton: React.FC<BackButtonProps> = ({ style, type = 'default',
         style={{ position: 'absolute', top: 16, left: 13, zIndex: 1000, padding: 8}}
         activeOpacity={0.7}
       >
-        <ThemedIcons library="MaterialIcons" name="arrow-back" size={28} />
+        <ThemedIcons library="MaterialIcons" name="arrow-back" size={24} color={color}/>
       </TouchableOpacity>
     );
   }

@@ -59,8 +59,8 @@ const ActiveSOSButton: React.FC = () => {
           ]}
         >
           <ThemedIcons 
-            library='MaterialIcons' 
-            name='sos'
+            library='MaterialDesignIcons' 
+            name='alert-circle'
             size={18} 
             color="white" 
           />

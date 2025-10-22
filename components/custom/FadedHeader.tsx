@@ -4,6 +4,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedIcons } from '@/components/ThemedIcons';
+import BackButton from './BackButton';
 
 type IconLibrary = 'MaterialIcons' | 'MaterialCommunityIcons' | 'MaterialDesignIcons';
 
@@ -20,6 +21,7 @@ const FadedHeader: React.FC<FadedHeaderProps> = ({ color, title, subtitle, iconL
   const backgroundColor = useThemeColor({}, 'background');
   return (
     <View style={[styles.container, {backgroundColor: color || secondaryColor}]}>
+      <BackButton style={{padding: 16, zIndex: 1000}} color='#fff'/>
       <LinearGradient
         colors={['transparent', backgroundColor]}
         style={styles.gradientOverlay}

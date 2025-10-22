@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { useAlerts } from '@/context/AlertsContext';
 import { AlertCard } from './AlertCard';
+import { useSession } from '@/context/SessionContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -17,7 +18,7 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
 }) => {
   const [hideAlert, setHideAlert] = useState(false);
   
-  // Alert modal state
+  const { session } = useSession();
   const { globalAlerts, localAlerts, markAsRead } = useAlerts();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -229,6 +230,10 @@ const AlertsContainer: React.FC<AlertsContainerProps> = ({
         pointerEvents={hideAlert ? 'auto' : 'none'}
       >
         <ThemedView style={styles.openContainerInner} shadow color='secondary'>
+          {(hasUnreadAlerts || 
+            session?.user?.safetyState?.isInAnEmergency ||
+            session?.activeRoute
+          ) && <View style={styles.unreadBadge} />}
           <TouchableOpacity onPress={() => setHideAlert(false)}>
             <ThemedIcons library='MaterialIcons' name="notifications" size={20} color='white'/>
           </TouchableOpacity>

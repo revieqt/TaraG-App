@@ -12,6 +12,7 @@ import { useSession } from "@/context/SessionContext";
 import { enableSafetyMode, disableSafetyMode } from "@/services/safetyApiService";
 import { openDocument } from "@/utils/documentUtils";
 import OptionsPopup from "@/components/OptionsPopup";
+import BackButton from "@/components/custom/BackButton";
 
 const emergencyTypes = [
   { id: 'medical', label: 'Medical Emergency', icon: 'medical-bag'},
@@ -53,7 +54,7 @@ export default function SOSSection(){
         setModalVisible(true);
       }
       setIsLongPressing(false);
-    }, 3000); // 3 seconds
+    }, 2000); // 2 seconds
   };
 
   const handleLongPressEnd = () => {
@@ -161,7 +162,7 @@ export default function SOSSection(){
       </OptionsPopup> */}
 
       <View style={[styles.container, {backgroundColor: backgroundColor}]}>
-        
+        <BackButton type='floating' color='#fff'/>
         <View style={[styles.circle, {width: Dimensions.get('window').width+50}]}>
           <View style={styles.titleContainer}>
             {isSOSActive ? (
