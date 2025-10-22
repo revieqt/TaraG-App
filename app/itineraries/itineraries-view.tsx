@@ -331,7 +331,7 @@ export default function ItineraryViewScreen() {
             ]}
             style={styles.options}
           >
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={24} color="#fff" />
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={20} color="#fff" />
           </OptionsPopup>
         ) : (
           <OptionsPopup
@@ -347,7 +347,7 @@ export default function ItineraryViewScreen() {
             ]}
             style={styles.options}
           >
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={24} color="#fff" />
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={20} color="#fff" />
           </OptionsPopup>
         )}
 

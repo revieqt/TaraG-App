@@ -330,7 +330,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   mapHeaderContainer: {
-    height: 250,
+    height: 200,
     backgroundColor: 'blue',
   },
   circle:{
@@ -343,13 +343,27 @@ const styles = StyleSheet.create({
     left: 100,
     zIndex: 2,
   },
+  taraContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    zIndex: 1000,
+    width: '100%',
+    height: Dimensions.get('window').width * 0.45,
+    overflow: 'visible',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+  },
   taraImage: {
     position: 'absolute',
-    bottom: -80,
-    right: -25,
-    width: 150,
-    height: 230,
-    zIndex: 3,
+    bottom: -75,
+    right: '-10%',
+    width: '43%',              
+    height: 200,        
+    resizeMode: 'contain',
+    zIndex: 1100,     
+    opacity: 1,
+    alignSelf: 'flex-end',
   },
   gradientOverlay: {
     height: 120,
@@ -377,7 +391,7 @@ const styles = StyleSheet.create({
   menuGradient: {
     height: 70,
     position: 'absolute',
-    top: 245,
+    top: 195,
     left: 0,
     right: 0,
     zIndex: 3,
@@ -491,12 +505,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc4',
   },
-  taraContainer: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    zIndex: 1000,
-  },
+  
   messageBubble: {
     position: 'absolute',
     bottom: -17,
