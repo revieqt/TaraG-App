@@ -7,9 +7,10 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface ViewItineraryProps {
   json: any;
+  hideHeader?: boolean;
 }
 
-const ViewItinerary: React.FC<ViewItineraryProps> = ({ json }) => {
+const ViewItinerary: React.FC<ViewItineraryProps> = ({ json, hideHeader }) => {
   const itinerary = json;
 
   const formatDate = (dateValue: any): string => {
@@ -58,7 +59,7 @@ const ViewItinerary: React.FC<ViewItineraryProps> = ({ json }) => {
     <View style={{ flex: 1 }}>
       {itinerary && (
         <>
-          <View style={styles.header}>
+          {!hideHeader && <View style={styles.header}>
             <ThemedText type="subtitle" style={{ flex: 1 }}>{itinerary.title}</ThemedText>
 
             <View style={styles.typesContainer}>
@@ -75,8 +76,8 @@ const ViewItinerary: React.FC<ViewItineraryProps> = ({ json }) => {
               <ThemedIcons library="MaterialIcons" name="person" size={15}/>
               <ThemedText>Created by {itinerary.username}</ThemedText>
             </View>
-          </View>
-          <ThemedText style={{marginVertical: 25}}>{itinerary.description}</ThemedText>
+          </View>}
+          <ThemedText style={{marginBottom: 25}}>{itinerary.description}</ThemedText>
           {Array.isArray(itinerary.locations) && itinerary.locations.length > 0 && (
             itinerary.locations.map((loc: any, idx: number) => (
               <View key={idx}>
@@ -96,13 +97,11 @@ const ViewItinerary: React.FC<ViewItineraryProps> = ({ json }) => {
 };
 
 const styles = StyleSheet.create({
-  options:{
-    marginLeft: 12,
-  },
   header:{
     borderBottomWidth: 1,
     borderBottomColor: '#ccc4',
-    paddingBottom: 10
+    paddingBottom: 10,
+    marginBottom: 10,
   },
   typesContainer:{
     flexDirection: 'row',

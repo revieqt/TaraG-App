@@ -186,11 +186,8 @@ export default function GroupChat({
                 : [styles.otherUserBubble, { backgroundColor: primaryColor }]
             ]}>
             
-            <ThemedText style={[
-                styles.messageText,
-                { color: isCurrentUser ? '#FFFFFF' : textColor }
-            ]}>
-                {item.text}
+            <ThemedText style={{ color: isCurrentUser ? '#FFFFFF' : textColor }}>
+              {item.text}
             </ThemedText>
             
             </View>
@@ -303,7 +300,7 @@ const styles = StyleSheet.create({
   },
   messagesList: {
     flex: 1,
-    marginBottom: 40
+    paddingBottom: 40
   },
   messagesContainer: {
     flexGrow: 1,
@@ -337,10 +334,9 @@ const styles = StyleSheet.create({
     maxWidth: '85%',
   },
   messageBubble: {
-    padding: 12,
+    padding: 8,
     paddingHorizontal: 16,
     borderRadius: 18,
-    marginVertical: 2,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: {
@@ -358,21 +354,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 6,
     alignSelf: 'flex-start',
   },
-  messageText: {
-    fontSize: 15,
-    lineHeight: 20,
-    fontFamily: 'Poppins',
-  },
   senderName: {
-    fontSize: 12,
-    opacity: 0.7,
-    marginBottom: 4,
+    fontSize: 10,
+    opacity: 0.5,
     marginLeft: 4,
     fontWeight: '600',
   },
   timestamp: {
     fontSize: 10,
-    marginTop: 8,
+    marginTop: 5,
     textAlign: 'right',
     opacity: 0.5,
   },

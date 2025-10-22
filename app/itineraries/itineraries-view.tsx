@@ -20,6 +20,9 @@ import { groupsApiService } from '@/services/groupsApiService';
 import TextField from '@/components/TextField';
 import Button from '@/components/Button';
 import ItineraryMap from '@/components/maps/ItineraryMap';
+import { LinearGradient } from 'expo-linear-gradient';
+import { formatDate } from '@/utils/routeHistory';
+import { formatDateToString } from '@/utils/formatDateToString';
 
 export default function ItineraryViewScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -271,10 +274,11 @@ export default function ItineraryViewScreen() {
 
   return (
     <ThemedView style={{ flex: 1 }}>
-      <BackButton type='floating' />
       <ItineraryMap itinerary={itinerary} />
-
-      <BottomSheet snapPoints={[0.45, 0.9]} defaultIndex={0} style={{paddingHorizontal: 20}}>
+      <LinearGradient
+        colors={['#000', 'transparent']}
+        style={styles.headerGradient}
+      >
         {showFirstOptions ? (
           <OptionsPopup
             options={[
@@ -305,7 +309,7 @@ export default function ItineraryViewScreen() {
                   </View>
                 ]}
               >
-                <ThemedIcons library="MaterialIcons" name="group" size={20} />
+                <ThemedIcons library="MaterialIcons" name="group" size={20}/>
                 <ThemedText>Create a Group Trip with this Itinerary</ThemedText>
               </OptionsPopup>,
               <TouchableOpacity style={styles.optionsChild} onPress={handleGoToUpdateForm}>
@@ -327,7 +331,7 @@ export default function ItineraryViewScreen() {
             ]}
             style={styles.options}
           >
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={20} color="#888" />
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={24} color="#fff" />
           </OptionsPopup>
         ) : (
           <OptionsPopup
@@ -343,12 +347,37 @@ export default function ItineraryViewScreen() {
             ]}
             style={styles.options}
           >
-            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={20} color="#888" />
+            <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={24} color="#fff" />
           </OptionsPopup>
         )}
+
+        <BackButton type="close-floating" color="#fff"/>
+        <ThemedText type='subtitle' style={{ color: '#fff'}}>
+          {itinerary?.title}
+        </ThemedText>
+        <View style={styles.detailsContainer}>
+          <ThemedIcons library="MaterialDesignIcons" name="calendar" size={13} color="#fff"/>
+          <ThemedText style={{ color: '#fff', fontSize: 11 }}>
+            {formatDateToString(itinerary?.startDate)} - {formatDateToString(itinerary?.endDate)}
+          </ThemedText>
+        </View>
+        <View style={styles.detailsContainer}>
+          <ThemedIcons library="MaterialIcons" name="edit-calendar" size={13} color="#fff"/>
+          <ThemedText style={{ color: '#fff', fontSize: 11 }}>
+            {itinerary?.type}
+          </ThemedText>
+        </View>
+        <View style={styles.detailsContainer}>
+          <ThemedIcons library="MaterialIcons" name="person" size={13} color="#fff"/>
+          <ThemedText style={{ color: '#fff', fontSize: 11 }}>
+            Created by {itinerary?.username}
+          </ThemedText>
+        </View>
+      </LinearGradient>
+      <BottomSheet snapPoints={[0.20, 0.9]} defaultIndex={0} style={{paddingHorizontal: 20}}>
         {loading && <ActivityIndicator style={{ marginTop: 32 }} />}
         {error && <ThemedText style={{ color: 'red', margin: 24 }}>{error}</ThemedText>}
-        {!loading && !error && itinerary && (<ViewItinerary json={itinerary} />)}
+        {!loading && !error && itinerary && (<ViewItinerary json={itinerary} hideHeader />)}
       </BottomSheet>
     </ThemedView>
   );
@@ -358,8 +387,9 @@ const styles = StyleSheet.create({
   options: {
     position: 'absolute',
     top: 0,
-    right: 0,
+    right: 30,
     zIndex: 10,
+    padding: 8,
   },
   optionsChild:{
     flexDirection: 'row',
@@ -370,5 +400,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 20,
     gap: 10,
-  }
+  },
+  headerGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    padding: 16,
+    paddingBottom: 50,
+    gap: 3,
+    zIndex: 1,
+  },
+  detailsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
 });
