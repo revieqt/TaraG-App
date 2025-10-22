@@ -558,60 +558,63 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
 
   return (
     <ThemedView shadow color='primary' style={styles.locationContent}>
-      {currentHourWeather && (
-        <Image 
-          source={getWeatherImage(currentHourWeather.weatherCode)} 
-          style={styles.weatherImage}
-        />
-      )}
-      
-      <ThemedText style={{ opacity: 0.5, fontSize: 12 }}>
-        {current ? "You're currently at" : "Weather for"}
-      </ThemedText>
-      <ThemedText type='subtitle' style={{fontSize: 16}}>{getLocationText()}</ThemedText>
-      
-      {currentHourWeather && (
+      <View>
+        {currentHourWeather && (
+          <Image 
+            source={getWeatherImage(currentHourWeather.weatherCode)} 
+            style={styles.weatherImage}
+          />
+        )}
+        
         <ThemedText style={{ opacity: 0.5, fontSize: 12 }}>
-          {currentHourWeather.weatherType}
+          {current ? "You're currently at" : "Weather for"}
         </ThemedText>
-      )}
-      
-      <View style={styles.weatherDetailsContainer}>
-        <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'temperature' ? null : 'temperature')}>
-          <ThemedIcons library='MaterialDesignIcons' name='thermometer' size={20} color='#B36B6B'/>
-          <ThemedText style={{marginTop: 5}}>
-            {currentHourWeather && !isNaN(currentHourWeather.temperature) ? `${Math.round(currentHourWeather.temperature)}°C` : 'N/A'}
+        <ThemedText type='subtitle' style={{fontSize: 16}}>{getLocationText()}</ThemedText>
+        
+        {currentHourWeather && (
+          <ThemedText style={{ opacity: 0.5, fontSize: 12 }}>
+            {currentHourWeather.weatherType}
           </ThemedText>
-          <ThemedText style={styles.weatherLabel}>Heat</ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'precipitation' ? null : 'precipitation')}>
-          <ThemedIcons library='MaterialDesignIcons' name='cloud' size={20} color='#5A7D9A'/>
-          <ThemedText style={{marginTop: 5}}>
-            {currentHourWeather && !isNaN(currentHourWeather.precipitation) ? `${currentHourWeather.precipitation}mm` : 'N/A'}
+        )}
+        
+        <View style={styles.weatherDetailsContainer}>
+          <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'temperature' ? null : 'temperature')}>
+            <ThemedIcons library='MaterialDesignIcons' name='thermometer' size={20} color='#B36B6B'/>
+            <ThemedText style={{marginTop: 5}}>
+              {currentHourWeather && !isNaN(currentHourWeather.temperature) ? `${Math.round(currentHourWeather.temperature)}°C` : 'N/A'}
+            </ThemedText>
+            <ThemedText style={styles.weatherLabel}>Heat</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'precipitation' ? null : 'precipitation')}>
+            <ThemedIcons library='MaterialDesignIcons' name='cloud' size={20} color='#5A7D9A'/>
+            <ThemedText style={{marginTop: 5}}>
+              {currentHourWeather && !isNaN(currentHourWeather.precipitation) ? `${currentHourWeather.precipitation}mm` : 'N/A'}
+            </ThemedText>
+            <ThemedText style={styles.weatherLabel}>Rainfall</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'humidity' ? null : 'humidity')}>
+            <ThemedIcons library='MaterialDesignIcons' name='water' size={20} color='#5A7D9A'/>
+            <ThemedText style={{marginTop: 5}}>
+              {currentHourWeather && !isNaN(currentHourWeather.humidity) ? `${currentHourWeather.humidity}%` : 'N/A'}
+            </ThemedText>
+            <ThemedText style={styles.weatherLabel}>Humidity</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'wind' ? null : 'wind')}>
+            <ThemedIcons library='MaterialDesignIcons' name='fan' size={20} color='#5A7D9A'/>
+            <ThemedText style={{marginTop: 5}}>
+              {currentHourWeather && !isNaN(currentHourWeather.windSpeed) ? `${Math.round(currentHourWeather.windSpeed)}km/h` : 'N/A'}
+            </ThemedText>
+            <ThemedText style={styles.weatherLabel}>Wind</ThemedText>
+          </TouchableOpacity>
+        </View>
+        
+        {!currentHourWeather && weatherError && (
+          <ThemedText style={{ opacity: 0.5, marginTop: 10, textAlign: 'center', fontSize: 12 }}>
+            Weather data not available
           </ThemedText>
-          <ThemedText style={styles.weatherLabel}>Rainfall</ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'humidity' ? null : 'humidity')}>
-          <ThemedIcons library='MaterialDesignIcons' name='water' size={20} color='#5A7D9A'/>
-          <ThemedText style={{marginTop: 5}}>
-            {currentHourWeather && !isNaN(currentHourWeather.humidity) ? `${currentHourWeather.humidity}%` : 'N/A'}
-          </ThemedText>
-          <ThemedText style={styles.weatherLabel}>Humidity</ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.weather} onPress={() => setChosenWeatherType(chosenWeatherType === 'wind' ? null : 'wind')}>
-          <ThemedIcons library='MaterialDesignIcons' name='fan' size={20} color='#5A7D9A'/>
-          <ThemedText style={{marginTop: 5}}>
-            {currentHourWeather && !isNaN(currentHourWeather.windSpeed) ? `${Math.round(currentHourWeather.windSpeed)}km/h` : 'N/A'}
-          </ThemedText>
-          <ThemedText style={styles.weatherLabel}>Wind</ThemedText>
-        </TouchableOpacity>
+        )}
       </View>
       
-      {!currentHourWeather && weatherError && (
-        <ThemedText style={{ opacity: 0.5, marginTop: 10, textAlign: 'center', fontSize: 12 }}>
-          Weather data not available
-        </ThemedText>
-      )}
 
       {chosenWeatherType && (
         <Animated.View 
@@ -665,10 +668,10 @@ const styles = StyleSheet.create({
   },
   weatherImage: {
     position: 'absolute',
-    top: '7%',
+    top: '3%',
     right: '-17%',
-    width: '50%',
-    height: '50%',
+    width: '45%',
+    height: '45%',
     zIndex: 1000,
   },
   weatherValueLoading: {

@@ -24,7 +24,7 @@ const ProUpgrade = () => {
                 <Button
                     title='Get TaraG Pro'
                     type='primary'
-                    onPress={() => router.push('/payment')}
+                    onPress={() => router.push('/account/paymentPortal')}
                     buttonStyle={{
                     width: '100%',
                     marginBottom: 15,
@@ -38,17 +38,17 @@ const ProUpgrade = () => {
                 </>
             )}
             <View style={styles.featuresContainer}>
-                <ThemedIcons library='MaterialDesignIcons' name='robot-excited' size={25}/>
+                <ThemedIcons library='MaterialDesignIcons' name='robot-excited' size={20}/>
                 <ThemedText>Extended TaraAI Conversations</ThemedText>
             </View>
         
             <View style={styles.featuresContainer}>
-                <ThemedIcons library='MaterialIcons' name='app-blocking' size={25}/>
+                <ThemedIcons library='MaterialIcons' name='app-blocking' size={20}/>
                 <ThemedText>Enjoy TaraG Ads Free</ThemedText>
             </View>
         
             <View style={styles.featuresContainer}>
-                <ThemedIcons library='MaterialDesignIcons' name='trophy-award' size={25}/>
+                <ThemedIcons library='MaterialDesignIcons' name='trophy-award' size={20}/>
                 <ThemedText>Exclusive Pro Traveller Badge</ThemedText>
             </View>
             </ThemedView>

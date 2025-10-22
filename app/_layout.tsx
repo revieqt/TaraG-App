@@ -126,6 +126,7 @@ function AppContent() {
           <Stack.Screen name="auth/firstLogin" />
           <Stack.Screen name="account/viewProfile" />
           <Stack.Screen name="account/info-view" />
+          <Stack.Screen name="account/paymentPortal" />
           <Stack.Screen name="account/settings-updateInfo" />
           <Stack.Screen name="account/settings-visibility" />
           <Stack.Screen name="routes/routes" />

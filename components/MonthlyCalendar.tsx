@@ -237,7 +237,7 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({
     const width = 32 + (hasPrevDayConnection ? 8 : 0) + (hasNextDayConnection ? 8 : 0);
     
     return {
-      backgroundColor: itineraryHighlightColor + '80', // Semi-transparent for multi-day
+      backgroundColor: itineraryHighlightColor, // Semi-transparent for multi-day
       borderTopLeftRadius,
       borderBottomLeftRadius,
       borderTopRightRadius,
@@ -335,8 +335,8 @@ const MonthlyCalendar: React.FC<MonthlyCalendarProps> = ({
                         <View
                           style={[
                             styles.dayCircle,
-                            isToday && { backgroundColor: highlightColor },
-                            hasItinerary && !isToday && { backgroundColor: 'transparent' },
+                            isToday && { backgroundColor: highlightColor, borderColor: '#fff', borderWidth: 2 },
+                            hasItinerary && !isToday && { backgroundColor: 'transparent', borderWidth: 0 },
                           ]}
                         >
                           <ThemedText

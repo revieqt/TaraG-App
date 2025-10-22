@@ -25,7 +25,7 @@ export const BackButton: React.FC<BackButtonProps> = ({ style, type = 'default',
         style={[{ position: 'absolute', top: 16, left: 13, zIndex: 1000, padding: 8}, style]}
         activeOpacity={0.7}
       >
-        <ThemedIcons library="MaterialIcons" name="arrow-back" size={20} color={color}/>
+        <ThemedIcons library="MaterialIcons" name="arrow-back" size={22} color={color}/>
       </TouchableOpacity>
     );
   }
@@ -37,7 +37,7 @@ export const BackButton: React.FC<BackButtonProps> = ({ style, type = 'default',
         style={[{ padding: 8}, style]}
         activeOpacity={0.7}
       >
-        <ThemedIcons library="MaterialIcons" name="close" size={20} color={color}/>
+        <ThemedIcons library="MaterialIcons" name="close" size={22} color={color}/>
       </TouchableOpacity>
     );
   }
@@ -49,7 +49,7 @@ export const BackButton: React.FC<BackButtonProps> = ({ style, type = 'default',
         style={[{ position: 'absolute', top: 16, right: 13, zIndex: 1000, padding: 8}, style]}
         activeOpacity={0.7}
       >
-        <ThemedIcons library="MaterialIcons" name="close" size={20} color={color}/>
+        <ThemedIcons library="MaterialIcons" name="close" size={22} color={color}/>
       </TouchableOpacity>
     );
   }
@@ -61,7 +61,7 @@ export const BackButton: React.FC<BackButtonProps> = ({ style, type = 'default',
       style={[{ padding: 8, backgroundColor: 'transparent' }, style]}
       activeOpacity={0.7}
     >
-      <ThemedIcons library="MaterialIcons" name="arrow-back" size={20} color={color} />
+      <ThemedIcons library="MaterialIcons" name="arrow-back" size={22} color={color} />
     </TouchableOpacity>
   );
 };

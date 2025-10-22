@@ -18,6 +18,7 @@ import ItineraryMap from '@/components/maps/ItineraryMap';
 import GroupMap from '@/components/maps/GroupMap';
 import { LinearGradient } from 'expo-linear-gradient';
 import GroupChat from './groups-chat';
+import BackButton from '@/components/custom/BackButton';
 
 export default function GroupView() {
   const params = useLocalSearchParams();
@@ -443,7 +444,7 @@ export default function GroupView() {
           <ThemedText>Kick User</ThemedText>
         </TouchableOpacity>,
         ]}> 
-          <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#222" />
+          <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22}/>
         </OptionsPopup>
       )}
 
@@ -478,6 +479,7 @@ export default function GroupView() {
         ]} style={styles.optionsButton}> 
           <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#fff" />
         </OptionsPopup>
+        <BackButton type='close-floating' color='white'/>
         <ThemedText type="subtitle" style={{color: '#fff'}}>
          {groupData.name}
         </ThemedText>
@@ -653,8 +655,8 @@ const styles = StyleSheet.create({
   },
   optionsButton:{
     position: 'absolute',
-    right: 0,
-    top: 0,
+    right: 35,
+    top: -6,
     padding: 5,
     zIndex: 100
   },
