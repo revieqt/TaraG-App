@@ -10,8 +10,10 @@ import { Dimensions, ScrollView, StyleSheet, TouchableOpacity, View, Animated, I
 import { useEffect,  useRef, useState } from 'react';
 import AlertsContainer from '@/components/custom/AlertsContainer';
 import ActiveRouteButton from '@/components/custom/ActiveRouteButton';
+import ActiveSOSButton from '@/components/custom/ActiveSOSButton';
 import ThemedIcons from '@/components/ThemedIcons';
 import MonthlyCalendar from '@/components/MonthlyCalendar';
+
 import { TARA_MESSAGES } from '@/constants/Config';
 
 export default function HomeScreen() {
@@ -312,6 +314,7 @@ export default function HomeScreen() {
       
       <AlertsContainer>
          {session?.activeRoute && (<ActiveRouteButton/>)}
+         {session?.user?.safetyState?.isInAnEmergency && (<ActiveSOSButton/>)}
       </AlertsContainer>
 
       <LinearGradient
