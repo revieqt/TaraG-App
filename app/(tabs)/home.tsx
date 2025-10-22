@@ -347,10 +347,10 @@ const styles = StyleSheet.create({
   },
   taraImage: {
     position: 'absolute',
-    bottom: -75,
+    bottom: -100,
     right: '-10%',
-    width: '43%',              
-    height: 200,        
+    width: '47%',              
+    height: 250,        
     resizeMode: 'contain',
     zIndex: 1100,     
     opacity: 1,

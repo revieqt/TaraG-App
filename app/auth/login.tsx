@@ -59,6 +59,7 @@ export default function LoginScreen() {
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const { updateSession } = useSession();
   const primaryColor = useThemeColor({}, 'primary');
+  const secondaryColor = useThemeColor({}, 'secondary');
 
   const handleLogin = async () => {
     setErrorMsg('');
@@ -141,11 +142,7 @@ export default function LoginScreen() {
             bounces={false}
           >
             <View style={styles.contentSpacer}>
-              <View style={styles.textContainer}>
-                <ThemedText type='title' style={styles.title}>Smart Plans</ThemedText>
-                <ThemedText type='defaultSemiBold' style={styles.subtitle}>Safer Journeys, Travel with TaraG!</ThemedText>
-              </View>
-              <ThemedView color='primary' style={[styles.circle, {width: 400, aspectRatio: 1, marginBottom: -250}]}>
+              <ThemedView color='primary' style={[styles.circle, {width: 400, aspectRatio: 1, marginBottom: -200}]}>
                 <ThemedView color='primary' style={styles.circle}>
                   <ThemedView color='primary' style={styles.circle}>
                   </ThemedView>
@@ -175,12 +172,15 @@ export default function LoginScreen() {
                 ]} 
               />
               <LinearGradient
-                colors={['transparent', primaryColor]}
+                colors={['transparent', primaryColor, primaryColor]}
                 start={{ x: 0.5, y: 0 }}
                 end={{ x: 0.5, y: 1 }}
                 style={styles.gradientOverlay}
                 pointerEvents="none"
-              />
+              >
+                <ThemedText type='title' style={{ textAlign: 'center', color: secondaryColor, fontSize: 27}}>Smart Plans</ThemedText>
+                <ThemedText style={{ textAlign: 'center', opacity: 0.7}}>Safer Journeys, Travel with TaraG!</ThemedText>
+              </LinearGradient>
             </View>
             
             <ThemedView color='primary' style={{padding: 16}}>
@@ -203,18 +203,15 @@ export default function LoginScreen() {
                 onBlur={() => setFocusedInput(null)}
                 isFocused={focusedInput === 'password'}
               />
-              <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <ThemedText style={{ textAlign: 'right', color: 'red', fontSize: 13 }}>{errorMsg || ''}</ThemedText>
-                <TouchableOpacity
-                  onPress={() => router.push('/auth/forgotPassword')}
-                >
-                  <ThemedText style={{ textAlign: 'right', color: '#205781', fontSize: 13 }}>
-                    Forgot Password?
-                  </ThemedText>
-                </TouchableOpacity>
-              </View>
-              
-
+              <TouchableOpacity
+                onPress={() => router.push('/auth/forgotPassword')}
+              >
+                <ThemedText style={{ textAlign: 'right', color: '#205781', marginBottom: 20}}>
+                  Forgot Password?
+                </ThemedText>
+              </TouchableOpacity>
+              <ThemedText style={{ textAlign: 'center', color: 'red'}}>{errorMsg || ''}</ThemedText>
+            
               <Button
                 title={loading ? 'Logging in...' : 'Login'}
                 onPress={handleLogin}
@@ -265,15 +262,16 @@ const styles = StyleSheet.create({
     marginTop: 17,
   },
   taraImage: {
-    width: '62%',
+    width: '57%',
     position: 'absolute',
     resizeMode: 'contain',
     borderRadius: 50,
     marginLeft: 20,
-    bottom: -200,
+    bottom: '-30%',
   },
   gradientOverlay: {
-    height: 100,
+    paddingTop: 60,
+    paddingBottom: 20,
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -281,27 +279,11 @@ const styles = StyleSheet.create({
     zIndex: 3,
     pointerEvents: 'none',
   },
-  textContainer:{
-    top: '20%',
-    gap: 3,
-    position: 'absolute',
-    padding: 16
-  },
-  title:{
-    fontSize: 30,
-    color: '#fff',
-    textAlign: 'center'
-  },
-  subtitle:{
-    fontSize: 14,
-    color: '#fff',
-    textAlign: 'center'
-  },
   circle:{
     padding: 50,
     width: '100%',
     height: '100%',
     borderRadius: 500,
-    opacity: 0.5
+    opacity: 0.7
   }
 });
