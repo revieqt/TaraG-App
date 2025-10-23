@@ -12,6 +12,7 @@ import { useSession } from "@/context/SessionContext";
 import { useTaraBuddyApi, PotentialMatch } from "@/services/taraBuddyApiService";
 import { LinearGradient } from "expo-linear-gradient";
 import GradientBlobs from "@/components/GradientBlobs";
+import EmptyMessage from "@/components/EmptyMessage";
 
 export default function TaraBuddySection() {
   const primaryColor = useThemeColor({}, "primary");
@@ -343,13 +344,12 @@ export default function TaraBuddySection() {
                 <ThemedView color="primary" shadow style={styles.cardInner}>
                   <View style={styles.loadingCard}>
                     <GradientBlobs/>
-                    <ThemedIcons library="MaterialIcons" name="favorite" size={60} color={primaryColor} />
-                    <ThemedText type="subtitle" style={{ textAlign: 'center', marginTop: 16 }}>
-                      Finding potential matches...
-                    </ThemedText>
-                    <ThemedText style={{ textAlign: 'center', opacity: 0.7, marginTop: 8 }}>
-                      Please wait while we search for people you might like!
-                    </ThemedText>
+                    <EmptyMessage
+                      title="Finding potential matches..."
+                      description="Please wait while we search for people you might like!"
+                      loading
+                      isSolid
+                    />
                   </View>
                 </ThemedView>
               </View>
@@ -361,19 +361,15 @@ export default function TaraBuddySection() {
                 <ThemedView color="primary" shadow style={styles.cardInner}>
                   <View style={styles.noMoreCards}>
                     <GradientBlobs/>
-                    <ThemedIcons library="MaterialIcons" name="favorite" size={60} color={primaryColor} />
-                    <ThemedText type="subtitle" style={{ textAlign: 'center', marginTop: 16 }}>
-                      No more potential matches
-                    </ThemedText>
-                    <ThemedText style={{ textAlign: 'center', opacity: 0.7, marginTop: 8 }}>
-                      Check back later for new people!
-                    </ThemedText>
-                    <View style={{ marginTop: 20 }}>
-                      <Button 
-                        title="Refresh" 
-                        onPress={fetchPotentialMatches}
-                      />
-                    </View>
+                    <EmptyMessage
+                      title="No more potential matches"
+                      description="Check back later for new people!"
+                      iconLibrary="MaterialDesignIcons"
+                      iconName="robot-excited"
+                      isSolid
+                      buttonLabel="Refresh"
+                      buttonAction={fetchPotentialMatches}
+                    />
                   </View>
                 </ThemedView>
               </View>

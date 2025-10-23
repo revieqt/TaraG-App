@@ -35,6 +35,12 @@ export const TARAAI_SUGGESTIONS = [
   "What are the best beaches in Palawan?",
 ];
 
+export const LIKES = [
+  "Nature", "Outdoors", "City Life", "Culture", "History", "Arts", 
+  "Water Activities", "Adventure", "Camping", "Relaxation", "Wellness", 
+  "Social", "Aesthetics", "Events", "Entertainment"
+];
+
 export const LOCAL_ALERT_DESCRIPTION = {
   'heavy-rain': [
     "• Stay indoors if possible and avoid unnecessary travel",

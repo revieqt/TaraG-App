@@ -9,12 +9,9 @@ import { useSession } from '@/context/SessionContext';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import GradientBlobs from '@/components/GradientBlobs';
+import {LIKES} from '@/constants/Config';
 
-const interests = [
-  "Nature", "Outdoors", "City Life", "Culture", "History", "Arts", 
-  "Water Activities", "Adventure", "Camping", "Relaxation", "Wellness", 
-  "Social", "Aesthetics", "Events", "Entertainment"
-];
 
 export default function FirstLoginScreen() {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -113,15 +110,16 @@ export default function FirstLoginScreen() {
       <ThemedText style={{  marginBottom: 20, opacity: 0.9 }}>
         Select at least 3 interests to personalize your experience
       </ThemedText>
-      <ScrollView style={{ flex: 1}} showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ height: '100%', maxHeight: 400}} showsVerticalScrollIndicator={false}>
         <View style={{ flex: 1,flexDirection: 'row', flexWrap: 'wrap', gap: 12, paddingVertical: 20 }}>
-          {interests.map((interest) => (
+          {LIKES.map((interest) => (
             <ToggleButton
               key={interest}
               value={interest}
               label={interest}
               onToggle={handleInterestToggle}
               textStyle={{ fontSize: 12 }}
+              buttonStyle={{ paddingVertical: 7, paddingHorizontal: 14, borderRadius: 50}}
             />
           ))}
         </View>
@@ -138,7 +136,7 @@ export default function FirstLoginScreen() {
 
   return (
     <ThemedView style={{flex: 1}}>
-      <GradientHeader/>
+      <GradientBlobs/>
       <HorizontalSections
         labels={labels}
         sections={sections}
@@ -158,7 +156,7 @@ const styles = StyleSheet.create({
   },
   getToKnowYouScreen: {
     flex: 1, 
-    paddingTop: 60,
+    justifyContent: 'center',
     paddingHorizontal: 16,
     zIndex: 1000
   },

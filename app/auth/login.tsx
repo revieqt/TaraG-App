@@ -10,6 +10,7 @@ import { router } from 'expo-router';
 import { KeyboardAvoidingView, Platform,Animated, Dimensions,Easing, StyleSheet, TouchableOpacity, View, Image, ScrollView } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import {LinearGradient} from 'expo-linear-gradient';
+import GradientBlobs from "@/components/GradientBlobs";
 
 const { height } = Dimensions.get("window");
 
@@ -131,6 +132,7 @@ export default function LoginScreen() {
 
       <View style={styles.page}>
         <ThemedView color='secondary' style={{flex: 1}}>
+        
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{flex: 1}}
@@ -142,6 +144,7 @@ export default function LoginScreen() {
             bounces={false}
           >
             <View style={styles.contentSpacer}>
+              
               <ThemedView color='primary' style={[styles.circle, {width: 400, aspectRatio: 1, marginBottom: -200}]}>
                 <ThemedView color='primary' style={styles.circle}>
                   <ThemedView color='primary' style={styles.circle}>

@@ -127,13 +127,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   modalContainer: {
     width: '100%',
-    maxWidth: 400,
     borderRadius: 15,
-    padding: 24,
+    padding: 16,
   },
   header: {
     flexDirection: 'row',
