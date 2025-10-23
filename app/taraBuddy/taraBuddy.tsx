@@ -208,17 +208,10 @@ export default function TaraBuddySection() {
 
   return (
     <View style={{ flex: 1 }}>
-      <TouchableOpacity 
-        onPress={() => router.push("/account/viewProfile")}
-        style={styles.settingsContainer}
-      >
-        <ThemedView color="primary" shadow style={styles.settings}>
-          <ThemedIcons library="MaterialIcons" name="person" size={16} color="white"/>
-          <ThemedText style={{ color: 'white', fontSize: 10 }}>Your Preferences</ThemedText>
-        </ThemedView>
-      </TouchableOpacity>
       
-      {!hasPreference ? (
+      
+      {!hasPreference ? (<>
+        
         <View style={styles.cardContainer}>
           <ThemedView color="primary" shadow style={[styles.card, styles.welcomeCard]}>
             <ThemedText type="subtitle" style={{ marginTop: 20 }}>
@@ -244,8 +237,18 @@ export default function TaraBuddySection() {
             />
           </ThemedView>
         </View>
+        </>
       ) : (
         <>
+          <TouchableOpacity 
+            onPress={() => router.push("/account/viewProfile")}
+            style={styles.settingsContainer}
+          >
+            <ThemedView color="primary" shadow style={styles.settings}>
+              <ThemedIcons library="MaterialIcons" name="person" size={16} color="white"/>
+              <ThemedText style={{ color: 'white', fontSize: 10 }}>Your Profile</ThemedText>
+            </ThemedView>
+          </TouchableOpacity>
           <View style={styles.cardContainer}>
             {/* Current Card */}
             {getCurrentUser() && (
@@ -380,14 +383,14 @@ export default function TaraBuddySection() {
               onPress={handlePass}
               disabled={!getCurrentUser()}
             >
-              <ThemedIcons library="MaterialIcons" name="close" size={40} color="white" />
+              <ThemedIcons library="MaterialIcons" name="close" size={35} color="white" />
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.bottomOption, { backgroundColor: "#4CAF50" }]}
               onPress={handleLike}
               disabled={!getCurrentUser()}
             >
-              <Foundation name="like" size={40} color="white" />
+              <Foundation name="like" size={35} color="white" />
             </TouchableOpacity>
             {/* <TouchableOpacity onPress={() => router.push("/taraBuddy/taraBuddy-settings")}>
               <ThemedView color="primary" shadow style={styles.settings}>
@@ -463,7 +466,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 3,
-    paddingBottom: 10,
+    paddingBottom: 6,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
@@ -505,14 +508,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 7,
     borderRadius: 50,
-    backgroundColor: "rgba(0,0,0,.5)",
+    backgroundColor: "rgba(0,0,0,.7)",
+    borderColor: "#fff",
+    borderWidth: 1,
     flexDirection: "row",
-    gap: 5
+    gap: 5,
+    opacity: 0.6
   },
   cardContainer: {
     flex: 1,
     margin: 5,
-    marginBottom: 40,
+    marginBottom: 30,
     gap: 20,
     marginTop: 65,
     zIndex: 1,

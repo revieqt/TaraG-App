@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   gridChildContainer:{
-    width: Dimensions.get('window').width * 0.45,
+    width: Dimensions.get('window').width * 0.445,
     aspectRatio: 1,
     borderRadius: 12,
   },

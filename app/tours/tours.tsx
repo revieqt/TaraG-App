@@ -5,6 +5,7 @@ import TextField from '@/components/TextField';
 import { router } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { useSession } from "@/context/SessionContext";
+import TourGuideSection from "./tours-tourGuide";
 
 export default function ToursSection(){
   const { session } = useSession();
@@ -48,9 +49,7 @@ export default function ToursSection(){
 
     if(session?.user?.type === 'tourGuide'){
     return(
-      <View>
-        <ThemedText>Agency Data here</ThemedText>
-      </View>
+      <TourGuideSection/>
     );}
     
 };

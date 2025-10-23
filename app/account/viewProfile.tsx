@@ -266,26 +266,26 @@ export default function ProfileScreen() {
               <View style={styles.buttonOptionsContainer}>
                 <TouchableOpacity onPress={() => selectGender('Male')}>
                   <ThemedView color={gender === 'Male' ? 'secondary' : 'primary'} style={styles.buttonOption}>
-                    <ThemedIcons library='MaterialDesignIcons' name='gender-male' size={20} />
-                    <ThemedText>Male</ThemedText>
+                    <ThemedIcons library='MaterialDesignIcons' name='gender-male' size={15} color={gender === 'Male' ? '#fff' : undefined}/>
+                    <ThemedText style={{color: gender === 'Male' ? '#fff' : undefined}}>Male</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => selectGender('Female')}>
                   <ThemedView color={gender === 'Female' ? 'secondary' : 'primary'} style={styles.buttonOption}>
-                    <ThemedIcons library='MaterialDesignIcons' name='gender-female' size={20} />
-                    <ThemedText>Female</ThemedText>
+                    <ThemedIcons library='MaterialDesignIcons' name='gender-female' size={15} color={gender === 'Female' ? '#fff' : undefined}/>
+                    <ThemedText style={{color: gender === 'Female' ? '#fff' : undefined}}>Female</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => selectGender('Other')}>
                   <ThemedView color={gender === 'Other' ? 'secondary' : 'primary'} style={styles.buttonOption}>
-                    <ThemedIcons library='MaterialDesignIcons' name='gender-male-female-variant' size={20} />
-                    <ThemedText>Other</ThemedText>
+                    <ThemedIcons library='MaterialDesignIcons' name='gender-male-female-variant' size={15} color={gender === 'Other' ? '#fff' : undefined}/>
+                    <ThemedText style={{color: gender === 'Other' ? '#fff' : undefined}}>Other</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => selectGender('Open to All')}>
                   <ThemedView color={gender === 'Open to All' ? 'secondary' : 'primary'} style={styles.buttonOption}>
-                    <ThemedIcons library='MaterialDesignIcons' name='gender-male-female' size={20} />
-                    <ThemedText>Open to All</ThemedText>
+                    <ThemedIcons library='MaterialDesignIcons' name='gender-male-female' size={15} color={gender === 'Open to All' ? '#fff' : undefined}/>
+                    <ThemedText style={{color: gender === 'Open to All' ? '#fff' : undefined}}>Open to All</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
               </View>
@@ -335,8 +335,8 @@ export default function ProfileScreen() {
                     color={zodiacArr.includes(sign) ? 'secondary' : 'primary'}
                     style={styles.buttonOption}
                   >
-                    <ThemedIcons library='MaterialDesignIcons' name={iconName} size={15} />
-                    <ThemedText>{sign}</ThemedText>
+                    <ThemedIcons library='MaterialDesignIcons' name={iconName} size={15} color={zodiacArr.includes(sign) ? '#fff' : undefined }/>
+                    <ThemedText style={{color: zodiacArr.includes(sign) ? '#fff' : undefined }}>{sign}</ThemedText>
                   </ThemedView>
                 </TouchableOpacity>
               );
@@ -490,20 +490,22 @@ const styles = StyleSheet.create({
   },
   buttonOptionsContainer: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 7,
     alignItems: 'center',
     flexWrap: 'wrap',
   },
   buttonOption: {
-    paddingVertical: 7,
-    paddingHorizontal: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     borderRadius: 100,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
+    borderColor: '#ccc4',
+    borderWidth: 1
   },
   taraBuddyPreference: {
-    margin: 16,
+    margin: 10,
     paddingHorizontal: 10,
     borderRadius:15
   },

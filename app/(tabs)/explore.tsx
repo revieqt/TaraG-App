@@ -21,7 +21,7 @@ export default function ExploreScreen() {
   const scrollY = useRef(new Animated.Value(0)).current;
   const lastScrollY = useRef(0);
   const scrollViewRef = useRef<ScrollView>(null);
-  const tabHeight = 60;
+  const tabHeight = 50;
   const secondaryColor = useThemeColor({}, 'secondary');
   const primaryColor = useThemeColor({}, 'primary');
   const { session } = useSession();
@@ -198,6 +198,14 @@ const handleJoinGroup = async () => {
   const headerVisible = useRef(new Animated.Value(1)).current;
   const headerTranslateY = useRef(new Animated.Value(0)).current;
   const headerOpacity = headerVisible;
+  const tabs = session?.user?.type === 'traveler' ? [
+    'Tours',
+    'Rooms',
+    'TaraBuddy',
+  ] : [
+    'Tours',
+    'Rooms',
+  ];
 
   return (
     <ThemedView style={{flex:1}}>
@@ -210,12 +218,9 @@ const handleJoinGroup = async () => {
           }
         ]}
       >
+        
         <ThemedView color='primary' style={styles.tabRow}>
-          {[
-            'Tours',
-            'Rooms',
-            'TaraBuddy', 
-          ].map((label, idx) => (
+          {tabs.map((label, idx) => (
             <TouchableOpacity
               key={label}
               style={[
@@ -326,9 +331,12 @@ const handleJoinGroup = async () => {
                 <ThemedIcons library='MaterialIcons' name='add' size={30} color='white'/>
             </OptionsPopup>
         </View>
-        <View style={[styles.sectionContainer, { display: activeTab === 2 ? 'flex' : 'none' }]}>
-          <TaraBuddySection/>
-        </View>
+        {session?.user?.type === 'traveler' && (
+          <View style={[styles.sectionContainer, { display: activeTab === 2 ? 'flex' : 'none' }]}>
+            <TaraBuddySection/>
+          </View>
+        )}
+        
         
       </View>
     </ThemedView>
@@ -348,8 +356,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',   
     justifyContent: 'space-between',
     alignItems: 'stretch',
-    height: 60,
-    paddingTop: 16,
+    height: 50,
+    paddingTop: 10,
     borderBottomColor: 'rgba(0, 0, 0, 0.1)',
     borderBottomWidth: 1,
   },
