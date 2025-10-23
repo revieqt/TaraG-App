@@ -19,6 +19,7 @@ import GroupMap from '@/components/maps/GroupMap';
 import { LinearGradient } from 'expo-linear-gradient';
 import GroupChat from './groups-chat';
 import BackButton from '@/components/custom/BackButton';
+import InputModal from '@/components/modals/InputModal';
 
 export default function GroupView() {
   const params = useLocalSearchParams();
@@ -34,6 +35,7 @@ export default function GroupView() {
   const [lastGroupFetchTime, setLastGroupFetchTime] = useState<number>(0);
   const [forceGroupRefresh, setForceGroupRefresh] = useState(false);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [showChangeNameModal, setShowChangeNameModal] = useState(false);
 
   // Cache configuration
   const GROUP_CACHE_DURATION = 30000; // 30 seconds cache
@@ -222,6 +224,49 @@ export default function GroupView() {
         }
       ]
     );
+  };
+
+  // Handle changing room name
+  const handleChangeRoomName = () => {
+    if (!session?.accessToken || !session?.user?.id || !groupData) return;
+    
+    // Check if current user is admin
+    const isCurrentUserAdmin = groupData.admins.includes(session.user.id);
+    if (!isCurrentUserAdmin) {
+      Alert.alert('Access Denied', 'Only admins can change the room name.');
+      return;
+    }
+    
+    setShowChangeNameModal(true);
+  };
+
+  // Handle submitting new room name
+  const handleSubmitNewName = async (newName: string | { areaCode: string; number: string }) => {
+    if (!session?.accessToken || !session?.user?.id || !groupData) return;
+    
+    // Type guard - should always be string for text type
+    if (typeof newName !== 'string') return;
+    
+    if (newName.trim().length > 50) {
+      Alert.alert('Error', 'Group name cannot exceed 50 characters.');
+      return;
+    }
+    
+    try {
+      await groupsApiService.changeGroupName(session.accessToken!, {
+        groupID: groupData.id!,
+        adminID: session.user!.id,
+        newName: newName.trim()
+      });
+      
+      // Force refresh group data to get updated name
+      setForceGroupRefresh(true);
+      
+      Alert.alert('Success', 'Group name has been changed successfully.');
+    } catch (error) {
+      console.error('Error changing group name:', error);
+      Alert.alert('Error', 'Failed to change group name. Please try again.');
+    }
   };
 
   // Handle leaving the group
@@ -472,10 +517,16 @@ export default function GroupView() {
           style={styles.headerGradient}
         />
         <OptionsPopup options={[
+          <TouchableOpacity style={styles.options} onPress={handleChangeRoomName}>
+            <ThemedIcons library="MaterialDesignIcons" name="pencil" size={20} />
+            <ThemedText>Change Room Name</ThemedText>
+          </TouchableOpacity>,
           <TouchableOpacity style={styles.options} onPress={handleLeaveGroup}>
             <ThemedIcons library="MaterialIcons" name="person-off" size={20} />
             <ThemedText>Leave Group</ThemedText>
           </TouchableOpacity>,
+          // ... (rest of the code remains the same)
+          
         ]} style={styles.optionsButton}> 
           <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#fff" />
         </OptionsPopup>
@@ -603,6 +654,18 @@ export default function GroupView() {
           />
         )}
       </View>
+
+      {/* Change Room Name Modal */}
+      <InputModal
+        visible={showChangeNameModal}
+        onClose={() => setShowChangeNameModal(false)}
+        onSubmit={handleSubmitNewName}
+        label="Change Room Name"
+        description="Enter a new name for this group"
+        type="text"
+        initialValue={groupData.name}
+        placeholder="Group name"
+      />
     </ThemedView>
   );
 }

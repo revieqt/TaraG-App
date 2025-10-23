@@ -73,6 +73,12 @@ export interface DeleteGroupRequest {
   adminID: string;
 }
 
+export interface ChangeGroupNameRequest {
+  groupID: string;
+  adminID: string;
+  newName: string;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -247,6 +253,18 @@ class GroupsApiService {
   ): Promise<void> {
     await this.makeRequest<void>(
       '/delete-group',
+      'POST',
+      accessToken,
+      requestData
+    );
+  }
+
+  async changeGroupName(
+    accessToken: string,
+    requestData: ChangeGroupNameRequest
+  ): Promise<void> {
+    await this.makeRequest<void>(
+      '/change-room-name',
       'POST',
       accessToken,
       requestData
