@@ -10,9 +10,11 @@ import { Dimensions, ScrollView, StyleSheet, TouchableOpacity, View, Animated, I
 import { useEffect,  useRef, useState } from 'react';
 import AlertsContainer from '@/components/custom/AlertsContainer';
 import ActiveRouteButton from '@/components/custom/ActiveRouteButton';
-import ActiveSOSButton from '@/components/custom/ActiveSOSButton';
+import HomeSOSButton from '@/components/custom/HomeSOSButton';
 import ThemedIcons from '@/components/ThemedIcons';
 import MonthlyCalendar from '@/components/MonthlyCalendar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { showSOSInHome} from '@/app/safety/sos'
 
 import { TARA_MESSAGES } from '@/constants/Config';
 
@@ -126,6 +128,36 @@ export default function HomeScreen() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Load the setting when component mounts
+
+
+  // Add the SOS handlers
+  const [isLongPressing, setIsLongPressing] = useState(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSOSActive = session?.user?.safetyState?.isInAnEmergency || false;
+
+  const handleLongPressStart = () => {
+    setIsLongPressing(true);
+    longPressTimer.current = setTimeout(() => {
+      if (isSOSActive) {
+        // Handle disable
+        router.push('/safety/sos');
+      } else {
+        // Handle enable
+        router.push('/safety/sos');
+      }
+      setIsLongPressing(false);
+    }, 2000);
+  };
+
+  const handleLongPressEnd = () => {
+    setIsLongPressing(false);
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
 
   return (
     <ThemedView style={{ flex: 1 }}>
@@ -305,7 +337,7 @@ export default function HomeScreen() {
       
       <AlertsContainer>
          {session?.activeRoute && (<ActiveRouteButton/>)}
-         {session?.user?.safetyState?.isInAnEmergency && (<ActiveSOSButton/>)}
+         {session?.user?.safetyState?.isInAnEmergency  && (<HomeSOSButton/>)}
       </AlertsContainer>
 
       <LinearGradient
@@ -513,5 +545,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flexWrap: 'wrap',
     wordWrap: 'wrap',
+  },
+  sosButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    zIndex: 1000,
   },
 });

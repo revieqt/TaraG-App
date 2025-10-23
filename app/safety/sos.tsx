@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { View, StyleSheet, Dimensions, Text, Modal, TouchableOpacity, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import TextField from '@/components/TextField';
 import { ThemedText } from '@/components/ThemedText';
@@ -14,6 +14,7 @@ import { openDocument } from "@/utils/documentUtils";
 import OptionsPopup from "@/components/OptionsPopup";
 import BackButton from "@/components/custom/BackButton";
 import Switch from "@/components/Switch";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const emergencyTypes = [
   { id: 'medical', label: 'Medical Emergency', icon: 'medical-bag'},
@@ -26,7 +27,7 @@ const emergencyTypes = [
   { id: 'animal', label: 'Animal-Related Emergency', icon: 'paw'},
   { id: 'other', label: 'Other', icon: 'help-circle' },
 ];
-
+export const [showSOSInHome, setShowSOSInHome] = useState(false);
 export default function SOSSection(){
   const gradientColor = useThemeColor({}, 'primary');
   const accentColor = useThemeColor({}, 'accent');
@@ -37,12 +38,26 @@ export default function SOSSection(){
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
+  
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLongPressing, setIsLongPressing] = useState(false);
   
   // Get SOS state from session
   const isSOSActive = session?.user?.safetyState?.isInAnEmergency || false;
   const backgroundColor = isSOSActive ? 'red' : 'rgb(0, 101, 248)';
+
+  // Load the setting when component mounts
+  useEffect(() => {
+    const loadSetting = async () => {
+      try {
+        const value = await AsyncStorage.getItem('showSOSInHome');
+        setShowSOSInHome(value === 'true');
+      } catch (error) {
+        console.error('Error loading SOS home setting:', error);
+      }
+    };
+    loadSetting();
+  }, []);
 
   const handleLongPressStart = () => {
     setIsLongPressing(true);
@@ -149,6 +164,7 @@ export default function SOSSection(){
     }
   };
 
+
   return (
     <>
       <View style={[styles.container, {backgroundColor: backgroundColor}]}>
@@ -196,15 +212,6 @@ export default function SOSSection(){
           colors={['transparent', gradientColor]}
           style={styles.bottomGradient}
         >
-          <ThemedView style={styles.switchContainer}>
-            <Switch
-              label='Add a SOS button to Home'
-              description='for quick accessibility'
-              value={isSOSActive}
-              onValueChange={() => []}
-            />
-          </ThemedView>
-          
         </LinearGradient>
 
         {/* Emergency Type Selection Modal */}
@@ -298,10 +305,6 @@ const styles = StyleSheet.create({
     right: 15,
     padding: 5,
     zIndex: 1000,
-  },
-  switchContainer:{
-    padding: 7,
-    borderRadius: 8,
   },
   circle:{
     width: '100%',

@@ -7,9 +7,10 @@ import { StyleSheet, View } from "react-native";
 import { useSession } from "@/context/SessionContext";
 import { TRAVELLER_PRO_PRICE } from "@/constants/Config";
 import { router } from "expo-router";
+import PaymentPortalScreen from "./paymentPortal";
 
 const ProUpgrade = () => {
-    const { session } = useSession();
+    const { session, updateSession } = useSession();
 
     const user = session?.user;
     return(
@@ -24,7 +25,14 @@ const ProUpgrade = () => {
                 <Button
                     title='Get TaraG Pro'
                     type='primary'
-                    onPress={() => router.push('/account/paymentPortal')}
+                    onPress={() => {
+                        const params = new URLSearchParams({
+                            productName: 'TaraG Pro',
+                            productDescription: `Get TaraG Pro for as low as ${TRAVELLER_PRO_PRICE}/month`,
+                            productPrice: TRAVELLER_PRO_PRICE.toString()
+                        });
+                        router.push(`/account/paymentPortal?${params.toString()}`);
+                    }}
                     buttonStyle={{
                     width: '100%',
                     marginBottom: 15,
