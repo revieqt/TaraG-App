@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     margin: 5,
     marginBottom: 40,
     gap: 20,
-    marginTop: 75,
+    marginTop: 65,
     zIndex: 1,
     position: 'relative',
   },

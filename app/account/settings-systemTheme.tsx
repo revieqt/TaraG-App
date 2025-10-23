@@ -256,8 +256,7 @@ export const renderSystemTheme = () => {
 
 const styles = StyleSheet.create({
     optionsChild: {
-        padding: 10,
-        fontSize: 15,
+        padding: 8,
         width: '100%',
         flexDirection: 'row',
         gap: 10,

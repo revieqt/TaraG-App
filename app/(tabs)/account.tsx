@@ -6,7 +6,7 @@ import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import WebViewModal from '@/components/WebView';
-import { BACKEND_URL, SUPPORT_FORM_URL, TRAVELLER_PRO_PRICE } from '@/constants/Config';
+import { SUPPORT_FORM_URL} from '@/constants/Config';
 import { useSession } from '@/context/SessionContext';
 import { useAlerts } from '@/context/AlertsContext';
 import { useLocation } from '@/hooks/useLocation';
@@ -96,32 +96,6 @@ export default function AccountScreen() {
             } catch (error) {
               console.error("Error clearing AsyncStorage:", error);
               Alert.alert("Error", "Failed to clear cache.");
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleClearItineraries = async () => {
-    Alert.alert(
-      "Clear Itineraries",
-      "By clearing itineraries, you will lose all your saved itineraries. This action cannot be undone.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Yes",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await clearAllItineraries();
-              Alert.alert("Success", "All itineraries have been cleared.");
-            } catch (error) {
-              console.error("Error clearing itineraries:", error);
-              Alert.alert("Error", "Failed to clear itineraries.");
             }
           },
         },
@@ -339,7 +313,7 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   optionsChild: {
-    padding: 10,
+    padding: 8,
     fontSize: 15,
     width: '100%',
     flexDirection: 'row',

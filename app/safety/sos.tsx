@@ -13,6 +13,7 @@ import { enableSafetyMode, disableSafetyMode } from "@/services/safetyApiService
 import { openDocument } from "@/utils/documentUtils";
 import OptionsPopup from "@/components/OptionsPopup";
 import BackButton from "@/components/custom/BackButton";
+import Switch from "@/components/Switch";
 
 const emergencyTypes = [
   { id: 'medical', label: 'Medical Emergency', icon: 'medical-bag'},
@@ -150,19 +151,11 @@ export default function SOSSection(){
 
   return (
     <>
-      {/* <OptionsPopup 
-      style={styles.optionsPopup}
-      options={[
-        <TouchableOpacity style={{flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8}}>
-          <ThemedIcons library="MaterialIcons" name="delete" size={20}/>
-          <ThemedText>Clear History</ThemedText>
-        </TouchableOpacity>
-      ]}> 
-        <ThemedIcons library="MaterialCommunityIcons" name="dots-vertical" size={22} color="#FFFFFF"/>
-      </OptionsPopup> */}
-
       <View style={[styles.container, {backgroundColor: backgroundColor}]}>
         <BackButton type='floating' color='#fff'/>
+        <TouchableOpacity onPress={() => openDocument('manual-sos-mobileApp')} style={styles.manual}>
+          <ThemedIcons library='MaterialIcons' name='info' size={22} color='#fff'/>
+        </TouchableOpacity>
         <View style={[styles.circle, {width: Dimensions.get('window').width+50}]}>
           <View style={styles.titleContainer}>
             {isSOSActive ? (
@@ -203,9 +196,15 @@ export default function SOSSection(){
           colors={['transparent', gradientColor]}
           style={styles.bottomGradient}
         >
-          <TouchableOpacity onPress={() => openDocument('manual-sos-mobileApp')} style={styles.manual}>
-            <ThemedText style={{opacity: .7, textDecorationLine: 'underline'}}>How does the SOS Work?</ThemedText>
-          </TouchableOpacity>
+          <ThemedView style={styles.switchContainer}>
+            <Switch
+              label='Add a SOS button to Home'
+              description='for quick accessibility'
+              value={isSOSActive}
+              onValueChange={() => []}
+            />
+          </ThemedView>
+          
         </LinearGradient>
 
         {/* Emergency Type Selection Modal */}
@@ -300,6 +299,10 @@ const styles = StyleSheet.create({
     padding: 5,
     zIndex: 1000,
   },
+  switchContainer:{
+    padding: 7,
+    borderRadius: 8,
+  },
   circle:{
     width: '100%',
     aspectRatio: 1,
@@ -333,7 +336,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    padding: 16,
     height: 150,
+    justifyContent: 'flex-end',
   },
   modalOverlay: {
     flex: 1,
@@ -376,12 +381,10 @@ const styles = StyleSheet.create({
   },
   manual:{
     position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
+    top: 16,
+    right: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 10,
-    opacity: .8
+    padding: 8,
   }
 });

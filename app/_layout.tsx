@@ -137,7 +137,6 @@ function AppContent() {
           <Stack.Screen name="itineraries/itineraries-view" />
           <Stack.Screen name="itineraries/itineraries-history" />
           <Stack.Screen name="home/aiChat" />
-          <Stack.Screen name="taraBuddy/taraBuddy-settings" />
           <Stack.Screen name="tours/tours-view" />
           <Stack.Screen name="groups/groups-view" />
           <Stack.Screen name="groups/groups-linkItinerary" />

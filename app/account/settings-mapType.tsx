@@ -78,7 +78,7 @@ export const renderMapTypeSettings = () => {
 
 const styles = StyleSheet.create({
     optionsChild: {
-        padding: 10,
+        padding: 8,
         fontSize: 15,
         width: '100%',
         flexDirection: 'row',
