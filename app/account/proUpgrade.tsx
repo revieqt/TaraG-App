@@ -64,7 +64,7 @@ export const renderProUpgrade = ProUpgrade;
 const styles = StyleSheet.create({
     proContainer:{
         width: '100%',
-        padding: 20,
+        padding: 16,
         borderRadius: 10,
         marginBottom: 15,
         alignItems: 'center',
