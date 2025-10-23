@@ -11,6 +11,7 @@ import { Foundation } from "@expo/vector-icons";
 import { useSession } from "@/context/SessionContext";
 import { useTaraBuddyApi, PotentialMatch } from "@/services/taraBuddyApiService";
 import { LinearGradient } from "expo-linear-gradient";
+import GradientBlobs from "@/components/GradientBlobs";
 
 export default function TaraBuddySection() {
   const primaryColor = useThemeColor({}, "primary");
@@ -341,6 +342,7 @@ export default function TaraBuddySection() {
               <View style={styles.card}>
                 <ThemedView color="primary" shadow style={styles.cardInner}>
                   <View style={styles.loadingCard}>
+                    <GradientBlobs/>
                     <ThemedIcons library="MaterialIcons" name="favorite" size={60} color={primaryColor} />
                     <ThemedText type="subtitle" style={{ textAlign: 'center', marginTop: 16 }}>
                       Finding potential matches...
@@ -358,6 +360,7 @@ export default function TaraBuddySection() {
               <View style={styles.card}>
                 <ThemedView color="primary" shadow style={styles.cardInner}>
                   <View style={styles.noMoreCards}>
+                    <GradientBlobs/>
                     <ThemedIcons library="MaterialIcons" name="favorite" size={60} color={primaryColor} />
                     <ThemedText type="subtitle" style={{ textAlign: 'center', marginTop: 16 }}>
                       No more potential matches

@@ -1,6 +1,5 @@
 import Button from '@/components/Button';
 import ProBadge from '@/components/custom/ProBadge';
-import GradientHeader from '@/components/GradientHeader';
 import { renderSystemTheme } from '@/app/account/settings-systemTheme';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
@@ -18,11 +17,14 @@ import { renderProUpgrade } from '@/app/account/proUpgrade';
 import { renderMapTypeSettings } from '@/app/account/settings-mapType';
 import { useItinerary } from '@/context/ItineraryContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GradientBlobs from '@/components/GradientBlobs';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function AccountScreen() {
   const { session, clearSession } = useSession();
   const user = session?.user;
-  const { clearAllItineraries } = useItinerary();
+  const primaryColor = useThemeColor({}, 'primary');
   const { refreshGlobalAlerts, loading: alertsLoading } = useAlerts();
   const location = useLocation();
   const [showPayment, setShowPayment] = useState(false);
@@ -105,7 +107,7 @@ export default function AccountScreen() {
   
   return (
     <ThemedView style={{ flex: 1 }}>
-      <GradientHeader/>
+      <GradientBlobs/>
       <ScrollView
         style={{ width: '100%', zIndex: 1000}}
         contentContainerStyle={styles.container}
@@ -270,6 +272,10 @@ export default function AccountScreen() {
         onClose={() => setShowPayment(false)}
         uri={paymentUrl || ""}
       />
+      <LinearGradient
+        colors={['transparent', primaryColor]}
+        style={styles.gradient}
+      />
     </ThemedView>
   );
 }
@@ -282,9 +288,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 80,
     marginTop: 30,
-    padding: 20,
+    padding: 10,
     borderRadius: 15,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   container: {
     justifyContent: 'flex-start',
@@ -323,5 +329,12 @@ const styles = StyleSheet.create({
   logoutButton: {
     width: '100%',
     marginVertical: 20,
+  },
+  gradient: {
+    position: 'absolute',
+    height: 50,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
 });

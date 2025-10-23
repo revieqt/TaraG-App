@@ -13,7 +13,7 @@ import { groupsApiService, Group } from "@/services/groupsApiService";
 import LoadingContainerAnimation from "@/components/LoadingContainerAnimation";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-export default function GroupsSection({ activeTab ="tours" }: {activeTab?: string}){
+export default function GroupsSection({ activeTab ="all" }: {activeTab?: string}){
     const { session } = useSession();
     const [selectedTab, setSelectedTab] = useState<string>(activeTab);
     const primaryColor = useThemeColor({}, 'primary');
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     tabRow:{
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 16,
+        marginBottom: 10,
         gap: 8,
     }
 });

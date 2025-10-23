@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
         width: '100%',
         padding: 16,
         borderRadius: 10,
-        marginBottom: 15,
+        marginBottom: 10,
         alignItems: 'center',
     },
     featuresContainer: {
