@@ -241,11 +241,39 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
   const [showDropdown, setShowDropdown] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Sync internal input state with value prop
   useEffect(() => {
     setInput(value || '');
   }, [value]);
+
+  // Auto-fetch with 2-second debounce when user types
+  useEffect(() => {
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Don't fetch if input is empty
+    if (!input.trim()) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+
+    // Set new timer for 2 seconds
+    debounceTimerRef.current = setTimeout(() => {
+      fetchSuggestions();
+    }, 2000);
+
+    // Cleanup on unmount or when input changes
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [input]);
 
   const fetchSuggestions = async () => {
     if (!input.trim()) {
@@ -295,7 +323,7 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
   };
 
   return (
-    <View style={{ zIndex: 10 }}>
+    <View style={[{ zIndex: 10 }, style]}>
       <View style={styles.inputContainer}>
         <TextField
           placeholder={placeholder}
@@ -404,7 +432,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     borderRadius: 10,
-    zIndex: 1000,
+    zIndex: 9999,
+    elevation: 9999, // For Android
     maxHeight: 180,
   },
   scrollView: {
