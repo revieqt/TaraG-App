@@ -205,6 +205,7 @@ const handleJoinGroup = async () => {
   ] : [
     'Tours',
     'Rooms',
+    'TaraBuddy',
   ];
 
   return (
@@ -331,13 +332,9 @@ const handleJoinGroup = async () => {
                 <ThemedIcons library='MaterialIcons' name='add' size={30} color='white'/>
             </OptionsPopup>
         </View>
-        {session?.user?.type === 'traveler' && (
-          <View style={[styles.sectionContainer, { display: activeTab === 2 ? 'flex' : 'none' }]}>
-            <TaraBuddySection/>
-          </View>
-        )}
-        
-        
+        <View style={[styles.sectionContainer, { display: activeTab === 2 ? 'flex' : 'none' }]}>
+          <TaraBuddySection/>
+        </View>
       </View>
     </ThemedView>
   );

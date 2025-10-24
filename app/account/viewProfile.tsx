@@ -256,7 +256,7 @@ export default function ProfileScreen() {
               </View>
             </View>
             )}
-            {isCurrentUser && (<ThemedView style={styles.taraBuddyPreference} shadow color='primary'>
+            {(isCurrentUser && (session?.user?.taraBuddyPreference===null)) && (<ThemedView style={styles.taraBuddyPreference} shadow color='primary'>
               <ThemedText style={styles.optionsTitle} type='defaultSemiBold'>
                 Gender Preference
               </ThemedText>

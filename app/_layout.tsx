@@ -138,6 +138,7 @@ function AppContent() {
           <Stack.Screen name="itineraries/itineraries-history" />
           <Stack.Screen name="home/aiChat" />
           <Stack.Screen name="tours/tours-view" />
+          <Stack.Screen name="tours/tourGuide-application" />
           <Stack.Screen name="groups/groups-view" />
           <Stack.Screen name="groups/groups-linkItinerary" />
           <Stack.Screen name="safety/safety" />

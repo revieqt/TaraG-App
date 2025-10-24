@@ -36,6 +36,14 @@ export default function TaraBuddySection() {
   // Check if we have valid session for API calls
   const canUseApi = session?.accessToken && session?.user?.id;
   
+  // Clear matches when preference is disabled
+  useEffect(() => {
+    if (!hasPreference) {
+      setPotentialMatches([]);
+      setCurrentIndex(0);
+    }
+  }, [hasPreference]);
+
   // Only fetch matches when the screen is focused (actively being viewed)
   useFocusEffect(
     React.useCallback(() => {

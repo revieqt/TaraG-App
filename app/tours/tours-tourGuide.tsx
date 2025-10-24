@@ -10,6 +10,8 @@ import { useSession } from "@/context/SessionContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { LinearGradient } from "expo-linear-gradient";
 import { getAgencyById, Agency } from "@/services/agencyApiService";
+import GradientBlobs from "@/components/GradientBlobs";
+import ProBadge from "@/components/custom/ProBadge";
 
 interface TourGuideSectionProps {
   agencyID?: string;
@@ -22,48 +24,50 @@ export default function TourGuideSection({ agencyID }: TourGuideSectionProps){
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (agencyID) {
-      fetchAgency();
-    }
-  }, [agencyID]);
+  // useEffect(() => {
+  //   if (agencyID) {
+  //     fetchAgency();
+  //   }
+  // }, [agencyID]);
 
-  const fetchAgency = async () => {
-    if (!agencyID || !session?.accessToken) return;
+  // const fetchAgency = async () => {
+  //   if (!agencyID || !session?.accessToken) return;
     
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAgencyById({ agencyID }, session.accessToken);
-      setAgency(data);
-    } catch (err: any) {
-      console.error('Error fetching agency:', err);
-      setError(err.message || 'Failed to load agency details');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const data = await getAgencyById({ agencyID }, session.accessToken);
+  //     setAgency(data);
+  //   } catch (err: any) {
+  //     console.error('Error fetching agency:', err);
+  //     setError(err.message || 'Failed to load agency details');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" />
-        <ThemedText style={{ marginTop: 10 }}>Loading agency details...</ThemedText>
-      </View>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <View style={styles.loadingContainer}>
+  //       <ActivityIndicator size="large" />
+  //       <ThemedText style={{ marginTop: 10 }}>Loading agency details...</ThemedText>
+  //     </View>
+  //   );
+  // }
 
-  if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <ThemedIcons library="MaterialIcons" name="error-outline" size={48} />
-        <ThemedText style={{ marginTop: 10, opacity: 0.7 }}>{error}</ThemedText>
-      </View>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <View style={styles.errorContainer}>
+  //       <ThemedIcons library="MaterialIcons" name="error-outline" size={48} />
+  //       <ThemedText style={{ marginTop: 10, opacity: 0.7 }}>{error}</ThemedText>
+  //     </View>
+  //   );
+  // }
 
   // Get user's agency data from session (user info, not full agency)
+  const userData = session?.user;
   const userAgencyData = session?.user?.agency;
+
 
   return(
     <ScrollView>
@@ -103,6 +107,18 @@ export default function TourGuideSection({ agencyID }: TourGuideSectionProps){
             </View>
           </View>
         </LinearGradient>
+      </ThemedView>
+
+      <ThemedView color='primary' shadow style={styles.detailsContainer}>
+        <GradientBlobs/>
+        <View style={styles.detailsRow}>
+          <ThemedText type='subtitle' style={{fontSize: 14}}>{userData?.fname} {userData?.mname} {userData?.lname} </ThemedText>
+          <ProBadge/>
+        </View>
+        <ThemedText style={{opacity: .7}}>{userAgencyData?.role}</ThemedText>
+        <ThemedText style={{opacity: .5}}>Business Email: {userAgencyData?.businessEmail}</ThemedText>
+        <ThemedText style={{opacity: .5}}>Business Number: {userAgencyData?.businessContactNumber}</ThemedText>
+        
       </ThemedView>
 
       {/* Agency Details */}
@@ -232,6 +248,11 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: '#fff',
   },
+  detailsRow:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -243,7 +264,10 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
   },
   detailsContainer: {
-    padding: 16,
+    padding: 12,
+    margin: 16,
+    borderRadius: 15,
+    overflow: 'hidden',
   },
   ratingContainer: {
     flexDirection: 'row',

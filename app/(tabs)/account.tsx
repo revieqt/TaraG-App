@@ -197,6 +197,12 @@ export default function AccountScreen() {
             <ThemedIcons library='MaterialDesignIcons' name='file-find' size={15} />
             <ThemedText>About TaraG</ThemedText>
           </TouchableOpacity>
+          {session?.user?.type !== 'tourGuide' && (
+            <TouchableOpacity onPress={() => router.push('/tours/tourGuide-application')} style={styles.optionsChild}>
+              <ThemedIcons library='MaterialDesignIcons' name='file-find' size={15} />
+              <ThemedText>Join a Travel Agency</ThemedText>
+            </TouchableOpacity>
+          )}
           <Pressable 
             onLongPress={() => {
               const timer = setTimeout(() => {
