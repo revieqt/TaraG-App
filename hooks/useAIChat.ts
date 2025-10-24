@@ -13,7 +13,7 @@ type AIResponse = {
   intent?: any;
   suggestions?: string[];
   actionRequired?: {
-    type: 'confirm_itinerary' | 'confirm_route' | 'check_active_route';
+    type: 'confirm_itinerary' | 'confirm_route' | 'check_active_route' | 'confirm_weather';
     data?: any;
   };
 };

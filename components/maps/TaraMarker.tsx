@@ -16,6 +16,8 @@ interface TaraMarkerProps {
   title?: string;
   description?: string;
   identifier?: string;
+  onPress?: () => void;
+  type?: 'default' | 'dot';
 }
 
 const TaraMarker: React.FC<TaraMarkerProps> = ({
@@ -26,6 +28,8 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
   title,
   description,
   identifier,
+  onPress,
+  type = 'default',
 }) => {
   const [tracksViewChanges, setTracksViewChanges] = useState<boolean>(true);
   const secondaryColor = useThemeColor({}, 'secondary');
@@ -37,6 +41,22 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
     }
   }, [icon]);
   
+  if (type === 'dot') {
+    const markerColor = color || secondaryColor || '#FF6B6B';
+    return (
+      <Marker
+        coordinate={coordinate}
+        title={title}
+        description={description}
+        identifier={identifier}
+        anchor={{ x: 0.5, y: 0.5 }}
+        onPress={onPress}
+      >
+        <View style={[styles.dotMarker, { backgroundColor: markerColor }]} />
+      </Marker>
+    );
+  }
+
   return (
     <Marker
       coordinate={coordinate}
@@ -46,6 +66,7 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
       tracksViewChanges={tracksViewChanges}
       anchor={{ x: 0.5, y: 0.5 }}
       zIndex={1000}
+      onPress={onPress}
     >
       <View style={[styles.circle, { backgroundColor: color }]}>
         {icon ? (
@@ -104,5 +125,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  dotMarker: {
+    width: 14,
+    height: 14,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

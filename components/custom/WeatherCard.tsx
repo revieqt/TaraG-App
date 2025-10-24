@@ -17,6 +17,7 @@ interface WeatherCardProps {
   latitude?: number;
   longitude?: number;
   date?: string;
+  locationName?: string;
 }
 
 interface LocationData {
@@ -26,7 +27,7 @@ interface LocationData {
   country?: string;
 }
 
-export default function WeatherCard({ current, latitude, longitude, date }: WeatherCardProps) {
+export default function WeatherCard({ current, latitude, longitude, date, locationName }: WeatherCardProps) {
   const [locationData, setLocationData] = useState<LocationData | null>(null);
   const [locationLoading, setLocationLoading] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -333,6 +334,11 @@ export default function WeatherCard({ current, latitude, longitude, date }: Weat
   }, [current, latitude, longitude]);
 
   const getLocationText = () => {
+    // If locationName is provided, use it
+    if (locationName) {
+      return locationName;
+    }
+    
     if (current) {
       if (currentLocation.error) return 'Location unavailable';
       if (currentLocation.suburb && currentLocation.city) {
@@ -645,6 +651,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#ccc3',
   },
   loadingContainer: {
     alignItems: 'center',

@@ -1,10 +1,7 @@
-import BottomSheet from '@/components/BottomSheet';
 import OptionsPopup from '@/components/OptionsPopup';
 import { ThemedIcons } from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import BackButton from '@/components/custom/BackButton';
-import ViewItinerary from '@/components/custom/ViewItinerary';
 import {
   getItinerariesById,
   useDeleteItinerary,
@@ -15,13 +12,12 @@ import { useSession } from '@/context/SessionContext';
 import { useItinerary } from '@/context/ItineraryContext';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { groupsApiService } from '@/services/groupsApiService';
 import TextField from '@/components/TextField';
 import Button from '@/components/Button';
 import ItineraryMap from '@/components/maps/ItineraryMap';
 import { LinearGradient } from 'expo-linear-gradient';
-import { formatDate } from '@/utils/routeHistory';
 import { formatDateToString } from '@/utils/formatDateToString';
 
 export default function ItineraryViewScreen() {
@@ -273,7 +269,7 @@ export default function ItineraryViewScreen() {
     itinerary && (itinerary.status === 'pending');
 
   return (
-    <ThemedView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <ItineraryMap itinerary={itinerary} />
       <LinearGradient
         colors={['#000', 'transparent']}
@@ -374,12 +370,7 @@ export default function ItineraryViewScreen() {
           </ThemedText>
         </View>
       </LinearGradient>
-      <BottomSheet snapPoints={[0.20, 0.9]} defaultIndex={0} style={{paddingHorizontal: 20}}>
-        {loading && <ActivityIndicator style={{ marginTop: 32 }} />}
-        {error && <ThemedText style={{ color: 'red', margin: 24 }}>{error}</ThemedText>}
-        {!loading && !error && itinerary && (<ViewItinerary json={itinerary} hideHeader />)}
-      </BottomSheet>
-    </ThemedView>
+    </View>
   );
 }
 

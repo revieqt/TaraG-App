@@ -11,6 +11,8 @@ import { useAIChat } from '@/hooks/useAIChat';
 import { useLocation } from '@/hooks/useLocation';
 import { createRoute, getRoutes } from '@/services/routeApiService';
 import { saveItinerary } from '@/services/itinerariesApiService';
+import { geocodeLocation } from '@/utils/geocoding';
+import { getWeatherForCurrentLocation, getWeatherForLocation, formatWeatherForChat } from '@/utils/weatherCache';
 import ChatLoading from '@/components/ChatLoading';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -142,11 +144,6 @@ export default function AIChatScreen() {
     try {
       const { startLocation, endLocation, transportMode } = pendingAction.data || {};
       
-      if (!startLocation || !endLocation) {
-        console.error('Missing location data for route creation');
-        return;
-      }
-
       // Check if location is still loading - don't clear pending action, let user retry
       if (locationLoading) {
         sendMessage('I\'m still getting your location. Please wait a moment and try the "Yes, Create Route" button again.', {
@@ -176,17 +173,89 @@ export default function AIChatScreen() {
         return;
       }
 
+      // Handle single location input (user only provided destination)
+      // Use current location as start point
+      let startLat = latitude;
+      let startLon = longitude;
+      let startName = `${suburb || city || 'Current Location'}`;
+      let endLat: number;
+      let endLon: number;
+      let endName: string;
+
+      // If only endLocation is provided (single location input)
+      if (endLocation && !startLocation) {
+        // Use current location as start
+        console.log('Single location input detected. Using current location as start:', startName);
+        
+        // Geocode the destination
+        const geocodedDestination = await geocodeLocation(endLocation);
+        
+        if (!geocodedDestination) {
+          sendMessage(`Sorry, I couldn\'t find the location "${endLocation}". Please try again with a more specific address.`, {
+            userID: session?.user?.id,
+            hasActiveRoute: !!session?.activeRoute
+          });
+          setPendingAction(null);
+          return;
+        }
+
+        endLat = geocodedDestination.latitude;
+        endLon = geocodedDestination.longitude;
+        endName = geocodedDestination.locationName;
+      }
+      // If both locations are provided
+      else if (startLocation && endLocation) {
+        // Geocode start location
+        const geocodedStart = await geocodeLocation(startLocation);
+        if (!geocodedStart) {
+          sendMessage(`Sorry, I couldn\'t find the start location "${startLocation}". Please try again.`, {
+            userID: session?.user?.id,
+            hasActiveRoute: !!session?.activeRoute
+          });
+          setPendingAction(null);
+          return;
+        }
+
+        // Geocode end location
+        const geocodedEnd = await geocodeLocation(endLocation);
+        if (!geocodedEnd) {
+          sendMessage(`Sorry, I couldn\'t find the destination "${endLocation}". Please try again.`, {
+            userID: session?.user?.id,
+            hasActiveRoute: !!session?.activeRoute
+          });
+          setPendingAction(null);
+          return;
+        }
+
+        startLat = geocodedStart.latitude;
+        startLon = geocodedStart.longitude;
+        startName = geocodedStart.locationName;
+        endLat = geocodedEnd.latitude;
+        endLon = geocodedEnd.longitude;
+        endName = geocodedEnd.locationName;
+      }
+      // Missing location data
+      else {
+        console.error('Missing location data for route creation');
+        sendMessage('Sorry, I need at least a destination to create a route.', {
+          userID: session?.user?.id,
+          hasActiveRoute: !!session?.activeRoute
+        });
+        setPendingAction(null);
+        return;
+      }
+
       // Create locations array matching routes-create.tsx format
       const locations = [
         {
-          latitude: latitude,
-          longitude: longitude,
-          locationName: `${suburb || city || 'Current Location'}`
+          latitude: startLat,
+          longitude: startLon,
+          locationName: startName
         },
         {
-          latitude: 14.6091, // Destination default - should be geocoded from endLocation
-          longitude: 121.0223,
-          locationName: endLocation
+          latitude: endLat,
+          longitude: endLon,
+          locationName: endName
         }
       ];
 
@@ -237,6 +306,60 @@ export default function AIChatScreen() {
       userID: session?.user?.id,
       hasActiveRoute: !!session?.activeRoute
     });
+    setPendingAction(null);
+  };
+
+  const handleWeatherRequest = async () => {
+    if (!pendingAction) return;
+    
+    try {
+      const { location, date } = pendingAction.data || {};
+      
+      let result;
+      let locationName;
+      
+      // If no specific location provided, use current location
+      if (!location || location.toLowerCase() === 'current' || location.toLowerCase() === 'here') {
+        // Check if we have current location
+        if (!latitude || !longitude) {
+          sendMessage('I need your current location to check the weather. Please make sure location services are enabled.', {
+            userID: session?.user?.id,
+            hasActiveRoute: !!session?.activeRoute
+          });
+          setPendingAction(null);
+          return;
+        }
+        
+        locationName = `${suburb || city || 'your location'}`;
+        result = await getWeatherForCurrentLocation(latitude, longitude, date);
+      } else {
+        // Fetch weather for specified location
+        locationName = location;
+        result = await getWeatherForLocation(location, date);
+      }
+      
+      if (result.success && result.data) {
+        const weatherMessage = formatWeatherForChat(result.data, locationName);
+        const cacheNote = result.fromCache ? ' (from cache)' : '';
+        
+        sendMessage(weatherMessage + cacheNote, {
+          userID: session?.user?.id,
+          hasActiveRoute: !!session?.activeRoute
+        });
+      } else {
+        sendMessage(result.error || 'Sorry, I couldn\'t get the weather information.', {
+          userID: session?.user?.id,
+          hasActiveRoute: !!session?.activeRoute
+        });
+      }
+    } catch (error) {
+      console.error('Error getting weather:', error);
+      sendMessage('Sorry, there was an error getting the weather information.', {
+        userID: session?.user?.id,
+        hasActiveRoute: !!session?.activeRoute
+      });
+    }
+    
     setPendingAction(null);
   };
 
@@ -466,6 +589,38 @@ export default function AIChatScreen() {
                           >
                             <ThemedText style={{ color: '#000', fontWeight: 'bold', textAlign: 'center' }}>
                               Yes, Create Route
+                            </ThemedText>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: '#666',
+                              borderRadius: 8,
+                              paddingVertical: 8,
+                              paddingHorizontal: 16,
+                              flex: 1,
+                            }}
+                            onPress={handleDeclineAction}
+                          >
+                            <ThemedText style={{ color: '#fff', fontWeight: 'bold', textAlign: 'center' }}>
+                              No Thanks
+                            </ThemedText>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                      {item.actionRequired.type === 'confirm_weather' && (
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                          <TouchableOpacity
+                            style={{
+                              backgroundColor: '#00FFDE',
+                              borderRadius: 8,
+                              paddingVertical: 8,
+                              paddingHorizontal: 16,
+                              flex: 1,
+                            }}
+                            onPress={handleWeatherRequest}
+                          >
+                            <ThemedText style={{ color: '#000', fontWeight: 'bold', textAlign: 'center' }}>
+                              Yes, Show Weather
                             </ThemedText>
                           </TouchableOpacity>
                           <TouchableOpacity

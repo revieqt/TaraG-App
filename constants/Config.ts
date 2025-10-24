@@ -1,8 +1,8 @@
 export const OPENWEATHERMAP_API_KEY = '2fcd1df975e7b243505126ec763220e2';
-export const BACKEND_URL = "http://192.168.68.102:5000/api";
+export const BACKEND_URL = "http://192.168.68.106:5000/api";
 export const SUPPORT_FORM_URL = "https://forms.gle/PPqT7Sy2JNY5NH2c6";
 export const MAX_FREE_MESSAGES_PER_DAY = 5;
-export const TRAVELLER_PRO_PRICE = 4.99;
+export const TRAVELLER_PRO_PRICE = 249.99;
 
 export const DEFAULT_AREA_CODES = [
   { label: '+63', value: '63+' },

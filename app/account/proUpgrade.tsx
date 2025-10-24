@@ -6,13 +6,26 @@ import { ThemedIcons } from "@/components/ThemedIcons";
 import { StyleSheet, View } from "react-native";
 import { useSession } from "@/context/SessionContext";
 import { TRAVELLER_PRO_PRICE } from "@/constants/Config";
-import { router } from "expo-router";
-import PaymentPortalScreen from "./paymentPortal";
+import PaymentPortal from "@/components/modals/PaymentPortal";
+import { useState } from "react";
 
 const ProUpgrade = () => {
     const { session, updateSession } = useSession();
+    const [showPaymentPortal, setShowPaymentPortal] = useState(false);
 
     const user = session?.user;
+
+    const handlePaymentComplete = () => {
+        if (session?.user) {
+            updateSession({
+                user: {
+                    ...session.user,
+                    isProUser: true,
+                }
+            });
+        }
+    };
+
     return(
         <>
             <ThemedView color='primary' shadow style={styles.proContainer}>
@@ -25,14 +38,7 @@ const ProUpgrade = () => {
                 <Button
                     title='Get TaraG Pro'
                     type='primary'
-                    onPress={() => {
-                        const params = new URLSearchParams({
-                            productName: 'TaraG Pro',
-                            productDescription: `Get TaraG Pro for as low as ${TRAVELLER_PRO_PRICE}/month`,
-                            productPrice: TRAVELLER_PRO_PRICE.toString()
-                        });
-                        router.push(`/account/paymentPortal?${params.toString()}`);
-                    }}
+                    onPress={() => setShowPaymentPortal(true)}
                     buttonStyle={{
                     width: '100%',
                     marginBottom: 15,
@@ -60,6 +66,16 @@ const ProUpgrade = () => {
                 <ThemedText>Exclusive Pro Traveller Badge</ThemedText>
             </View>
             </ThemedView>
+
+            {/* Payment Portal Modal */}
+            <PaymentPortal
+                visible={showPaymentPortal}
+                onClose={() => setShowPaymentPortal(false)}
+                productName="TaraG Pro"
+                productDescription={`Get TaraG Pro for as low as ${TRAVELLER_PRO_PRICE}/month`}
+                price={TRAVELLER_PRO_PRICE.toString()}
+                onPaymentComplete={handlePaymentComplete}
+            />
         </>
     )
 }
