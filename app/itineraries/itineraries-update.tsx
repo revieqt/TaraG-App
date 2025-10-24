@@ -63,6 +63,8 @@ export default function UpdateItineraryScreen() {
   const [dailyLocations, setDailyLocations] = useState<DailyLocation[]>([]);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [currentDayIdx, setCurrentDayIdx] = useState<number | null>(null);
+  const [editingLocationIdx, setEditingLocationIdx] = useState<number | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [modalLocationName, setModalLocationName] = useState('');
   const [modalNote, setModalNote] = useState('');
   const [modalLocationData, setModalLocationData] = useState<Partial<LocationItem>>({});
@@ -213,15 +215,29 @@ export default function UpdateItineraryScreen() {
   // Modal functions
   const openLocationModal = (dayIdx: number | null) => {
     setCurrentDayIdx(dayIdx);
+    setEditingLocationIdx(null);
+    setIsEditMode(false);
     setModalLocationName('');
     setModalNote('');
     setModalLocationData({});
     setShowLocationModal(true);
   };
 
+  const openEditLocationModal = (dayIdx: number | null, locIdx: number, location: LocationItem) => {
+    setCurrentDayIdx(dayIdx);
+    setEditingLocationIdx(locIdx);
+    setIsEditMode(true);
+    setModalLocationName(location.locationName || '');
+    setModalNote(location.note || '');
+    setModalLocationData(location);
+    setShowLocationModal(true);
+  };
+
   const closeLocationModal = () => {
     setShowLocationModal(false);
     setCurrentDayIdx(null);
+    setEditingLocationIdx(null);
+    setIsEditMode(false);
     setModalLocationName('');
     setModalNote('');
     setModalLocationData({});
@@ -234,10 +250,30 @@ export default function UpdateItineraryScreen() {
         note: modalNote || '' 
       } as LocationItem;
 
-      if (planDaily && currentDayIdx !== null) {
-        addLocationToDay(currentDayIdx, locationToAdd);
+      if (isEditMode && editingLocationIdx !== null) {
+        // Edit existing location
+        if (planDaily && currentDayIdx !== null) {
+          const dayDate = autoDailyLocations[currentDayIdx]?.date;
+          if (dayDate) {
+            const updated = [...dailyLocations];
+            const idx = updated.findIndex(d => d.date && d.date.toDateString() === dayDate.toDateString());
+            if (idx !== -1) {
+              updated[idx].locations[editingLocationIdx] = locationToAdd;
+              setDailyLocations(updated);
+            }
+          }
+        } else {
+          const updated = [...locations];
+          updated[editingLocationIdx] = locationToAdd;
+          setLocations(updated);
+        }
       } else {
-        addLocation(locationToAdd);
+        // Add new location
+        if (planDaily && currentDayIdx !== null) {
+          addLocationToDay(currentDayIdx, locationToAdd);
+        } else {
+          addLocation(locationToAdd);
+        }
       }
       closeLocationModal();
     }
@@ -322,12 +358,15 @@ export default function UpdateItineraryScreen() {
                     <LocationDisplay
                       content={day.locations.map((loc, locIdx) => (
                         <View key={locIdx} style={styles.locationRow}>
-                          <View style={{ flex: 1, marginBottom: 10 }}>
+                          <TouchableOpacity 
+                            style={{ flex: 1, marginBottom: 10 }}
+                            onPress={() => openEditLocationModal(dayIdx, locIdx, loc)}
+                          >
                             <ThemedText>{loc.locationName}</ThemedText>
                             {loc.note ? (
                               <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
                             ) : null}
-                          </View>
+                          </TouchableOpacity>
                           <TouchableOpacity onPress={() => removeLocation(dayIdx, locIdx)}>
                             <ThemedIcons library='MaterialIcons' name='close' size={20}/>
                           </TouchableOpacity>
@@ -351,12 +390,15 @@ export default function UpdateItineraryScreen() {
                   <LocationDisplay
                     content={locations.map((loc, idx) => (
                       <View key={idx} style={styles.locationRow}>
-                        <View style={{ flex: 1, marginBottom: 15 }}>
+                        <TouchableOpacity 
+                          style={{ flex: 1, marginBottom: 15 }}
+                          onPress={() => openEditLocationModal(null, idx, loc)}
+                        >
                           <ThemedText>{loc.locationName}</ThemedText>
                           {loc.note ? (
                             <ThemedText style={{opacity: .5}}>{loc.note}</ThemedText>
                           ) : null}
-                        </View>
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={() => removeLocation(null, idx)}>
                           <ThemedIcons library='MaterialIcons' name='close' size={20}/>
                         </TouchableOpacity>
@@ -423,7 +465,7 @@ export default function UpdateItineraryScreen() {
               
               <View style={{width: '48%'}}>
               <Button
-                title="Add"
+                title={isEditMode ? "Update" : "Add"}
                 type='primary'
                 onPress={handleAddLocationFromModal}
                 disabled={!modalLocationData.locationName || !modalLocationData.latitude || !modalLocationData.longitude}

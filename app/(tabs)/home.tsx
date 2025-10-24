@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     height: '100%',
     padding: 16,
     zIndex: 3,
-    pointerEvents: 'box-none', // This allows touches to pass through except for the actual content
+    pointerEvents: 'box-none',
   },
   textContainer: {
     position: 'absolute',
@@ -465,12 +465,16 @@ const styles = StyleSheet.create({
   leftGridContainer:{
     padding: 14,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ccc3'
   },
   rightGridContainer:{
     height: '48%',
     width: '100%',
     borderRadius: 12,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ccc3'
   },
   bottomGradient: {
     height: 120,

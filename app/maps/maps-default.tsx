@@ -451,14 +451,17 @@ const defaultRegion: Region = {
         )}
       </MapView>
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
+      <LinearGradient
+        colors={[ '#000','transparent']}
+        style={styles.searchContainer}
+      >
         <LocationAutocomplete
           value={searchQuery}
           onSelect={handleLocationSelect}
           placeholder="Search for a location"
         />
-      </View>
+
+      </LinearGradient>
 
       {error && (
         <View style={styles.errorContainer}>
@@ -523,6 +526,7 @@ const defaultRegion: Region = {
                 {/* Quick Facts */}
                 {quickFacts && (
                   <ThemedView color='primary' shadow style={styles.quickFactsContainer}>
+                    <GradientBlobs/>
                     {formatPlaceType(quickFacts.types) && (
                       <View style={styles.quickFactItem}>
                         <ThemedIcons library="MaterialIcons" name="category" size={18}/>
@@ -786,11 +790,13 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     position: 'absolute',
-    top: 10,
-    left: 10,
-    right: 10,
+    top: 0,
+    left: 0,
+    right: 0,
     zIndex: 1000,
-    borderRadius: 10,
+    padding: 16,
+    paddingBottom: 25,
+    pointerEvents: 'box-none'
   },
   errorContainer: {
     position: 'absolute',
@@ -823,7 +829,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
-    marginBottom: 10
   },
   locationDetailsContainer: {
     flexDirection: 'row',
@@ -921,8 +926,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     padding: 12,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(128, 128, 128, 0.1)'
+    overflow: 'hidden'
   },
   quickFactItem: {
     flexDirection: 'row',
