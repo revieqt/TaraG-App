@@ -216,6 +216,7 @@ export default function TaraBuddySection() {
         
         <View style={styles.cardContainer}>
           <ThemedView color="primary" shadow style={[styles.card, styles.welcomeCard]}>
+            <GradientBlobs/>
             <ThemedText type="subtitle" style={{ marginTop: 20 }}>
               Meet new Friends with
             </ThemedText>

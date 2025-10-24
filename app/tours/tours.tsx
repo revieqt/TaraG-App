@@ -49,7 +49,7 @@ export default function ToursSection(){
 
     if(session?.user?.type === 'tourGuide'){
     return(
-      <TourGuideSection/>
+      <TourGuideSection agencyID={session?.user?.agency?.agencyID} />
     );}
     
 };

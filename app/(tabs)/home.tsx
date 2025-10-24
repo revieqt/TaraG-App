@@ -338,6 +338,7 @@ export default function HomeScreen() {
       <AlertsContainer>
          {session?.activeRoute && (<ActiveRouteButton/>)}
          {session?.user?.safetyState?.isInAnEmergency  && (<HomeSOSButton/>)}
+         {session?.user?.status === 'warned' && (<HomeSOSButton/>)}
       </AlertsContainer>
 
       <LinearGradient

@@ -7,6 +7,7 @@ import { useSession } from '@/context/SessionContext';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import Header from '@/components/Header';
 
 const RESEND_COOLDOWN = 180; // seconds
 
@@ -97,25 +98,13 @@ export default function VerifyEmailScreen() {
   };
 
   return (
-    <ThemedView style={styles.background}>
-      {/* Floating back arrow */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => {router.replace('/auth/login');
-        }}
-      >
-        <ThemedView>
-          <ThemedIcons library='MaterialIcons' name={'arrow-back'} size={20}></ThemedIcons>
-        </ThemedView>
-        
-      </TouchableOpacity>
+    <ThemedView style={{flex: 1}}>
+      <Header label="Verify Email" />
 
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ThemedText type="title">Verify Email</ThemedText>
-        <ThemedText style={{ marginBottom: 20 }}>to fully enjoy TaraG and it's features!</ThemedText>
 
         {emailSent && (
           <ThemedText style={{ marginBottom: 10 }}>
@@ -150,14 +139,9 @@ export default function VerifyEmailScreen() {
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
   container: {
     width: '100%',
+    padding: 16
   },
   backButton: {
     position: 'absolute',

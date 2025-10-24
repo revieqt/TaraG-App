@@ -45,6 +45,15 @@ export type User = {
     zodiac?: string[];
     likedUsers?: string[];
   };
+/** 🏢 Agency data (for tour guides) */
+  agency?: {
+    agencyID: string;
+    businessContactNumber: string;
+    businessEmail: string;
+    documents: string[];
+    permissions: string;
+    role: string;
+  };
 };
 
 // 🛣️ Route Data

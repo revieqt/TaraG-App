@@ -1,4 +1,4 @@
-const WIKIPEDIA_API_BASE = "https://en.wikipedia.org/w/api.php?origin=*";
+const WIKIPEDIA_API_BASE = "https://en.wikipedia.org/w/api.php";
 
 export const wikipediaService = {
   /**
@@ -8,15 +8,29 @@ export const wikipediaService = {
    */
   async getInfo(query: string): Promise<string | null> {
     try {
-      const response = await fetch(
-        `${WIKIPEDIA_API_BASE}&action=query&prop=extracts&exintro&explaintext&format=json&titles=${encodeURIComponent(query)}`
-      );
-      const data = await response.json();
+      const url = `${WIKIPEDIA_API_BASE}?action=query&prop=extracts&exintro&explaintext&format=json&titles=${encodeURIComponent(query)}&formatversion=2`;
+      console.log('📚 Fetching Wikipedia info for:', query);
+      console.log('📚 URL:', url);
+      
+      const response = await fetch(url);
+      const text = await response.text();
+      console.log('📚 Response text:', text.substring(0, 200));
+      
+      const data = JSON.parse(text);
+      console.log('📚 Parsed data:', JSON.stringify(data, null, 2).substring(0, 500));
+      
       const pages = data.query?.pages;
-      const page = pages[Object.keys(pages)[0]];
-      return page?.extract ?? null;
+      console.log('📚 Pages:', pages);
+      
+      if (pages && pages.length > 0) {
+        const extract = pages[0]?.extract ?? null;
+        console.log('📚 Extract found:', extract ? extract.substring(0, 100) : 'null');
+        return extract;
+      }
+      console.log('📚 No pages found');
+      return null;
     } catch (error) {
-      console.error("Error fetching Wikipedia info:", error);
+      console.error("❌ Error fetching Wikipedia info:", error);
       return null;
     }
   },
@@ -28,15 +42,29 @@ export const wikipediaService = {
    */
   async getImage(query: string): Promise<string | null> {
     try {
-      const response = await fetch(
-        `${WIKIPEDIA_API_BASE}&action=query&format=json&prop=pageimages&titles=${encodeURIComponent(query)}&pithumbsize=600`
-      );
-      const data = await response.json();
+      const url = `${WIKIPEDIA_API_BASE}?action=query&format=json&prop=pageimages&titles=${encodeURIComponent(query)}&pithumbsize=600&formatversion=2`;
+      console.log('🖼️ Fetching Wikipedia image for:', query);
+      console.log('🖼️ URL:', url);
+      
+      const response = await fetch(url);
+      const text = await response.text();
+      console.log('🖼️ Response text:', text.substring(0, 200));
+      
+      const data = JSON.parse(text);
+      console.log('🖼️ Parsed data:', JSON.stringify(data, null, 2).substring(0, 500));
+      
       const pages = data.query?.pages;
-      const page = pages[Object.keys(pages)[0]];
-      return page?.thumbnail?.source ?? null;
+      console.log('🖼️ Pages:', pages);
+      
+      if (pages && pages.length > 0) {
+        const imageUrl = pages[0]?.thumbnail?.source ?? null;
+        console.log('🖼️ Image URL found:', imageUrl);
+        return imageUrl;
+      }
+      console.log('🖼️ No image found');
+      return null;
     } catch (error) {
-      console.error("Error fetching Wikipedia image:", error);
+      console.error("❌ Error fetching Wikipedia image:", error);
       return null;
     }
   },
@@ -49,9 +77,9 @@ export const wikipediaService = {
   async getTouristSpots(town: string): Promise<string[]> {
     try {
       const response = await fetch(
-        `${WIKIPEDIA_API_BASE}&action=query&list=search&srsearch=${encodeURIComponent(
+        `${WIKIPEDIA_API_BASE}?action=query&list=search&srsearch=${encodeURIComponent(
           town + " tourist attractions"
-        )}&format=json`
+        )}&format=json&formatversion=2`
       );
       const data = await response.json();
       const results = data.query?.search ?? [];

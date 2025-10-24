@@ -515,7 +515,9 @@ export default function GroupView() {
         <LinearGradient
           colors={['#000', 'transparent']}
           style={styles.headerGradient}
+          pointerEvents="none"
         />
+        <View style={styles.headerContent}>
         <OptionsPopup options={[
           <TouchableOpacity style={styles.options} onPress={handleChangeRoomName}>
             <ThemedIcons library="MaterialDesignIcons" name="pencil" size={20} />
@@ -565,8 +567,7 @@ export default function GroupView() {
             <ThemedText style={{color: '#fff'}}>Chat</ThemedText>
           </TouchableOpacity>
         </ScrollView>
-
-        
+        </View>
       </View>
     
       <View style={styles.content}>
@@ -587,65 +588,101 @@ export default function GroupView() {
           </BottomSheet>
         )}
 
-        {selectedButton === 'itinerary' && (
-          <BottomSheet snapPoints={[0.3, 0.6, 1]} defaultIndex={1} style={{zIndex: 100000}}>
-            <ScrollView>
-              {groupData.itineraryID ? (
-                <View>
-                  {loadingItinerary ? (
-                    <ActivityIndicator size="small" />
-                  ) : itineraryData ? (
-                    <View style={styles.itineraryContainer}>
-                      <ViewItinerary json={itineraryData} />
-                      {isCurrentUserAdmin && (
-                        <View style={styles.itineraryButtonContainer}>
-                          <TouchableOpacity 
-                            style={[styles.itineraryButton, {backgroundColor: backgroundColor}]}
-                            onPress={handleEditItinerary}
-                          >
-                            <ThemedIcons library='MaterialDesignIcons' name='pencil' size={20}/>
-                          </TouchableOpacity>
-                          <TouchableOpacity 
-                            style={[styles.itineraryButton, {backgroundColor: 'red'}]}
-                            onPress={handleDeleteItinerary}
-                          >
-                            <ThemedIcons library='MaterialIcons' name='delete' size={20} color='white'/>
-                          </TouchableOpacity>
-                          
-                        </View>
-                      )}
-                      
-                      
-                    </View>
-                    
-                  ) : (
-                    <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
-                    title='Error Loading Itinerary'
-                    description="Failed to load itinerary details."
-                    />
-                  )}
-                </View>
-              ) : (
-                <View>
-                  <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
-                  title='No Itinerary Linked'
-                  description="This group doesn't have an associated itinerary yet."
-                  />
-                  {isCurrentUserAdmin && (
-                    <Button
-                      title="Link Itinerary"
-                      onPress={() => router.push({
-                        pathname: '/groups/groups-linkItinerary',
-                        params: { groupID: groupData.id }
-                      })}
-                      buttonStyle={{ marginTop: 15 }}
-                    />
-                  )}
-                </View>
-                
+        {selectedButton === 'itinerary' && (<>
+          {loadingItinerary && (
+            <BottomSheet snapPoints={[0.3, 0.6, 1]} defaultIndex={1} style={{zIndex: 100000}}>
+              <ActivityIndicator size="small" />
+            </BottomSheet>
+            )
+          }
+          {!loadingItinerary && !itineraryData && (
+            <BottomSheet snapPoints={[0.3, 0.6, 1]} defaultIndex={1} style={{zIndex: 100000}}>
+              <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
+              title='Error Loading Itinerary'
+              description="Failed to load itinerary details."
+              />
+            </BottomSheet>
+            )
+          }
+          {!groupData.itineraryID && (
+            <BottomSheet snapPoints={[0.3, 0.6, 1]} defaultIndex={1} style={{zIndex: 100000}}>
+              <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
+              title='No Itinerary Linked'
+              description="This group doesn't have an associated itinerary yet."
+              />
+              {isCurrentUserAdmin && (
+                <Button
+                  title="Link Itinerary"
+                  onPress={() => router.push({
+                    pathname: '/groups/groups-linkItinerary',
+                    params: { groupID: groupData.id }
+                  })}
+                  buttonStyle={{ marginTop: 15, marginHorizontal: 16 }}
+                />
               )}
-            </ScrollView>
-          </BottomSheet>
+            </BottomSheet>
+            )
+          }
+        </>
+
+          // <BottomSheet snapPoints={[0.3, 0.6, 1]} defaultIndex={1} style={{zIndex: 100000}}>
+          //   <ScrollView>
+          //     {groupData.itineraryID ? (
+          //       <View>
+          //         {loadingItinerary ? (
+          //           <ActivityIndicator size="small" />
+          //         ) : itineraryData ? (
+          //           <View style={styles.itineraryContainer}>
+          //             <ViewItinerary json={itineraryData} />
+          //             {isCurrentUserAdmin && (
+          //               <View style={styles.itineraryButtonContainer}>
+          //                 <TouchableOpacity 
+          //                   style={[styles.itineraryButton, {backgroundColor: backgroundColor}]}
+          //                   onPress={handleEditItinerary}
+          //                 >
+          //                   <ThemedIcons library='MaterialDesignIcons' name='pencil' size={20}/>
+          //                 </TouchableOpacity>
+          //                 <TouchableOpacity 
+          //                   style={[styles.itineraryButton, {backgroundColor: 'red'}]}
+          //                   onPress={handleDeleteItinerary}
+          //                 >
+          //                   <ThemedIcons library='MaterialIcons' name='delete' size={20} color='white'/>
+          //                 </TouchableOpacity>
+                          
+          //               </View>
+          //             )}
+                      
+                      
+          //           </View>
+                    
+          //         ) : (
+          //           <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
+          //           title='Error Loading Itinerary'
+          //           description="Failed to load itinerary details."
+          //           />
+          //         )}
+          //       </View>
+          //     ) : (
+          //       <View>
+          //         <EmptyMessage iconLibrary='MaterialDesignIcons' iconName='note-remove'
+          //         title='No Itinerary Linked'
+          //         description="This group doesn't have an associated itinerary yet."
+          //         />
+          //         {isCurrentUserAdmin && (
+          //           <Button
+          //             title="Link Itinerary"
+          //             onPress={() => router.push({
+          //               pathname: '/groups/groups-linkItinerary',
+          //               params: { groupID: groupData.id }
+          //             })}
+          //             buttonStyle={{ marginTop: 15 }}
+          //           />
+          //         )}
+          //       </View>
+                
+          //     )}
+          //   </ScrollView>
+          // </BottomSheet>
         )}
 
         {selectedButton === 'chat' && (
@@ -749,27 +786,28 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 1,
+    zIndex: 5,
   },
   headerContainer:{
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 10,
+    zIndex: 20,
+    paddingBottom: 20,
     pointerEvents: 'box-none',
-    padding: 16,
-    paddingTop: 25,
-    height: 200,
   },
   headerGradient: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 250,
-    opacity: .9,
-    pointerEvents: 'none',
+    bottom: 0,
+  },
+  headerContent: {
+    padding: 16,
+    paddingTop: 25,
+    pointerEvents: 'box-none',
   },
   content:{
     width: '100%',
@@ -778,10 +816,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 10,
     pointerEvents: 'box-none',
     overflow: 'hidden',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    zIndex: 10,
   }
 });

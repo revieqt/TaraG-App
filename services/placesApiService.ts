@@ -8,6 +8,11 @@ interface PlaceSuggestion {
   placeId: string;
   mainText: string;
   secondaryText: string;
+  photoUrl?: string;
+  location?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 interface PlaceDetails {
@@ -27,6 +32,25 @@ interface PlaceDetails {
     weekday_text: string[];
   };
   photoReference?: string;
+  editorialSummary?: string;
+  types?: string[];
+  priceLevel?: string;
+  businessStatus?: string;
+}
+
+interface PlaceInfo {
+  name: string;
+  placeId: string;
+  address: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  rating?: number;
+  totalRatings?: number;
+  photoReference?: string;
+  photoUrl?: string;
+  editorialSummary?: string;
 }
 
 export const usePlacesApi = () => {
@@ -99,9 +123,67 @@ export const usePlacesApi = () => {
     }
   };
 
+  const searchPlaceByText = async (query: string): Promise<PlaceInfo | null> => {
+    if (!query.trim()) {
+      return null;
+    }
+
+    try {
+      const response = await fetch(
+        `${BACKEND_URL}/places/search-text?query=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error('Failed to search place');
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error('Error in searchPlaceByText:', error);
+      return null;
+    }
+  };
+
+  const searchNearbyPlaces = async (latitude: number, longitude: number, placeTypes: string[], radius: number = 5000): Promise<PlaceSuggestion[]> => {
+    try {
+      const typesParam = placeTypes.join(',');
+      const response = await fetch(
+        `${BACKEND_URL}/places/nearby?latitude=${latitude}&longitude=${longitude}&types=${encodeURIComponent(typesParam)}&radius=${radius}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch nearby places');
+      }
+
+      const data = await response.json();
+      return data.data || [];
+    } catch (error) {
+      console.error('Error in searchNearbyPlaces:', error);
+      throw error;
+    }
+  };
+
   return {
     searchAutocomplete,
     getPlaceDetails,
+    searchPlaceByText,
+    searchNearbyPlaces,
   };
 };
 

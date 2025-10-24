@@ -290,7 +290,7 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
   };
 
   return (
-    <View style={[{ zIndex: 10 }, style]}>
+    <View style={{ zIndex: 10 }}>
       <View style={styles.inputContainer}>
         <TextField
           placeholder={placeholder}
@@ -312,7 +312,7 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
               setShowDropdown(false);
             }, 500);
           }}
-          style={styles.textField}
+          style={[styles.textField, style]}
         />
         <TouchableOpacity
           onPress={() => {

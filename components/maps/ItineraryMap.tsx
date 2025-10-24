@@ -20,6 +20,7 @@ interface Location {
   locationName: string;
   note?: string;
   date?: number | Date | string;
+
 }
 
 interface DateLocations {
@@ -40,13 +41,15 @@ interface Itinerary {
   createdOn?: number | Date | string;
   updatedOn?: number | Date | string;
   locations?: DateLocations[] | Location[]; // flexible locations format
+  username?: string;
 }
 
 interface ItineraryMapProps {
   itinerary: Itinerary | null;
+  showHeader?: boolean;
 }
 
-const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
+const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary, showHeader = false }) => {
   const { mapType: currentMapType } = useMapType();
   const { latitude: userLat, longitude: userLng } = useLocation();
   const { session, updateSession } = useSession();
@@ -57,11 +60,18 @@ const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
   if (!itinerary) {
     return null;
   }
+  console.log('🗺️ Itinerary data:', itinerary);
+  console.log('🗺️ Locations field:', itinerary?.locations);
+  console.log('🗺️ Is locations array?', Array.isArray(itinerary?.locations));
+  
   const allLocations: Location[] = Array.isArray(itinerary?.locations)
     ? itinerary.locations
         .flatMap(item => {
+          console.log('🔍 Processing item:', item);
+          
           // Handle DateLocations format (has date and locations array)
           if (item && typeof item === 'object' && 'locations' in item && Array.isArray(item.locations)) {
+            console.log('✅ Detected planDaily format (has locations array)');
             // Attach the date to each location
             return item.locations.map((loc: any) => ({
               ...loc,
@@ -70,8 +80,10 @@ const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
           }
           // Handle direct Location format
           if (item && typeof item === 'object' && 'latitude' in item && 'longitude' in item) {
+            console.log('✅ Detected direct location format');
             return [item];
           }
+          console.log('❌ Item does not match any format');
           return [];
         })
         .filter(
@@ -81,6 +93,8 @@ const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
             typeof loc.longitude === 'number'
         )
     : [];
+  
+  console.log('📍 Final allLocations:', allLocations);
 
   // Center map on the first valid location, fallback to user's location, then default
   const initialRegion = allLocations.length > 0
@@ -257,71 +271,112 @@ const ItineraryMap: React.FC<ItineraryMapProps> = ({ itinerary }) => {
           );
         })}
       </MapView>
-      
-      <BottomSheet snapPoints={[0.5, 0.9]} defaultIndex={0} style={{paddingHorizontal: 16}}>
-        {selectedLocation ? (
-          <View>
-            <View style={styles.locationTitleContainer}>
-              <TouchableOpacity onPress={() => setSelectedLocation(null)}>
-                <ThemedIcons library="MaterialIcons" name="arrow-back-ios" size={20} />
-              </TouchableOpacity>
-              <ThemedText type="subtitle">
-                {selectedLocation.locationName}
-              </ThemedText>
-            </View>
+      <View style={styles.bottomSheetContainer}>
+        <BottomSheet snapPoints={[0.5, 0.9]} defaultIndex={0} style={{paddingHorizontal: 16}}>
+          {selectedLocation ? (
+            <View>
+              <View style={styles.locationTitleContainer}>
+                <TouchableOpacity onPress={() => setSelectedLocation(null)}>
+                  <ThemedIcons library="MaterialIcons" name="arrow-back-ios" size={20} />
+                </TouchableOpacity>
+                <ThemedText type="subtitle">
+                  {selectedLocation.locationName}
+                </ThemedText>
+              </View>
 
-            <View style={styles.locationDetailsContainer}>
-              <ThemedIcons library="MaterialIcons" name="location-on" size={15} />
-              <ThemedText style={{fontSize: 12}}>
-                {selectedLocation.latitude}, {selectedLocation.longitude}
-              </ThemedText>
-            </View>
-            
-            {selectedLocation.note && (
-              <ThemedText style={styles.locationNote}>
-                {selectedLocation.note}
-              </ThemedText>
-            )}
-            <Button
-              title="Start Route"
-              onPress={() => handleGetDirection(selectedLocation)}
-              buttonStyle={styles.directionsButton}
-              type="primary"
-            />
-            
-            <WeatherCard
-              latitude={selectedLocation.latitude}
-              longitude={selectedLocation.longitude}
-              locationName={selectedLocation.locationName}
-              date={selectedLocation.date 
-                ? formatDate(selectedLocation.date)
-                : itinerary?.startDate 
-                  ? formatDate(itinerary.startDate)
-                  : undefined
-              }
-            />
-          </View>
-        ) : (
-          itinerary && (
-            <View style={{ flex: 1 }}>
-              <ThemedText style={{marginBottom: 25}}>{itinerary.description}</ThemedText>
-              {Array.isArray(itinerary.locations) && itinerary.locations.length > 0 && (
-                itinerary.locations.map((loc: any, idx: number) => (
-                  <View key={idx}>
-                    {loc.date && (
-                      <>
-                        <ThemedText type='subtitle' style={{fontSize: 15}}>Day {idx + 1} </ThemedText>
-                        <ThemedText style={{marginBottom: 12, opacity: .5}}>({formatDate(loc.date)})</ThemedText>
-                      </>
-                    )}
-                    {renderDayLocations(loc)}
-                  </View>
-                ))
+              <View style={styles.locationDetailsContainer}>
+                <ThemedIcons library="MaterialIcons" name="location-on" size={15} />
+                <ThemedText style={{fontSize: 12}}>
+                  {selectedLocation.latitude}, {selectedLocation.longitude}
+                </ThemedText>
+              </View>
+              
+              {selectedLocation.note && (
+                <ThemedText style={styles.locationNote}>
+                  {selectedLocation.note}
+                </ThemedText>
               )}
+              <Button
+                title="Start Route"
+                onPress={() => handleGetDirection(selectedLocation)}
+                buttonStyle={styles.directionsButton}
+                type="primary"
+              />
+              
+              <WeatherCard
+                latitude={selectedLocation.latitude}
+                longitude={selectedLocation.longitude}
+                locationName={selectedLocation.locationName}
+                date={selectedLocation.date 
+                  ? formatDate(selectedLocation.date)
+                  : itinerary?.startDate 
+                    ? formatDate(itinerary.startDate)
+                    : undefined
+                }
+              />
             </View>
-          )
-        )}
-      </BottomSheet>
+          ) : (
+            itinerary && (
+              <View style={{ flex: 1 }}>
+                {showHeader && <View style={styles.header}>
+                  <ThemedText type="subtitle" style={{ flex: 1 }}>{itinerary.title}</ThemedText>
+      
+                  <View style={styles.typesContainer}>
+                    <ThemedIcons library="MaterialDesignIcons" name="calendar" size={15}/>
+                    <ThemedText>{formatDate(itinerary.startDate)}  to  {formatDate(itinerary.endDate)}</ThemedText>
+                  </View>
+      
+                  <View style={styles.typesContainer}>
+                    <ThemedIcons library="MaterialIcons" name="edit-calendar" size={15}/>
+                    <ThemedText>{itinerary.type}</ThemedText>
+                  </View>
+      
+                  <View style={styles.typesContainer}>
+                    <ThemedIcons library="MaterialIcons" name="person" size={15}/>
+                    <ThemedText>Created by {itinerary.username}</ThemedText>
+                  </View>
+                </View>}
+                <ThemedText style={{marginBottom: 25}}>{itinerary.description}</ThemedText>
+                {Array.isArray(itinerary.locations) && itinerary.locations.length > 0 && (
+                  // Check if planDaily (has nested locations) or direct locations
+                  (itinerary.locations[0] as any)?.locations ? (
+                    // planDaily = true: locations have date and nested locations array
+                    itinerary.locations.map((loc: any, idx: number) => (
+                      <View key={idx}>
+                        {loc.date && (
+                          <>
+                            <ThemedText type='subtitle' style={{fontSize: 15}}>Day {idx + 1} </ThemedText>
+                            <ThemedText style={{marginBottom: 12, opacity: .5}}>({formatDate(loc.date)})</ThemedText>
+                          </>
+                        )}
+                        {renderDayLocations(loc)}
+                      </View>
+                    ))
+                  ) : (
+                    // planDaily = false: locations are direct objects
+                    <LocationDisplay
+                      content={itinerary.locations.map((loc: any, i: number) => (
+                        <TouchableOpacity 
+                          key={i} 
+                          style={{flexDirection: 'row', alignItems: 'center', gap: 10, justifyContent: 'space-between', marginBottom: 10}}
+                          onPress={() => handleLocationClick(loc)}
+                          activeOpacity={0.7}
+                        >
+                          <View>
+                            <ThemedText>{loc.locationName} </ThemedText>
+                            <ThemedText style={{opacity: .5}}>{loc.note ? `${loc.note}` : ''}</ThemedText>
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    />
+                  )
+                )}
+              </View>
+            )
+          )}
+        </BottomSheet>
+      </View>
+      
     </View>
   );
 };
@@ -362,4 +417,30 @@ const styles = StyleSheet.create({
     gap: 7,
     opacity: .5
   },
+  bottomSheetContainer:{
+    width: '100%',
+    height: Dimensions.get('window').height-70,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 10,
+    pointerEvents: 'box-none',
+    overflow: 'hidden',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  header:{
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc4',
+    paddingBottom: 10,
+    marginBottom: 10,
+  },
+  typesContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    opacity: .7,
+    marginTop: 3
+  }
 });

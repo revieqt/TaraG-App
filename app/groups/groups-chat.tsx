@@ -36,6 +36,7 @@ export default function GroupChat({
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const flatListRef = useRef<FlatList>(null);
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
@@ -145,58 +146,96 @@ export default function GroupChat({
     }
   };
 
-  const renderMessage = ({ item }: { item: ChatMessage }) => {
+  const renderMessage = ({ item, index }: { item: ChatMessage; index: number }) => {
     const isCurrentUser = item.isCurrentUser;
     const member = groupData?.members.find(m => m.userID === item.senderId);
     const displayName = isCurrentUser ? 'You' : (member?.name || item.senderName);
     
+    // Check if previous and next messages are from the same sender
+    const prevMessage = index > 0 ? messages[index - 1] : null;
+    const nextMessage = index < messages.length - 1 ? messages[index + 1] : null;
+    
+    const isFirstInGroup = !prevMessage || prevMessage.senderId !== item.senderId;
+    const isLastInGroup = !nextMessage || nextMessage.senderId !== item.senderId;
+    const isMiddleInGroup = !isFirstInGroup && !isLastInGroup;
+    
+    // Show timestamp only if this message is selected
+    const showTimestamp = selectedMessageId === item.id;
+    
     return (
       <View style={[
         styles.messageContainer,
-        isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage
+        isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage,
+        // Reduce spacing for consecutive messages from same user
+        !isLastInGroup && styles.groupedMessage
       ]}>
         {!isCurrentUser && (
           <View style={styles.avatarContainer}>
-            {item.senderAvatar ? (
-              <Image 
-                source={{ uri: item.senderAvatar }} 
-                style={styles.avatarImage}
-              />
+            {/* Only show avatar on last message in group */}
+            {isLastInGroup ? (
+              item.senderAvatar ? (
+                <Image 
+                  source={{ uri: item.senderAvatar }} 
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <ThemedIcons 
+                  library="MaterialIcons" 
+                  name="account-circle" 
+                  size={36} 
+                  color={secondaryColor} 
+                />
+              )
             ) : (
-              <ThemedIcons 
-                library="MaterialIcons" 
-                name="account-circle" 
-                size={36} 
-                color={secondaryColor} 
-              />
+              // Placeholder to maintain alignment
+              <View style={{ width: 36 }} />
             )}
           </View>
         )}
         
         <View style={styles.messageContent}>
-            {!isCurrentUser && (
+            {/* Only show sender name on first message in group */}
+            {!isCurrentUser && isFirstInGroup && (
             <ThemedText style={styles.senderName} type="defaultSemiBold">
                 {displayName}
             </ThemedText>
             )}
-            <View style={[
-            styles.messageBubble,
-            isCurrentUser 
-                ? [styles.currentUserBubble, { backgroundColor: accentColor }]
-                : [styles.otherUserBubble, { backgroundColor: primaryColor }]
-            ]}>
-            
-            <ThemedText style={{ color: isCurrentUser ? '#FFFFFF' : textColor }}>
-              {item.text}
-            </ThemedText>
-            
-            </View>
-            <ThemedText style={[
-                styles.timestamp,
-                { textAlign: isCurrentUser ? 'right' : 'left' }
-            ]}>
-                {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </ThemedText>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => setSelectedMessageId(selectedMessageId === item.id ? null : item.id)}
+            >
+              <View style={[
+                styles.messageBubble,
+                isCurrentUser 
+                    ? [styles.currentUserBubble, { backgroundColor: accentColor }]
+                    : [styles.otherUserBubble, { backgroundColor: primaryColor }],
+                // Adjust border radius for grouped messages
+                isCurrentUser ? (
+                  isFirstInGroup && !isLastInGroup ? styles.currentUserBubbleFirst :
+                  isMiddleInGroup ? styles.currentUserBubbleMiddle :
+                  !isFirstInGroup && isLastInGroup ? styles.currentUserBubbleLast : {}
+                ) : (
+                  isFirstInGroup && !isLastInGroup ? styles.otherUserBubbleFirst :
+                  isMiddleInGroup ? styles.otherUserBubbleMiddle :
+                  !isFirstInGroup && isLastInGroup ? styles.otherUserBubbleLast : {}
+                )
+              ]}>
+              
+              <ThemedText style={{ color: isCurrentUser ? '#FFFFFF' : textColor }}>
+                {item.text}
+              </ThemedText>
+              
+              </View>
+            </TouchableOpacity>
+            {/* Only show timestamp when message is clicked */}
+            {showTimestamp && (
+              <ThemedText style={[
+                  styles.timestamp,
+                  { textAlign: isCurrentUser ? 'right' : 'left' }
+              ]}>
+                  {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </ThemedText>
+            )}
         </View>
       </View>
     );
@@ -313,6 +352,9 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 4,
   },
+  groupedMessage: {
+    marginBottom: 2, // Reduced spacing for consecutive messages from same user
+  },
   currentUserMessage: {
     justifyContent: 'flex-end',
   },
@@ -347,12 +389,40 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   currentUserBubble: {
-    borderBottomRightRadius: 6,
+    borderBottomRightRadius: 5,
+    borderTopRightRadius: 5,
     alignSelf: 'flex-end',
   },
   otherUserBubble: {
-    borderBottomLeftRadius: 6,
+    borderBottomLeftRadius: 5,
+    borderTopLeftRadius: 5,
     alignSelf: 'flex-start',
+  },
+  // Grouped message bubble styles for current user
+  currentUserBubbleFirst: {
+    borderBottomRightRadius: 5,
+    borderTopRightRadius: 5,
+  },
+  currentUserBubbleMiddle: {
+    borderBottomRightRadius: 5,
+    borderTopRightRadius: 5,
+  },
+  currentUserBubbleLast: {
+    borderBottomRightRadius: 5,
+    borderTopRightRadius: 5,
+  },
+  // Grouped message bubble styles for other users
+  otherUserBubbleFirst: {
+    borderBottomLeftRadius: 5,
+    borderTopLeftRadius: 5,
+  },
+  otherUserBubbleMiddle: {
+    borderBottomLeftRadius: 5,
+    borderTopLeftRadius: 5,
+  },
+  otherUserBubbleLast: {
+    borderBottomLeftRadius: 5,
+    borderTopLeftRadius: 5,
   },
   senderName: {
     fontSize: 10,

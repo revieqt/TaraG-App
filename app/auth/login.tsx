@@ -93,7 +93,7 @@ export default function LoginScreen() {
           accessToken: undefined,
           refreshToken: undefined
         });
-        router.replace('/auth/verifyEmail');
+        router.push('/auth/verifyEmail');
         setLoading(false);
         return;
       }
