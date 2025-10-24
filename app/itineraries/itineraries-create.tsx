@@ -11,7 +11,10 @@ import { useSession } from '@/context/SessionContext';
 import { useSaveItinerary } from '@/services/itinerariesApiService';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import MapView, { PROVIDER_DEFAULT, Region } from 'react-native-maps';
+import TaraMarker from '@/components/maps/TaraMarker';
+import { useLocation } from '@/hooks/useLocation';
 import CubeButton from '@/components/RoundedButton'
 import Switch from '@/components/Switch';
 import BackButton from '@/components/custom/BackButton';
@@ -68,6 +71,10 @@ export default function CreateItineraryScreen() {
   const [modalLocationName, setModalLocationName] = useState('');
   const [modalNote, setModalNote] = useState('');
   const [modalLocationData, setModalLocationData] = useState<Partial<LocationItem>>({});
+  const [mapRegion, setMapRegion] = useState<Region | null>(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  
+  const { latitude, longitude, loading: locationLoading } = useLocation();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -181,6 +188,55 @@ export default function CreateItineraryScreen() {
     })();
   };
 
+  // Reverse geocode to get location name from coordinates
+  const reverseGeocode = async (lat: number, lng: number) => {
+    try {
+      setIsLoadingLocation(true);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'TaraG/1.0'
+          }
+        }
+      );
+      const data = await response.json();
+      const locationName = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      return locationName;
+    } catch (error) {
+      console.error('Error reverse geocoding:', error);
+      return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    } finally {
+      setIsLoadingLocation(false);
+    }
+  };
+
+  // Handle map region change - update location data when user moves map
+  const handleMapRegionChangeComplete = async (region: Region) => {
+    const locationName = await reverseGeocode(region.latitude, region.longitude);
+    setModalLocationName(locationName);
+    setModalLocationData({
+      locationName,
+      latitude: region.latitude,
+      longitude: region.longitude,
+    });
+  };
+
+  // Handle location selection from autocomplete - update map to show selected location
+  const handleLocationSelect = (loc: LocationItem) => {
+    setModalLocationName(loc.locationName || '');
+    setModalLocationData(loc);
+    // Update map region to the selected location
+    if (loc.latitude && loc.longitude) {
+      setMapRegion({
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
+  };
+
   // Modal functions
   const openLocationModal = (dayIdx: number | null) => {
     setCurrentDayIdx(dayIdx);
@@ -189,6 +245,23 @@ export default function CreateItineraryScreen() {
     setModalLocationName('');
     setModalNote('');
     setModalLocationData({});
+    // Initialize map to current location or default
+    if (latitude && longitude) {
+      setMapRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    } else {
+      // Default to Cebu City
+      setMapRegion({
+        latitude: 10.3157,
+        longitude: 123.8854,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
     setShowLocationModal(true);
   };
 
@@ -199,6 +272,15 @@ export default function CreateItineraryScreen() {
     setModalLocationName(location.locationName || '');
     setModalNote(location.note || '');
     setModalLocationData(location);
+    // Initialize map to the location being edited
+    if (location.latitude && location.longitude) {
+      setMapRegion({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    }
     setShowLocationModal(true);
   };
 
@@ -210,6 +292,7 @@ export default function CreateItineraryScreen() {
     setModalLocationName('');
     setModalNote('');
     setModalLocationData({});
+    setMapRegion(null);
   };
 
   const handleAddLocationFromModal = () => {
@@ -406,14 +489,37 @@ export default function CreateItineraryScreen() {
         transparent={true}
         onRequestClose={closeLocationModal}
       >
-        <View style={styles.modalOverlay}>
-          <ThemedView style={styles.modalContent}>
+        <ThemedView style={{flex:1}}>
+          {/* Interactive Map */}
+          {mapRegion && (
+            <View style={styles.mapContainer}>
+              <MapView
+                style={styles.map}
+                provider={PROVIDER_DEFAULT}
+                region={mapRegion}
+                onRegionChangeComplete={handleMapRegionChangeComplete}
+              />
+              {/* Fixed center marker overlay */}
+              <View style={styles.centerMarkerContainer}>
+                <View style={styles.centerMarker} />
+              </View>
+              {isLoadingLocation && (
+                <View style={styles.loadingOverlay}>
+                  <ThemedText style={{fontSize: 12, opacity: 0.7}}>Getting location...</ThemedText>
+                </View>
+              )}
+              <View style={styles.mapOverlay}/>
+            </View>
+          )}
+
+          <View style={{padding: 16, paddingTop: 0}}>
+            <ThemedText style={{fontSize: 12, opacity: 0.6, marginBottom: 8, marginTop: 12}}>
+              Move the map to select a location or search below:
+            </ThemedText>
+            
             <LocationAutocomplete
               value={modalLocationName}
-              onSelect={(loc) => {
-                setModalLocationName(loc.locationName || '');
-                setModalLocationData(loc);
-              }}
+              onSelect={handleLocationSelect}
               placeholder="Search for a location"
             />
             
@@ -441,8 +547,9 @@ export default function CreateItineraryScreen() {
               />
               </View>
             </View>
-          </ThemedView>
-        </View>
+          </View>
+          
+        </ThemedView>
       </Modal>
     </ThemedView>
   );
@@ -496,18 +603,60 @@ const styles = StyleSheet.create({
   locationContainer:{
     paddingHorizontal: 16,
   },
-  modalOverlay:{
+  mapContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  map: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  mapOverlay:{
+    height: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 8,
+    borderRadius: 8,
+    marginHorizontal: 16,
+  },
+  centerMarkerContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    pointerEvents: 'none',
   },
-  modalContent: {
-    padding: 14,
-    width: '100%',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#ccc4',
+  centerMarker: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#00CAFF',
+    borderWidth: 3,
+    borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   }
 });

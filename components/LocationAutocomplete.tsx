@@ -217,7 +217,7 @@ import TextField from '@/components/TextField';
 import ThemedIcons from '@/components/ThemedIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export interface LocationItem {
@@ -241,6 +241,11 @@ const LocationAutocomplete: React.FC<LocationAutocompleteProps> = ({ value, onSe
   const [showDropdown, setShowDropdown] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync internal input state with value prop
+  useEffect(() => {
+    setInput(value || '');
+  }, [value]);
 
   const fetchSuggestions = async () => {
     if (!input.trim()) {
