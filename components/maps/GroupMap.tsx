@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Alert, Platform, Animated, Image } from 'react-native';
-import MapView, { Region, Marker, AnimatedRegion, MAP_TYPES, PROVIDER_DEFAULT } from 'react-native-maps';
-import * as Location from 'expo-location';
+import { View, StyleSheet, Animated, Image } from 'react-native';
+import MapView, { Region, Marker, MAP_TYPES, PROVIDER_DEFAULT } from 'react-native-maps';
 import TaraMarker from './TaraMarker';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useSession } from '@/context/SessionContext';
-import { useSocket } from '@/context/SocketContext';
 import { ThemedText } from '@/components/ThemedText';
 import { useMapType } from '@/hooks/useMapType';
+import { useLocation } from '@/hooks/useLocation';
+import { useGroupMembers } from '@/hooks/useGroupMembers';
 
 const AnimatedMarker = Animated.createAnimatedComponent(Marker);
 
@@ -22,6 +22,8 @@ interface MemberLocation {
   animatedLatitude: Animated.Value;
   animatedLongitude: Animated.Value;
   lastUpdated: string;
+  isInAnEmergency?: boolean;
+  emergencyType?: string;
 }
 
 interface GroupMapProps {
@@ -36,21 +38,22 @@ interface GroupMapProps {
 
 export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
   const { session } = useSession();
-  const { socket, joinGroup, leaveGroup, updateLocation } = useSocket();
   const accentColor = useThemeColor({}, 'accent');
   const primaryColor = useThemeColor({}, 'primary');
   const { mapType: currentMapType } = useMapType();
+  const location = useLocation();
   
-  const [memberLocations, setMemberLocations] = useState<MemberLocation[]>([]);
-  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
+  // Fetch group members' locations from Firebase Realtime Database
+  const { members: memberLocations } = useGroupMembers({ groupId, enabled: true });
+  
   const [region, setRegion] = useState<Region>({
-    latitude: 37.78825,
-    longitude: -122.4324,
+    latitude: 10.2374, // Minglanilla, Cebu, Philippines
+    longitude: 123.7970,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   });
   
-  const locationWatchRef = useRef<Location.LocationSubscription | null>(null);
+  const [animatedMembers, setAnimatedMembers] = useState<MemberLocation[]>([]);
 
   // Convert string map type to MAP_TYPES enum
   const getMapTypeEnum = (mapType: string) => {
@@ -67,162 +70,72 @@ export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
     }
   };
 
-  // Initialize socket listeners and location tracking
+  // Update animated members when memberLocations change
   useEffect(() => {
-    if (!session?.user?.id || !groupId || !socket) {
-      console.log('❌ Missing session user ID, group ID, or socket:', { 
-        userId: session?.user?.id, 
-        groupId, 
-        socketConnected: !!socket 
-      });
+    if (!memberLocations || memberLocations.length === 0) {
       return;
     }
 
-    console.log('📍 Setting up GroupMap for group:', groupId);
-    
-    // Join the group room
-    joinGroup(groupId);
+    // Filter only members who are sharing their location
+    const sharingMembers = memberLocations.filter(m => m.isSharingLocation);
+    console.log('📍 Updating member locations:', sharingMembers.length, 'members sharing location');
 
-    // Listen for location updates from other members
-    socket.on('member-location-update', (data: {
-      groupId: string;
-      userId: string;
-      userName: string;
-      profileImage: string;
-      location: { latitude: number; longitude: number };
-      timestamp: number;
-    }) => {
-    
-      
-      setMemberLocations(prev => {
-        const existingMember = prev.find(loc => loc.userID === data.userId);
-        const filtered = prev.filter(loc => loc.userID !== data.userId);
+    setAnimatedMembers(prev => {
+      return sharingMembers.map(member => {
+        const existing = prev.find(m => m.userID === member.userID);
         
-        let animatedLatitude: Animated.Value;
-        let animatedLongitude: Animated.Value;
-        
-        if (existingMember) {
-          // Animate from previous position to new position
-          console.log('🎬 Animating marker from', existingMember.location, 'to', data.location);
-          animatedLatitude = existingMember.animatedLatitude;
-          animatedLongitude = existingMember.animatedLongitude;
-          
-          // Animate to new position over 1 second
+        if (existing) {
+          // Animate existing member to new position
           Animated.parallel([
-            Animated.timing(animatedLatitude, {
-              toValue: data.location.latitude,
+            Animated.timing(existing.animatedLatitude, {
+              toValue: member.latitude,
               duration: 1000,
               useNativeDriver: false,
             }),
-            Animated.timing(animatedLongitude, {
-              toValue: data.location.longitude,
+            Animated.timing(existing.animatedLongitude, {
+              toValue: member.longitude,
               duration: 1000,
               useNativeDriver: false,
             }),
-          ]).start(() => {
-            console.log('✅ Animation completed for', data.userName);
-          });
+          ]).start();
+          
+          return {
+            ...existing,
+            userName: member.username,
+            location: { latitude: member.latitude, longitude: member.longitude },
+            lastUpdated: new Date(member.lastUpdated).toISOString(),
+            isInAnEmergency: member.isInAnEmergency,
+            emergencyType: member.emergencyType,
+          };
         } else {
-          // Create new animated values for first-time location
-          console.log('🆕 Creating new animated marker for', data.userName);
-          animatedLatitude = new Animated.Value(data.location.latitude);
-          animatedLongitude = new Animated.Value(data.location.longitude);
+          // Create new animated member
+          return {
+            userID: member.userID,
+            userName: member.username,
+            profileImage: '', // We'll need to get this from groupMembers prop
+            location: { latitude: member.latitude, longitude: member.longitude },
+            animatedLatitude: new Animated.Value(member.latitude),
+            animatedLongitude: new Animated.Value(member.longitude),
+            lastUpdated: new Date(member.lastUpdated).toISOString(),
+            isInAnEmergency: member.isInAnEmergency,
+            emergencyType: member.emergencyType,
+          };
         }
-        
-        const newMemberLocation: MemberLocation = {
-          userID: data.userId,
-          userName: data.userName,
-          profileImage: data.profileImage,
-          location: data.location,
-          animatedLatitude,
-          animatedLongitude,
-          lastUpdated: new Date(data.timestamp).toISOString()
-        };
-        
-    
-        return [...filtered, newMemberLocation];
       });
     });
+  }, [memberLocations]);
 
-    // Request location permissions and start tracking
-    requestLocationPermission();
-
-    return () => {
-      // Cleanup
-      if (locationWatchRef.current) {
-        locationWatchRef.current.remove();
-      }
-      // Leave group room
-      leaveGroup(groupId);
-      
-      // Remove socket listeners
-      socket.off('member-location-update');
-    };
-  }, [groupId, session?.user?.id, socket, joinGroup, leaveGroup]);
-
-  const requestLocationPermission = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      
-      if (status !== 'granted') {
-        Alert.alert(
-          'Location Permission Required',
-          'Please enable location permissions to share your location with group members.',
-          [{ text: 'OK' }]
-        );
-        return;
-      }
-
-      // Get initial location
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-      
-      setUserLocation(location);
+  // Update map region when user location changes
+  useEffect(() => {
+    if (location.latitude && location.longitude) {
       setRegion({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: location.latitude,
+        longitude: location.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       });
-
-      // Start watching location changes
-      startLocationTracking();
-      
-    } catch (error) {
-      console.error('Error requesting location permission:', error);
-      Alert.alert('Error', 'Failed to get location permissions');
     }
-  };
-
-  const startLocationTracking = async () => {
-    try {
-      locationWatchRef.current = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 10000, // Update every 10 seconds
-          distanceInterval: 10, // Update when moved 10 meters
-        },
-        (location) => {
-          setUserLocation(location);
-          
-          // Emit location update to other group members
-          if (session?.user) {
-            const locationData = {
-              location: {
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-              }
-            };
-            console.log('📤 Emitting location update:', locationData);
-            updateLocation(groupId, locationData);
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Error starting location tracking:', error);
-    }
-  };
+  }, [location.latitude, location.longitude]);
 
   const getCurrentUserMarkerColor = () => {
     return accentColor;
@@ -236,34 +149,60 @@ export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
   };
 
   const renderCurrentUserMarker = () => {
-    if (!userLocation || !session?.user) return null;
+    if (!location.latitude || !location.longitude || !session?.user) return null;
+
+    const isInEmergency = session.user.safetyState?.isInAnEmergency || false;
+    const emergencyType = session.user.safetyState?.emergencyType as any;
 
     return (
       <TaraMarker
         key={`current-user-${session.user.id}`}
         coordinate={{
-          latitude: userLocation.coords.latitude,
-          longitude: userLocation.coords.longitude,
+          latitude: location.latitude,
+          longitude: location.longitude,
         }}
         color={getCurrentUserMarkerColor()}
         icon={session.user.profileImage}
         title="You"
         description="Your current location"
         identifier={session.user.id}
+        borderColor={isInEmergency ? '#FF0000' : undefined}
+        emergencyType={isInEmergency ? emergencyType : undefined}
       />
     );
   };
 
   const renderMemberMarkers = () => {
-    
-    return memberLocations.map((memberLocation) => {
+    return animatedMembers.map((memberLocation) => {
       // Don't render marker for current user (handled separately)
       if (memberLocation.userID === session?.user?.id) {
-        console.log('🎯 Skipping current user marker:', memberLocation.userID);
         return null;
       }
 
-      console.log('🎯 Rendering animated marker for:', memberLocation.userName, memberLocation.location);
+      // Get profile image from groupMembers prop
+      const memberInfo = groupMembers.find(m => m.userID === memberLocation.userID);
+      const profileImage = memberInfo?.profileImage || '';
+      
+      // Emergency status
+      const isInEmergency = memberLocation.isInAnEmergency || false;
+      const emergencyType = memberLocation.emergencyType;
+      
+      // Get emergency emoji
+      const getEmergencyEmoji = (type?: string): string => {
+        if (!type) return '';
+        const emojiMap: Record<string, string> = {
+          medical: '🏥',
+          criminal: '🚨',
+          fire: '🔥',
+          natural: '🌪️',
+          utility: '⚡',
+          road: '🚗',
+          domestic: '🏠',
+          animal: '🐾',
+          other: '⚠️',
+        };
+        return emojiMap[type] || '';
+      };
       
       // Create animated coordinate object from animated values
       const animatedCoordinate = {
@@ -282,22 +221,35 @@ export default function GroupMap({ groupId, groupMembers }: GroupMapProps) {
           anchor={{ x: 0.5, y: 0.5 }}
           zIndex={1000}
         >
-          <View style={[
-            styles.markerContainer, 
-            { backgroundColor: getOtherMemberMarkerColor(memberLocation.userID) }
-          ]}>
-            {memberLocation.profileImage ? (
-              <View style={styles.profileImageContainer}>
-                <Image
-                  source={{ uri: memberLocation.profileImage }}
-                  style={styles.profileImage}
-                  resizeMode="cover"
-                />
-              </View>
-            ) : (
-              <View style={styles.initialsContainer}>
-                <ThemedText style={styles.initialsText}>
-                  {memberLocation.userName.charAt(0).toUpperCase()}
+          <View style={styles.memberMarkerWrapper}>
+            <View style={[
+              styles.markerContainer, 
+              { 
+                backgroundColor: getOtherMemberMarkerColor(memberLocation.userID),
+                borderColor: isInEmergency ? '#FF0000' : 'white',
+                borderWidth: 4,
+              }
+            ]}>
+              {profileImage ? (
+                <View style={styles.profileImageContainer}>
+                  <Image
+                    source={{ uri: profileImage }}
+                    style={styles.profileImage}
+                    resizeMode="cover"
+                  />
+                </View>
+              ) : (
+                <View style={styles.initialsContainer}>
+                  <ThemedText style={styles.initialsText}>
+                    {memberLocation.userName.charAt(0).toUpperCase()}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+            {isInEmergency && emergencyType && (
+              <View style={styles.emergencyBadge}>
+                <ThemedText style={styles.emergencyEmoji}>
+                  {getEmergencyEmoji(emergencyType)}
                 </ThemedText>
               </View>
             )}
@@ -333,6 +285,11 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  memberMarkerWrapper: {
+    position: 'relative',
+    width: 35,
+    height: 35,
   },
   markerContainer: {
     width: 35,
@@ -372,5 +329,29 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  emergencyBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
+    zIndex: 10,
+  },
+  emergencyEmoji: {
+    fontSize: 10,
+    lineHeight: 12,
   },
 });

@@ -472,7 +472,7 @@ const defaultRegion: Region = {
       {/* Bottom Sheet - Two States */}
       {selectedLocation ? (
         /* STATE B: Selected Location */
-        <BottomSheet snapPoints={[0.3, 0.6, 0.9]} defaultIndex={0}>
+        <BottomSheet snapPoints={[0.3, 0.5, 0.9]} defaultIndex={1}>
           <ScrollView style={styles.bottomSheetContent}>
             <View>
             <View style={styles.locationTitleContainer}>
@@ -663,7 +663,7 @@ const defaultRegion: Region = {
         </BottomSheet>
       ):(
         /* STATE A: No Selected Location (Default) */
-        <BottomSheet snapPoints={[0.3, 0.6, 0.9]} defaultIndex={0}>
+        <BottomSheet snapPoints={[0.3, 0.5, 0.9]} defaultIndex={1}>
           <ScrollView style={styles.bottomSheetContent}>
             <View>
               <ThemedText>Your currently in</ThemedText>

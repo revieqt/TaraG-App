@@ -5,6 +5,8 @@ import { Marker } from 'react-native-maps';
 import { ThemedText } from '../ThemedText';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
+type EmergencyType = 'medical' | 'criminal' | 'fire' | 'natural' | 'utility' | 'road' | 'domestic' | 'animal' | 'other';
+
 interface TaraMarkerProps {
   coordinate: {
     latitude: number;
@@ -18,6 +20,8 @@ interface TaraMarkerProps {
   identifier?: string;
   onPress?: () => void;
   type?: 'default' | 'dot';
+  borderColor?: string;
+  emergencyType?: EmergencyType;
 }
 
 const TaraMarker: React.FC<TaraMarkerProps> = ({
@@ -30,9 +34,28 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
   identifier,
   onPress,
   type = 'default',
+  borderColor,
+  emergencyType,
 }) => {
   const [tracksViewChanges, setTracksViewChanges] = useState<boolean>(true);
   const secondaryColor = useThemeColor({}, 'secondary');
+
+  // Get emergency emoji based on type
+  const getEmergencyEmoji = (type?: EmergencyType): string => {
+    if (!type) return '';
+    const emojiMap: Record<EmergencyType, string> = {
+      medical: '🏥',
+      criminal: '🚨',
+      fire: '🔥',
+      natural: '🌪️',
+      utility: '⚡',
+      road: '🚗',
+      domestic: '🏠',
+      animal: '🐾',
+      other: '⚠️',
+    };
+    return emojiMap[type] || '';
+  };
 
   // If there's no remote icon, we can immediately stop tracking view changes for performance.
   useEffect(() => {
@@ -68,7 +91,8 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
       zIndex={1000}
       onPress={onPress}
     >
-      <View style={[styles.circle, { backgroundColor: color }]}>
+      <View style={[styles.markerContainer]}>
+        <View style={[styles.circle, { backgroundColor: color, borderColor: borderColor || 'white' }]}>
         {icon ? (
           <Image
             source={{ uri: icon }}
@@ -88,6 +112,14 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
             {label || 'U'}
           </ThemedText>
         )}
+        </View>
+        {emergencyType && (
+          <View style={styles.emergencyBadge}>
+            <ThemedText style={styles.emergencyEmoji}>
+              {getEmergencyEmoji(emergencyType)}
+            </ThemedText>
+          </View>
+        )}
       </View>
     </Marker>
   );
@@ -96,6 +128,12 @@ const TaraMarker: React.FC<TaraMarkerProps> = ({
 export default TaraMarker;
 
 const styles = StyleSheet.create({
+  markerContainer: {
+    position: 'relative',
+    width: 35,
+    height: 35,
+    zIndex: 1,
+  },
   circle: {
     width: 35,
     height: 35,
@@ -104,7 +142,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 2,
+    zIndex: 1,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -140,5 +178,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  emergencyBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 20,
+    height: 20,
+    borderRadius: 20,
+    backgroundColor: 'red',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 10,
+    zIndex: 100,
+  },
+  emergencyEmoji: {
+    fontSize: 10,
+    lineHeight: 12,
   },
 });

@@ -20,6 +20,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import GroupChat from './groups-chat';
 import BackButton from '@/components/custom/BackButton';
 import InputModal from '@/components/modals/InputModal';
+import { useGroupLocation } from '@/hooks/useGroupLocation';
+import Switch from '@/components/Switch';
+import GradientBlobs from '@/components/GradientBlobs';
 
 export default function GroupView() {
   const params = useLocalSearchParams();
@@ -42,6 +45,9 @@ export default function GroupView() {
   
   // Get group ID from params
   const groupID = params.groupID as string;
+
+  // Auto-send location updates every 10 seconds
+  const { isSharingLocation, toggleLocationSharing } = useGroupLocation({ groupId: groupID, enabled: !!groupID });
 
   // Check if group data is stale and needs refresh
   const isGroupDataStale = () => {
@@ -574,6 +580,23 @@ export default function GroupView() {
         {selectedButton === 'members' && (
           <BottomSheet snapPoints={[0.3, 0.6, 1]} defaultIndex={1} style={{zIndex: 100000}}>
             <ScrollView>
+              {/* Share Location Toggle */}
+              <ThemedView color='primary' shadow style={styles.shareLocationContainer}>
+                <GradientBlobs/>
+                <View style={{zIndex: 10}}>
+                 <Switch
+                    label="Share My Location"
+                    description={isSharingLocation ? 'Your location is visible to group members' : 'Your location is hidden from group members'}
+                    value={isSharingLocation}
+                    onValueChange={toggleLocationSharing}
+                  />
+                </View>
+                
+              </ThemedView>
+
+              <ThemedText type="defaultSemiBold" style={{ marginTop: 20, marginBottom: 10, opacity: 0.7, paddingHorizontal: 16 }}>
+                Members ({approvedMembers.length})
+              </ThemedText>
               {approvedMembers.map(member => renderMemberItem(member))}
             
               {pendingMembers.length > 0 && (
@@ -737,6 +760,16 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     overflow: 'hidden',
     marginRight: 15
+  },
+  shareLocationContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    overflow: 'hidden',
+    marginHorizontal: 16,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#ccc4',
+
   },
   buttonRow:{
     flexDirection: 'row',
