@@ -24,18 +24,21 @@ export interface ChatRoom {
 
 class RealtimeChatService {
   // Create a new chat room via backend API
-  async createChatRoom(groupID: string, accessToken: string): Promise<{ chatID: string; message: string }> {
+  async createChatRoom(id: string, accessToken: string, type: 'group' | 'tour' = 'group'): Promise<{ chatID: string; message: string }> {
     try {
-      console.log('🔍 Making request to:', `${BACKEND_URL}/groups/create-chat-room`);
-      console.log('🔍 Request body:', { groupID });
+      const endpoint = type === 'tour' ? 'tours/create-chat-room' : 'groups/create-chat-room';
+      const bodyKey = type === 'tour' ? 'tourID' : 'groupID';
       
-      const response = await fetch(`${BACKEND_URL}/groups/create-chat-room`, {
+      console.log('🔍 Making request to:', `${BACKEND_URL}/${endpoint}`);
+      console.log('🔍 Request body:', { [bodyKey]: id });
+      
+      const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify({ groupID })
+        body: JSON.stringify({ [bodyKey]: id })
       });
 
       console.log('🔍 Response status:', response.status);

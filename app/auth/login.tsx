@@ -7,10 +7,12 @@ import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/context/SessionContext';
 import { loginUserViaBackend } from '@/services/authApiService';
 import { router } from 'expo-router';
-import { KeyboardAvoidingView, Platform,Animated, Dimensions,Easing, StyleSheet, TouchableOpacity, View, Image, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, Platform,Animated, Dimensions,Easing, StyleSheet, TouchableOpacity, View, Image, ScrollView, Modal } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import {LinearGradient} from 'expo-linear-gradient';
 import GradientBlobs from "@/components/GradientBlobs";
+import { getModerationLog, ModerationLog } from '@/services/moderationApiService';
+import { ModerationCard } from '@/components/custom/ModerationCard';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { height } = Dimensions.get("window");
 
@@ -58,6 +60,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
+  const [showBanModal, setShowBanModal] = useState(false);
+  const [moderationLog, setModerationLog] = useState<ModerationLog | null>(null);
   const { updateSession } = useSession();
   const primaryColor = useThemeColor({}, 'primary');
   const secondaryColor = useThemeColor({}, 'secondary');
@@ -72,6 +76,19 @@ export default function LoginScreen() {
     }
     try {
       const response = await loginUserViaBackend(email, password);
+      
+      // Check if user is banned
+      if (response.user.status === 'banned' && response.user.moderationLogID) {
+        setLoading(false);
+        try {
+          const log = await getModerationLog(response.user.moderationLogID, response.accessToken);
+          setModerationLog(log);
+          setShowBanModal(true);
+        } catch (error) {
+          setErrorMsg('Your account has been banned. Please contact support.');
+        }
+        return;
+      }
       
       await updateSession({ 
         user: response.user,
@@ -234,6 +251,33 @@ export default function LoginScreen() {
         </KeyboardAvoidingView>
       </ThemedView>
       </View>
+
+      {/* Ban Modal */}
+      <Modal
+        visible={showBanModal}
+        animationType="slide"
+        onRequestClose={() => setShowBanModal(false)}
+      >
+        <ThemedView style={{ flex: 1 }}>
+          {moderationLog ? (
+            <ModerationCard moderationLog={moderationLog} />
+          ) : (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <ThemedText>Loading ban details...</ThemedText>
+            </View>
+          )}
+          
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => {
+              setShowBanModal(false);
+              setModerationLog(null);
+            }}
+          >
+            <ThemedText style={{ color: '#fff', fontWeight: 'bold' }}>Close</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      </Modal>
     </Animated.View>
   );
 }
@@ -288,5 +332,16 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 500,
     opacity: 0.7
-  }
+  },
+  closeButton: {
+    position: 'absolute',
+    bottom: 40,
+    left: 20,
+    right: 20,
+    backgroundColor: '#FF4444',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    zIndex: 1000,
+  },
 });

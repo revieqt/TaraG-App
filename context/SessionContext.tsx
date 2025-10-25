@@ -18,6 +18,7 @@ export type User = {
   bio?: string;
   status: string;
   type: string;
+  moderationLogID?: string;
   createdOn: Date;
   groups: string[];
   isFirstLogin: boolean;
@@ -204,6 +205,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
       
       // Verify session was cleared
       const verification = await AsyncStorage.getItem('session');
+      console.log('🧹 Session cleared, sync stopped');
     } catch (err) {
     }
   };
@@ -272,6 +274,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     }, timeUntilRefresh);
   };
 
+
   // Add useEffect to schedule token refresh when session loads
   useEffect(() => {
     if (session?.accessToken && !loading) {
@@ -285,6 +288,15 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
       }
     }
   }, [session?.accessToken, loading]);
+
+
+  // Auto-logout banned users
+  useEffect(() => {
+    if (session?.user?.status === 'banned' && !loading) {
+      console.log('🚫 User is banned, logging out...');
+      clearSession();
+    }
+  }, [session?.user?.status, loading]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -301,7 +313,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
       updateSession, 
       clearSession, 
       loading, 
-      refreshToken: handleTokenRefresh 
+      refreshToken: handleTokenRefresh,
     }}>
       {children}
     </SessionContext.Provider>

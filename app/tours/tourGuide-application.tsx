@@ -251,6 +251,9 @@ export default function TourGuideApplicationScreen() {
             )}
 
             <View style={styles.documentSection}>
+              <ThemedText type='subtitle'>Attach Documents</ThemedText>
+              <ThemedText style={{fontSize: 12, opacity: 0.7}}>Suggested Documents: Resume, Government-Issued ID, DTI Permit</ThemedText>
+              <ThemedText style={{fontSize: 12, opacity: 0.5}}>Accepted Format: PNG/ JPG/ PDF</ThemedText>
               <TouchableOpacity
                 style={[styles.attachButton, { borderColor: accentColor }]}
                 onPress={handlePickDocuments}
@@ -323,6 +326,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderRadius: 8,
     padding: 15,
+    marginVertical: 10,
     gap: 8,
   },
   attachButtonText: {

@@ -11,6 +11,7 @@ import { useEffect,  useRef, useState } from 'react';
 import AlertsContainer from '@/components/custom/AlertsContainer';
 import ActiveRouteButton from '@/components/custom/ActiveRouteButton';
 import HomeSOSButton from '@/components/custom/HomeSOSButton';
+import UserWarningButton from '@/components/custom/UserWarningButton';
 import ThemedIcons from '@/components/ThemedIcons';
 import MonthlyCalendar from '@/components/MonthlyCalendar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -338,6 +339,7 @@ export default function HomeScreen() {
       <AlertsContainer>
          {session?.activeRoute && (<ActiveRouteButton/>)}
          {session?.user?.safetyState?.isInAnEmergency  && (<HomeSOSButton/>)}
+         {session?.user?.status === 'warned' && (<UserWarningButton/>)}
       </AlertsContainer>
 
       <LinearGradient

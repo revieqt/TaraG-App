@@ -147,3 +147,30 @@ export async function updateLastKnownLocation(
     throw new Error(data.error || 'Failed to update last known location');
   }
 }
+
+// Get user profile data from backend
+export async function getUserProfile(
+  userID: string,
+  accessToken?: string
+): Promise<any> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  const response = await fetch(`${BACKEND_URL}/user/profile/${userID}`, {
+    method: 'GET',
+    headers,
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || 'Failed to fetch user profile');
+  }
+
+  const data = await response.json();
+  return data.user;
+}

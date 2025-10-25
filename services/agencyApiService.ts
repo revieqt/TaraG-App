@@ -3,6 +3,7 @@ import { BACKEND_URL } from "@/constants/Config";
 export interface Agency {
   id?: string;
   name: string;
+  type?: string;
   description?: string;
   email?: string;
   phone?: string;

@@ -1,50 +1,179 @@
-import React from "react";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, TouchableOpacity, ScrollView, Image, ActivityIndicator } from "react-native";
 import Carousel from '@/components/Carousel';
 import TextField from '@/components/TextField';
 import { router } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import ThemedIcons from "@/components/ThemedIcons";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { useSession } from "@/context/SessionContext";
 import TourGuideSection from "./tours-tourGuide";
+import { getAllActiveTours, Tour } from "@/services/tourApiService";
+import EmptyMessage from "@/components/EmptyMessage";
 
 export default function ToursSection(){
   const { session } = useSession();
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [filteredTours, setFilteredTours] = useState<Tour[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const accentColor = useThemeColor({}, 'accent');
+  const textColor = useThemeColor({}, 'text');
+  const primaryColor = useThemeColor({}, 'primary');
+
+  // Fetch tours for travelers
+  useEffect(() => {
+    if (session?.user?.type === 'traveler' && session?.accessToken) {
+      fetchTours();
+    }
+  }, [session?.user?.type, session?.accessToken]);
+
+  const fetchTours = async () => {
+    if (!session?.accessToken) return;
+    
+    setLoading(true);
+    try {
+      const fetchedTours = await getAllActiveTours(session.accessToken);
+      setTours(fetchedTours);
+      setFilteredTours(fetchedTours);
+    } catch (error) {
+      console.error('Error fetching tours:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter tours based on search query
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredTours(tours);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = tours.filter(tour => 
+        tour.name.toLowerCase().includes(query) ||
+        tour.description.toLowerCase().includes(query) ||
+        tour.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+      setFilteredTours(filtered);
+    }
+  }, [searchQuery, tours]);
+
+  const handleTourPress = (tour: Tour) => {
+    router.push({
+      pathname: '/tours/tours-avail',
+      params: { tourData: JSON.stringify(tour) }
+    });
+  };
+
+  const formatDate = (date: any) => {
+    if (!date) return 'Date TBA';
+    const dateObj = date.toDate ? date.toDate() : new Date(date);
+    return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 
     if(session?.user?.type === 'traveler'){
-      return(
-        <>
-        <View style={styles.carouselContainer}>
-            <Carousel
-              images={[
-                'https://scontent.fceb3-1.fna.fbcdn.net/v/t39.30808-6/481925042_1058188923004845_1719553000271680775_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeH6KVqdbWNIBeuCANlStG2GGpV19-A21B0alXX34DbUHWDqX99QWlZ9gKJ8sbsL3j_QAGDVmlZ6J8H62ZkJ8pCN&_nc_ohc=UNystwMfczYQ7kNvwGw_4jn&_nc_oc=AdmVL5dY_cd8OnovDBVZZUkBVzyVh9SnnoumlEr5IUTqKZUIK7ya7z_YmFbJA-XEd_I&_nc_zt=23&_nc_ht=scontent.fceb3-1.fna&_nc_gid=aZFwUY7uXbmujxTFtITPcg&oh=00_AfYbHR1Rq-UdXK3pFpV7KsrrvLWFBsS24G9tn8giGU8vxg&oe=68D69479', 
-                'https://scontent.fceb9-1.fna.fbcdn.net/v/t39.30808-6/300695256_621320363028355_910404220287332843_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeFAf_a1e8sXzgmaaSWeERo_Hazek1R7MWYdrN6TVHsxZiGelmPX-EtOZS8HWzBwAvhWOhUYHjzyeQXuG0MssIJy&_nc_ohc=LNeSMfbTbpMQ7kNvwGqPWcr&_nc_oc=AdkVspznP2s9J-CwhZYkf49xBot3kYCvTMHm0pxSmO2FPvrN_Np9lD5dYfU5ze1Yqu8&_nc_zt=23&_nc_ht=scontent.fceb9-1.fna&_nc_gid=9tYS_4sTY7SyNEdTLT-N9Q&oh=00_AfYsX7ndsfcgBOQkKW_juw3-oqpix3Y2WnVl4YVCkNXtiQ&oe=68D6B644',
-                'https://scontent.fceb3-1.fna.fbcdn.net/v/t1.6435-9/51441804_2258917914139788_8538702684495020032_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeFqAUmCxLfwDjtLiLgKhWDPVd7DJJX6jitV3sMklfqOK0ffGSLscR8uYdT4o5zAefJl-InTyzrMPO1TdU_0NHXE&_nc_ohc=decouDG6yIQQ7kNvwGxGVK2&_nc_oc=Admd1MXakUUwOxuuadSb1NiCZ7MyQLwb-7AM-P3moY_T4XDto20YdFryIEsLpRakpsM&_nc_zt=23&_nc_ht=scontent.fceb3-1.fna&_nc_gid=q1jp_lJUXtPPyF8WDOEr-A&oh=00_AfbFeKwFAyAJvjSClT7ZVfOShMwVY4AFfM79lWOMHg_CXg&oe=68F83323'
-              ]}
-              titles={['Anjo World Cebu', 'Moalboal Beach Invasion', 'Cebu Historical Tour']}
-              subtitles={['Enjoy the first world-class theme park in the Visayas', 
-                'Explore the beauty of Moalboal', 
-                'Discover the rich history of Cebu']}
-              buttonLabels={['View Tour', 'View Tour','View Tour']}
-              buttonLinks={[() => alert('Next'), () => alert('Done'), () => alert('Done')]}
-              darkenImage
-              navigationArrows
-            />
+      if (loading) {
+        return (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
+            <ActivityIndicator size="large" color={accentColor} />
+            <ThemedText style={{ marginTop: 16 }}>Loading tours...</ThemedText>
           </View>
+        );
+      }
 
+      return(
+        <ScrollView>
+          {/* Carousel with top tours */}
+          {tours.length > 0 && (
+            <View style={styles.carouselContainer}>
+              <Carousel
+                images={tours.slice(0, 3).map(tour => tour.images[0] || 'https://via.placeholder.com/400x300')}
+                titles={tours.slice(0, 3).map(tour => tour.name)}
+                subtitles={tours.slice(0, 3).map(tour => tour.description.substring(0, 60) + '...')}
+                buttonLabels={tours.slice(0, 3).map(() => 'View Tour')}
+                buttonLinks={tours.slice(0, 3).map(tour => () => handleTourPress(tour))}
+                darkenImage
+                navigationArrows
+              />
+            </View>
+          )}
+
+          {/* Search Field */}
           <View style={styles.options}>
             <View style={{flex: 1}}>
               <TextField
-              placeholder="Search tours..."
-              value={''}
-              onChangeText={() => {}}
-              onFocus={() => {}}
-              onBlur={() => {}}
-              isFocused={false}
-              autoCapitalize="none"
+                placeholder="Search tours..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                onFocus={() => {}}
+                onBlur={() => {}}
+                isFocused={false}
+                autoCapitalize="none"
               />
             </View>
-          </View>   
-        </>
+          </View>
+
+          {/* Tours List */}
+          {filteredTours.length === 0 ? (
+            <EmptyMessage
+              iconLibrary="MaterialIcons"
+              iconName="explore-off"
+              title={searchQuery ? "No tours found" : "No tours available"}
+              description={searchQuery ? "Try a different search term" : "Check back later for new tours"}
+            />
+          ) : (
+            <View style={styles.toursGrid}>
+              {filteredTours.map((tour) => (
+                <TouchableOpacity
+                  key={tour.tourID}
+                  style={styles.tourCard}
+                  onPress={() => handleTourPress(tour)}
+                >
+                  <Image
+                    source={{ uri: tour.images[0] || 'https://via.placeholder.com/400x300' }}
+                    style={styles.tourImage}
+                    resizeMode="cover"
+                  />
+                  <ThemedView color="primary" style={styles.tourInfo}>
+                    <ThemedText type="defaultSemiBold" numberOfLines={1}>
+                      {tour.name}
+                    </ThemedText>
+                    <ThemedText style={{ opacity: 0.7, fontSize: 12 }} numberOfLines={2}>
+                      {tour.description}
+                    </ThemedText>
+                    
+                    {/* Date and Price Row */}
+                    <View style={styles.tourMeta}>
+                      {tour.itineraryData && (
+                        <View style={styles.metaItem}>
+                          <ThemedIcons library="MaterialIcons" name="calendar-today" size={14} color={textColor} />
+                          <ThemedText style={{ fontSize: 11, marginLeft: 4, opacity: 0.7 }}>
+                            {formatDate(tour.itineraryData.startDate)}
+                          </ThemedText>
+                        </View>
+                      )}
+                      <View style={styles.metaItem}>
+                        <ThemedText style={{ fontSize: 14, fontWeight: '600', color: accentColor }}>
+                          {tour.pricing.currency} {tour.pricing.price}
+                        </ThemedText>
+                      </View>
+                    </View>
+
+                    {/* Capacity */}
+                    <View style={styles.capacityBar}>
+                      <ThemedIcons library="MaterialIcons" name="people" size={14} color={textColor} />
+                      <ThemedText style={{ fontSize: 11, marginLeft: 4, opacity: 0.7 }}>
+                        {(tour.participants?.members?.filter((m: any) => m.isApproved)?.length || 0)}/{tour.participants?.maxCapacity || 0} joined
+                      </ThemedText>
+                    </View>
+                  </ThemedView>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+          <View style={{ height: 20 }} />
+        </ScrollView>
     );}
 
     if(session?.user?.type === 'tourGuide'){
@@ -64,5 +193,39 @@ const styles = StyleSheet.create({
     carouselContainer:{
         width: '100%',
         height: 320,
+    },
+    toursGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        padding: 10,
+        gap: 12,
+    },
+    tourCard: {
+        width: '48%',
+        borderRadius: 12,
+        overflow: 'hidden',
+        marginBottom: 8,
+    },
+    tourImage: {
+        width: '100%',
+        height: 120,
+    },
+    tourInfo: {
+        padding: 12,
+    },
+    tourMeta: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 8,
+    },
+    metaItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    capacityBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 6,
     },
 });

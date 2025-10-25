@@ -5,11 +5,12 @@ import { View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import ThemedIcons from "@/components/ThemedIcons";
 import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import EmptyMessage from '@/components/EmptyMessage';
 import { useSession } from "@/context/SessionContext";
 import { groupsApiService, Group } from "@/services/groupsApiService";
+import { getUserTours, Tour } from "@/services/tourApiService";
 import LoadingContainerAnimation from "@/components/LoadingContainerAnimation";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -23,33 +24,16 @@ export default function GroupsSection({ activeTab ="all" }: {activeTab?: string}
     // State management
     const [searchText, setSearchText] = useState("");
     const [userGroups, setUserGroups] = useState<Group[]>([]);
+    const [userTours, setUserTours] = useState<Tour[]>([]);
     const [groupsLoading, setGroupsLoading] = useState(true);
-    const [lastFetchTime, setLastFetchTime] = useState<number>(0);
-    const [forceRefresh, setForceRefresh] = useState(false);
+    const [toursLoading, setToursLoading] = useState(true);
 
-    // Cache configuration
-    const CACHE_DURATION = 30000; // 30 seconds cache
-
-    // Load user's groups on component mount
-    useEffect(() => {
-        loadUserGroups();
-    }, [session]);
-
-    // Check if data is stale and needs refresh
-    const isDataStale = () => {
-        const now = Date.now();
-        return (now - lastFetchTime) > CACHE_DURATION || forceRefresh;
-    };
-
-    // Listen for focus events to refresh groups when returning from group actions
+    // Refetch groups and tours every time component loads/comes into focus
     useFocusEffect(
         useCallback(() => {
-            // Only refresh if data is stale or force refresh is requested
-            if (isDataStale()) {
-                loadUserGroups();
-                setForceRefresh(false);
-            }
-        }, [lastFetchTime, forceRefresh])
+            loadUserGroups();
+            loadUserTours();
+        }, [session?.accessToken, session?.user?.id])
     );
 
     const loadUserGroups = async () => {
@@ -65,7 +49,6 @@ export default function GroupsSection({ activeTab ="all" }: {activeTab?: string}
             const groups = await groupsApiService.getGroups(session.accessToken, session.user.id);
             console.log('✅ Groups loaded:', groups.length, groups);
             setUserGroups(groups);
-            setLastFetchTime(Date.now()); // Update cache timestamp
         } catch (error) {
             console.error('❌ Error loading groups:', error);
             Alert.alert('Error', 'Failed to load groups');
@@ -74,8 +57,61 @@ export default function GroupsSection({ activeTab ="all" }: {activeTab?: string}
         }
     };
 
+    const loadUserTours = async () => {
+        if (!session?.accessToken || !session?.user?.id) {
+            console.log('❌ No session or user ID available for loading tours');
+            setToursLoading(false);
+            return;
+        }
+
+        try {
+            setToursLoading(true);
+            console.log('🔍 Loading tours for user:', session.user.id);
+            const tours = await getUserTours(session.user.id, session.accessToken);
+            console.log('✅ Tours loaded:', tours.length, tours);
+            setUserTours(tours);
+        } catch (error) {
+            console.error('❌ Error loading tours:', error);
+            Alert.alert('Error', 'Failed to load tours');
+        } finally {
+            setToursLoading(false);
+        }
+    };
+
     const filteredGroups = userGroups.filter(group => 
         group.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    const filteredTours = userTours.filter(tour => 
+        tour.name.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    const filteredItems = selectedTab === 'groups' ? filteredGroups : 
+                          selectedTab === 'tours' ? filteredTours : 
+                          [...filteredGroups, ...filteredTours];
+
+    const renderTourItem = ({ item }: { item: Tour }) => (
+        <ThemedView color='primary' shadow style={styles.groupContainer}>
+            <TouchableOpacity 
+                onPress={() => router.push({
+                    pathname: '/tours/tours-view',
+                    params: { tourData: JSON.stringify(item) }
+                })}
+            >
+                <View style={styles.groupHeader}>
+                    <ThemedText type="defaultSemiBold">{item.name}</ThemedText>
+                    <View style={styles.memberCount}>
+                        <ThemedIcons library='MaterialIcons' name='tour' size={16} />
+                        <ThemedText style={{ fontSize: 12, marginLeft: 4 }}>
+                            {(item.participants?.members?.filter((m: any) => m.isApproved)?.length || 0)}
+                        </ThemedText>
+                    </View>
+                </View>
+                <ThemedText style={{ fontSize: 12, opacity: 0.7 }}>
+                    {item.description.substring(0, 50)}{item.description.length > 50 ? '...' : ''}
+                </ThemedText>
+            </TouchableOpacity>
+        </ThemedView>
     );
 
     const renderGroupItem = ({ item }: { item: Group }) => (
@@ -172,7 +208,7 @@ export default function GroupsSection({ activeTab ="all" }: {activeTab?: string}
         </View>
 
             <View style={{flex: 1}}>
-                {groupsLoading ? (
+                {(groupsLoading || toursLoading) ? (
                     <ThemedView color='primary' shadow style={styles.groupContainer}>
                         <View style={styles.groupHeader}>
                             <View style={styles.cardTitleLoading}><LoadingContainerAnimation/></View>
@@ -180,26 +216,46 @@ export default function GroupsSection({ activeTab ="all" }: {activeTab?: string}
                         </View>
                         <View style={styles.cardInviteCodeLoading}><LoadingContainerAnimation/></View>
                     </ThemedView>
-                ) : filteredGroups.length > 0 ? (
+                ) : filteredItems.length > 0 ? (
                     <View>
-                        
-                        {filteredGroups.map((item) => (
+                        {selectedTab === 'groups' && filteredGroups.map((item) => (
                             <View key={item.id || ''}>
                                 {renderGroupItem({ item })}
                             </View>
                         ))}
+                        {selectedTab === 'tours' && filteredTours.map((item) => (
+                            <View key={item.tourID || ''}>
+                                {renderTourItem({ item })}
+                            </View>
+                        ))}
+                        {selectedTab === 'all' && (
+                            <>
+                                {filteredGroups.map((item) => (
+                                    <View key={`group-${item.id}`}>
+                                        {renderGroupItem({ item })}
+                                    </View>
+                                ))}
+                                {filteredTours.map((item) => (
+                                    <View key={`tour-${item.tourID}`}>
+                                        {renderTourItem({ item })}
+                                    </View>
+                                ))}
+                            </>
+                        )}
                     </View>
                 ) : (
                     <>
                         { searchText ? (
-                            <EmptyMessage iconLibrary='MaterialIcons' iconName='groups'
-                            title='No groups match your search'
+                            <EmptyMessage iconLibrary='MaterialIcons' 
+                            iconName={selectedTab === 'tours' ? 'tour' : 'groups'}
+                            title={`No ${selectedTab === 'tours' ? 'tours' : selectedTab === 'groups' ? 'groups' : 'items'} match your search`}
                             description="Try other keywords"
                             />
                         ):(
-                            <EmptyMessage iconLibrary='MaterialIcons' iconName='groups'
-                            title='No groups found'
-                            description="You haven't joined any groups yet"
+                            <EmptyMessage iconLibrary='MaterialIcons' 
+                            iconName={selectedTab === 'tours' ? 'tour' : 'groups'}
+                            title={`No ${selectedTab === 'tours' ? 'tours' : selectedTab === 'groups' ? 'groups' : 'groups or tours'} found`}
+                            description={`You haven't joined any ${selectedTab === 'tours' ? 'tours' : selectedTab === 'groups' ? 'groups' : 'groups or tours'} yet`}
                             />
                         )}
                     </>

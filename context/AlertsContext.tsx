@@ -78,6 +78,43 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
     setLocalAlerts([]);
   }, []);
 
+  // Cleanup expired alerts periodically
+  useEffect(() => {
+    const cleanupExpiredAlerts = () => {
+      const now = new Date();
+      
+      // Clean up global alerts
+      setGlobalAlerts((prev) => 
+        prev.filter((alert) => {
+          if (alert.endOn) {
+            const endDate = alert.endOn instanceof Date ? alert.endOn : new Date(alert.endOn);
+            return endDate >= now;
+          }
+          return true;
+        })
+      );
+
+      // Clean up local alerts
+      setLocalAlerts((prev) => 
+        prev.filter((alert) => {
+          if (alert.endOn) {
+            const endDate = alert.endOn instanceof Date ? alert.endOn : new Date(alert.endOn);
+            return endDate >= now;
+          }
+          return true;
+        })
+      );
+    };
+
+    // Run cleanup immediately on mount
+    cleanupExpiredAlerts();
+
+    // Run cleanup every 5 minutes
+    const interval = setInterval(cleanupExpiredAlerts, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const isMountedRef = useRef(true);
   const isFetchingRef = useRef(false);
 
@@ -121,12 +158,22 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
         const fetched = await getAlerts(locData, userType);
         if (!isMountedRef.current) return;
 
-        const normalized = (fetched ?? []).map((a) => ({
-          ...a,
-          target: a.target || 'everyone' as const,
-          source: 'global' as const,
-          state: 'unread' as const,
-        }));
+        const now = new Date();
+        const normalized = (fetched ?? [])
+          .filter((a) => {
+            // Exclude alerts where endOn date has already passed
+            if (a.endOn) {
+              const endDate = a.endOn instanceof Date ? a.endOn : new Date(a.endOn);
+              return endDate >= now;
+            }
+            return true; // Keep alerts without endOn date
+          })
+          .map((a) => ({
+            ...a,
+            target: a.target || 'everyone' as const,
+            source: 'global' as const,
+            state: 'unread' as const,
+          }));
         setGlobalAlerts(normalized);
         setLastFetchedAt(new Date());
         setError(null);
@@ -197,6 +244,16 @@ export function AlertsProvider({ children }: { children: ReactNode }) {
   const addLocalAlert = useCallback<
     AlertsContextProps['addLocalAlert']
   >((alert) => {
+    // Don't add alerts where endOn date has already passed
+    if (alert.endOn) {
+      const endDate = alert.endOn instanceof Date ? alert.endOn : new Date(alert.endOn);
+      const now = new Date();
+      if (endDate < now) {
+        console.log('⚠️ Skipping expired alert:', alert.title);
+        return ''; // Return empty string for expired alerts
+      }
+    }
+
     const id = alert.id ?? `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const normalized: AlertItem = {
       ...alert,
